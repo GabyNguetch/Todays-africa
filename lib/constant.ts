@@ -48,7 +48,14 @@ export const LOGIN_TEXT = {
 };
 
 export const HOME_DATA = {
-  navLinks: ["Cameroun", "Gabon", "Congo", "R.D. Congo", "Tchad", "R. Centrafricaine"],
+   // Correction ici : Tableau d'objets pour les liens, et non de strings simples
+  navLinks: [
+    { label: "Gouvernance", slug: "gouvernance" },
+    { label: "Économie", slug: "economie" },
+    { label: "Politique", slug: "politique" },
+    { label: "Développement", slug: "developpement" },
+    { label: "Technologie", slug: "technologie" }
+  ],
   hero: {
     titlePrefix: "Les Histoires les Plus Importantes qui Façonnent l'Afrique en",
     year: "2025",
