@@ -1,215 +1,217 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
-  LayoutDashboard, 
-  PenSquare, 
-  FileText, 
-  Settings as SettingsIcon, 
-  LogOut, 
-  Globe,
-  Search,
-  Bell,
-  Menu,
-  X
+  LayoutDashboard, PenSquare, FileText, Settings as SettingsIcon, 
+  LogOut, Users, UserPlus, Globe
 } from "lucide-react";
 import { authService, User } from "@/services/auth";
 import { APP_CONFIG } from "@/lib/constant";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
-// Imports des composants Onglets
+// Composants (Restent identiques)
 import Overview from "@/components/dashboard/Overview";
 import NewArticle from "@/components/dashboard/NewArticle";
-import MyArticles from "@/components/dashboard/MyArticles";
+import MyArticles from "@/components/dashboard/MyArticles"; 
+import AdminArticles from "@/components/dashboard/AdminArticles"; 
 import Settings from "@/components/dashboard/Settings";
+import CreateRedacteur from "@/components/dashboard/CreateRedacteur";
+import AdminRedacteurs from "@/components/dashboard/AdminRedacteur";
 
-// Définition des types d'onglets
-type TabType = "overview" | "new-article" | "my-articles" | "settings";
+type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  
-  // Etat principal pour gérer l'onglet actif (SPA style)
   const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const { user, isAuthenticated, isLoading } = useAuth();
   
-  // Etat pour le menu mobile
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Gestion d'État Edition
+  const [editingId, setEditingId] = useState<number | null>(null);
 
+ // Protection Route
   useEffect(() => {
-    // Vérification authentification
-    if (!authService.isAuthenticated()) {
+    // Si chargement fini et pas authentifié -> Login
+    if (!isLoading && !isAuthenticated) {
+      console.log("⛔ [Dashboard] Accès refusé -> Redirection Login");
       router.push("/login");
-      return;
     }
-    setUser(authService.getUser());
-  }, [router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  const handleLogout = () => {
-    authService.logout();
+  // Loader d'attente (évite d'afficher "Access Denied" pdt le check du localStorage)
+  if (isLoading) {
+      return <div className="flex h-screen items-center justify-center dark:bg-black"><span className="text-[#3E7B52] font-bold">Chargement session...</span></div>;
+  }
+
+
+  const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+
+  // --- HANDLERS CLÉS POUR L'ÉDITION ---
+  const handleEditRequest = (id: number) => {
+      console.log(`✏️ Opening Editor for ID: ${id}`);
+      setEditingId(id);
+      setActiveTab("new-article");
   };
 
-  // Liste des items de navigation
-  const navItems = [
-    { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard },
-    { id: "new-article", label: "Nouvel article", icon: PenSquare },
-    { id: "my-articles", label: "Mes articles", icon: FileText },
-    { id: "settings", label: "Paramètres", icon: SettingsIcon },
-  ];
+  const handleEditorClose = () => {
+      // Retour à la liste après sauvegarde ou annulation
+      setEditingId(null);
+      // Redirection selon le rôle
+      setActiveTab("articles"); 
+  };
 
-  if (!user) return null; // ou un loader
-
-  // Fonction pour rendre le composant actif
   const renderContent = () => {
     switch (activeTab) {
         case "overview": return <Overview />;
-        case "new-article": return <NewArticle onSuccess={() => setActiveTab('my-articles')} />;
-        case "my-articles": return <MyArticles />;
+        case "new-article": return <NewArticle editArticleId={editingId} onSuccess={handleEditorClose} onCancel={handleEditorClose}/>;
+        case "articles": return isAdmin ? <AdminArticles /> : <MyArticles onEdit={handleEditRequest} />;
+        case "manage-redacteurs": return <AdminRedacteurs />;
+        case "create-redacteur": return <CreateRedacteur />; // Fallback si modal pas utilisé directement
         case "settings": return <Settings />;
         default: return <Overview />;
     }
   };
 
+  // --- MENU CONFIG ---
+  const getMenuItems = () => {
+      const base = [
+          { id: "overview", label: "Vue d'ensemble", icon: LayoutDashboard },
+          { id: "new-article", label: "Rédiger", icon: PenSquare },
+      ];
+      
+      const adminItems = [
+          { id: "articles", label: "Articles", icon: FileText },
+          { id: "manage-redacteurs", label: "Équipe", icon: Users },
+      ];
+      
+      const redacteurItems = [
+          { id: "articles", label: "Mes Articles", icon: FileText },
+      ];
+
+      const footerItems = [
+          { id: "settings", label: "Paramètres", icon: SettingsIcon }
+      ];
+
+      return [ ...base, ...(isAdmin ? adminItems : redacteurItems), ...footerItems ];
+  };
+
+  const menuItems = getMenuItems();
+
+  if (!user) return null; // ou Loading...
+
   return (
     <div className="flex h-screen bg-[#FBFBFB] dark:bg-black font-sans overflow-hidden">
       
-      {/* --- SIDEBAR (Desktop) --- */}
-      <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex-col justify-between hidden lg:flex transition-all">
+      {/* ============================================================ */}
+      {/* 1. SIDEBAR DESKTOP (lg:flex)                                 */}
+      {/* ============================================================ */}
+      <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-gray-100 shadow-sm dark:border-zinc-800 flex-col hidden lg:flex shrink-0">
         
-        {/* Logo */}
+        {/* LOGO */}
         <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-zinc-800">
-           <Link href="/" className="flex items-center gap-2 font-extrabold text-lg tracking-wider text-black dark:text-white uppercase">
-            <div className="bg-[#3E7B52] text-white p-1 rounded-sm">
-              <Globe size={16} strokeWidth={3} />
-            </div>
-            {APP_CONFIG.name}
-          </Link>
+            <span className="font-extrabold uppercase tracking-wider text-lg flex items-center gap-2 text-gray-900 dark:text-white">
+               <Globe className="bg-[#3E7B52] text-white w-8 h-8 p-1.5 rounded-lg shadow-sm shadow-green-900/20"/> 
+               {APP_CONFIG.name}
+            </span>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id as TabType)}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-left",
-                activeTab === item.id 
-                  ? "bg-[#3E7B52]/10 text-[#3E7B52] dark:bg-[#13EC13]/10 dark:text-[#13EC13]" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-              )}
+        {/* NAVIGATION LINKS */}
+        <div className="flex-1 py-6 space-y-1 px-3 overflow-y-auto">
+            {menuItems.map((item) => (
+                <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id as TabType); setEditingId(null); }}
+                    className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all group relative",
+                        activeTab === item.id 
+                            ? "bg-[#3E7B52]/10 text-[#3E7B52] dark:bg-[#13EC13]/10 dark:text-[#13EC13] shadow-sm" 
+                            : "text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800/50 dark:text-zinc-400"
+                    )}
+                >
+                    {/* Indicateur Actif Vertical */}
+                    {activeTab === item.id && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#3E7B52] dark:bg-[#13EC13] rounded-r-full"/>
+                    )}
+                    <item.icon size={18} className={activeTab === item.id ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-zinc-300 transition-colors"}/> 
+                    {item.label}
+                </button>
+            ))}
+        </div>
+        
+        {/* USER PROFILE CARD */}
+        <div className="p-4 mt-auto">
+             <div className="p-3 bg-gray-50 dark:bg-zinc-950/50 border border-gray-100 dark:border-zinc-800 rounded-xl mb-2 flex items-center gap-3 shadow-sm">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#3E7B52] to-green-400 flex items-center justify-center text-white font-black shadow-md text-xs">
+                    {user.nom?.substring(0, 2).toUpperCase()}
+                </div>
+                <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[120px]">{user.prenom}</p>
+                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{user.role}</p>
+                </div>
+            </div>
+
+            <button 
+                onClick={() => authService.logout()} 
+                className="w-full flex items-center justify-center gap-2 text-[10px] font-bold uppercase text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100"
             >
-              <item.icon size={20} />
-              {item.label}
+                <LogOut size={14}/> Déconnexion
             </button>
-          ))}
-        </div>
-
-        {/* User Footer */}
-        <div className="p-4 border-t border-gray-100 dark:border-zinc-800">
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-zinc-800 mb-3">
-            <div className="w-8 h-8 rounded-full bg-[#3E7B52] text-white flex items-center justify-center font-bold text-xs uppercase">
-              {user.name.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate uppercase tracking-wider">{user.role}</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-2 text-xs font-medium text-red-500 hover:text-red-700 transition-colors"
-          >
-            <LogOut size={16} />
-            Déconnexion
-          </button>
         </div>
       </aside>
 
-      {/* --- SIDEBAR MOBILE (Overlay) --- */}
-      {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
-             <aside 
-                className="w-64 bg-white dark:bg-zinc-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-300"
-                onClick={(e) => e.stopPropagation()}
-             >
-                <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100 dark:border-zinc-800">
-                    <span className="font-bold dark:text-white">{APP_CONFIG.name}</span>
-                    <button onClick={() => setMobileMenuOpen(false)}><X size={24} className="text-gray-500"/></button>
-                </div>
-                <div className="p-4 space-y-1">
-                    {navItems.map((item) => (
-                        <button
-                        key={item.id}
-                        onClick={() => { setActiveTab(item.id as TabType); setMobileMenuOpen(false); }}
-                        className={cn(
-                            "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-left",
-                            activeTab === item.id 
-                            ? "bg-green-50 text-[#3E7B52] dark:bg-green-900/20 dark:text-[#13EC13]" 
-                            : "text-gray-500 dark:text-gray-400"
-                        )}
-                        >
-                        <item.icon size={20} />
-                        {item.label}
-                        </button>
-                    ))}
-                    <div className="border-t border-gray-100 dark:border-zinc-800 my-2 pt-2">
-                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500">
-                            <LogOut size={20} /> Déconnexion
-                        </button>
-                    </div>
-                </div>
-             </aside>
-          </div>
-      )}
 
-
-      {/* --- MAIN CONTENT --- */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      {/* ============================================================ */}
+      {/* 2. BOTTOM NAVIGATION MOBILE (visible only small screens)     */}
+      {/* ============================================================ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 flex lg:hidden items-center justify-around h-16 pb-safe safe-area-inset-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         
-        {/* HEADER */}
-        <header className="h-16 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between px-4 md:px-8 shrink-0">
-            <div className="flex items-center gap-4">
-                <button 
-                    onClick={() => setMobileMenuOpen(true)}
-                    className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-md dark:text-white dark:hover:bg-zinc-800"
-                >
-                    <Menu size={24} />
-                </button>
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">
-                   Espace Rédacteur / <span className="text-gray-900 dark:text-white font-bold">{navItems.find(i => i.id === activeTab)?.label}</span>
-                </div>
+        {/* On limite à 4-5 items max pour mobile, sinon ça déborde */}
+        {menuItems.slice(0, 5).map((item) => (
+            <button
+                key={item.id}
+                onClick={() => { setActiveTab(item.id as TabType); setEditingId(null); }}
+                className={cn(
+                    "flex flex-col items-center justify-center gap-1 w-full h-full relative transition-colors",
+                    activeTab === item.id 
+                        ? "text-[#3E7B52] dark:text-[#13EC13]" 
+                        : "text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+                )}
+            >
+                {activeTab === item.id && (
+                     <span className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-[#3E7B52] dark:bg-[#13EC13] rounded-b-full shadow-[0_2px_8px_rgba(62,123,82,0.4)]"/>
+                )}
+                <item.icon size={22} strokeWidth={activeTab === item.id ? 2.5 : 2} className="mt-1"/>
+                <span className="text-[9px] font-bold uppercase tracking-tight truncate max-w-[60px]">{item.label}</span>
+            </button>
+        ))}
+        
+        {/* Bouton More / Menu si besoin (Optionnel) */}
+      </nav>
+
+
+      {/* ============================================================ */}
+      {/* 3. MAIN CONTENT AREA (Padding bas pour la bottom nav)        */}
+      {/* ============================================================ */}
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+         {/* HEADER MOBILE (LOGO + LOGOUT) */}
+         <header className="lg:hidden h-14 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between px-4 shrink-0">
+             <div className="flex items-center gap-2 font-black text-gray-900 dark:text-white uppercase tracking-wider text-sm">
+                <Globe className="text-[#3E7B52] w-5 h-5"/> {APP_CONFIG.name}
+             </div>
+             <button onClick={() => authService.logout()} className="p-2 text-gray-400 hover:text-red-500">
+                <LogOut size={18}/>
+             </button>
+         </header>
+
+         {/* Contenu Scrollable (pb-20 important pour ne pas cacher sous la navbar mobile) */}
+         <main className="flex-1 overflow-auto p-4 md:p-8 scroll-smooth pb-24 lg:pb-8 bg-[#FBFBFB] dark:bg-black">
+            <div className="max-w-7xl mx-auto h-full">
+                {renderContent()}
             </div>
-
-            <div className="flex items-center gap-3 md:gap-6">
-                <div className="relative hidden md:block">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input 
-                      type="text" 
-                      placeholder="Rechercher..." 
-                      className="h-9 pl-9 pr-4 text-xs bg-gray-100 dark:bg-zinc-800 border-none rounded-full w-48 lg:w-64 focus:outline-none focus:ring-1 focus:ring-[#3E7B52] dark:text-white dark:placeholder:text-gray-500"
-                    />
-                </div>
-                <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full dark:text-gray-400 dark:hover:bg-zinc-800 dark:hover:text-white transition">
-                    <Bell size={20} />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900"></span>
-                </button>
-                <div className="w-8 h-8 rounded-full bg-[#3E7B52] flex items-center justify-center text-white text-xs font-bold lg:hidden">
-                    {user.name.charAt(0)}
-                </div>
-            </div>
-        </header>
-
-        {/* CONTENT SCROLLABLE AREA */}
-        <main className="flex-1 overflow-auto bg-[#FBFBFB] dark:bg-black p-4 md:p-8 lg:p-10 scroll-smooth">
-          <div className="max-w-6xl mx-auto w-full h-full">
-            {renderContent()}
-          </div>
-        </main>
-
+         </main>
       </div>
+
     </div>
   );
 }

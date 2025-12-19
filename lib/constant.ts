@@ -14,7 +14,11 @@ import {
 export const APP_CONFIG = {
   name: "TODAY'S AFRICA",
   year: 2025,
+  // MODIFICATION ICI : On pointe vers le proxy local défini dans next.config.ts
+  // Le navigateur verra une requête vers http://localhost:3000/api/proxy
+  apiUrl: "/api/proxy", 
 };
+// ... le reste du fichier
 
 export const COLORS = {
   primaryLight: "#13EC13",

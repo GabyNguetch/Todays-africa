@@ -1,27 +1,36 @@
-// FICHIER: components/ui/ArticleCard.tsx
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Article } from "@/lib/constant"; // Import de l'interface Article
+import { ArticleReadDto } from "@/services/article";
+import { Clock, User } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface ArticleCardProps {
-  article: Article;
+  article: ArticleReadDto;
   className?: string;
-  imageHeight?: string; // Optionnel : pour ajuster la hauteur de l'image (ex: h-48)
+  imageHeight?: string; 
 }
 
 export default function ArticleCard({ article, className, imageHeight = "h-48" }: ArticleCardProps) {
   
-  // Fonction utilitaire locale pour mapper les catégories aux couleurs (similaire à page.tsx précédent)
-  const getCategoryColor = (categorySlug: string) => {
-    switch (categorySlug) {
-      case "economie": return "text-green-600";
-      case "politique": return "text-blue-600";
-      case "technologie": return "text-purple-600";
-      case "developpement": return "text-emerald-600";
-      default: return "text-orange-600";
-    }
+  // --- 1. SÉCURISATION MAXIMALE DE LA RÉCUPÉRATION D'IMAGE ---
+  const getCoverImage = () => {
+    // A. Si l'image de couverture explicite existe, on la prend
+    if (article.imageCouvertureUrl) return article.imageCouvertureUrl;
+
+    // B. Sinon on cherche la première image dans les blocs de contenu
+    // 🔥 CORRECTIF ICI : on vérifie que blocsContenu existe bien (Array.isArray) avant le find
+    const blocs = Array.isArray(article.blocsContenu) ? article.blocsContenu : [];
+    
+    const firstImg = blocs.find(b => b.type === 'IMAGE');
+    if (firstImg) return firstImg.contenu || firstImg.url || "";
+
+    // C. Fallback par défaut si aucune image trouvée
+    return "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800";
   };
 
   return (
@@ -34,36 +43,42 @@ export default function ArticleCard({ article, className, imageHeight = "h-48" }
     >
       <div className={cn("relative w-full bg-gray-200 dark:bg-zinc-800 overflow-hidden", imageHeight)}>
         <Image 
-          src={article.image} 
-          alt={article.title}
+          src={getCoverImage()} 
+          alt={article.titre || "Article sans titre"}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
+          // Utilise le mode non-optimisé si c'est une image externe ou malformée
+          unoptimized={true}
         />
       </div>
       
       <div className="p-5 flex flex-col flex-1 gap-3">
-        <span className={cn(
-          "text-[10px] font-bold uppercase tracking-wider dark:text-[#13EC13]",
-          getCategoryColor(article.categorySlug)
-        )}>
-          {article.category}
+        {/* Catégorie */}
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#3E7B52] dark:text-[#13EC13] bg-green-50 dark:bg-[#13EC13]/10 w-fit px-2 py-0.5 rounded">
+          {article.rubriqueNom || "Actualité"}
         </span>
         
+        {/* Titre */}
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight line-clamp-3 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors">
-          {article.title}
+          {article.titre}
         </h3>
         
-        {/* On masque le résumé sur les très petites cartes si besoin, sinon on l'affiche */}
+        {/* Résumé */}
         <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-2 leading-relaxed flex-1">
-          {article.summary}
+          {article.description || "Cliquez pour lire la suite de cet article..."}
         </p>
         
-        <div className="pt-3 mt-auto border-t border-gray-50 dark:border-zinc-800 flex items-center justify-between">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase truncate max-w-[60%]">
-            {article.author}
+        {/* Footer Card */}
+        <div className="pt-3 mt-auto border-t border-gray-50 dark:border-zinc-800 flex items-center justify-between text-gray-400">
+          <span className="text-[10px] font-semibold uppercase flex items-center gap-1">
+            <User size={12}/>
+            <span className="truncate max-w-[80px]">{article.auteurNom || "Rédaction"}</span>
           </span>
-          <span className="text-[10px] text-gray-400">
-            {article.date}
+          <span className="text-[10px] flex items-center gap-1">
+            <Clock size={12} />
+            {article.datePublication 
+                ? format(new Date(article.datePublication), 'dd MMM yyyy', { locale: fr })
+                : "Récemment"}
           </span>
         </div>
       </div>

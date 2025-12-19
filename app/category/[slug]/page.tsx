@@ -1,121 +1,174 @@
 "use client";
 
-import React, { use } from "react";
-import Image from "next/image";
+import React, { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, Grid, List } from "lucide-react";
-import { ARTICLES_DATA, CATEGORY_MAP, APP_CONFIG } from "@/lib/constant";
+import { RefreshCw, FolderOpen, ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { cn } from "@/lib/utils";
+import ArticleCard from "@/components/ui/ArticleCard";
+import { PublicService } from "@/services/public";
+import { ArticleReadDto, Rubrique } from "@/services/article";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// --- SQUELETTE DE CHARGEMENT ---
+const CategorySkeleton = () => (
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl overflow-hidden p-4 space-y-4 animate-pulse">
+        {/* Image Fake */}
+        <div className="h-48 w-full bg-gray-200 dark:bg-zinc-800 rounded-lg"></div>
+        {/* Contenu Fake */}
+        <div className="space-y-3">
+            <div className="h-4 w-1/4 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+            <div className="h-6 w-full bg-gray-200 dark:bg-zinc-800 rounded"></div>
+            <div className="h-6 w-2/3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+        </div>
+        {/* Footer Card Fake */}
+        <div className="pt-2 border-t border-gray-100 dark:border-zinc-800 mt-auto">
+            <div className="h-3 w-1/3 bg-gray-100 dark:bg-zinc-800 rounded"></div>
+        </div>
+    </div>
+);
+
 export default function CategoryPage({ params }: PageProps) {
-  // Déballage des params avec React.use (Pattern Next.js 15/16)
   const { slug } = use(params);
 
-  // Vérification et récupération des infos de la catégorie
-  const categoryKey = Object.keys(CATEGORY_MAP).find(k => k === slug) as keyof typeof CATEGORY_MAP;
-  
-  if (!categoryKey) {
-    return notFound();
+  // États
+  const [currentRubrique, setCurrentRubrique] = useState<Rubrique | null>(null);
+  const [articles, setArticles] = useState<ArticleReadDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        // --- LOG DEBUT ---
+        console.group(`🔍 [CATEGORY PAGE] Recherche Rubrique : "${slug}"`);
+        setLoading(true);
+
+        try {
+            // 1. Charger la liste des rubriques
+            const allRubriques = await PublicService.getRubriques();
+            console.log("📥 Rubriques reçues du backend :", allRubriques);
+
+            // Décoder le slug (ex: 'economie' ou '12' ou 'Politique%20Africaine')
+            const decodedSlug = decodeURIComponent(slug).toLowerCase().trim();
+
+            // 2. Recherche ROBUSTE (Sans crash sur les valeurs nulles)
+            const matched = allRubriques.find(r => {
+                // Protection contre les valeurs nulles (si r.nom est null, on utilise "")
+                const rId = String(r.id);
+                const rSlug = r.slug?.toLowerCase() || ""; 
+                const rNom = r.nom?.toLowerCase() || "";
+
+                return (
+                    rId === decodedSlug || 
+                    rSlug === decodedSlug || 
+                    rNom === decodedSlug
+                );
+            });
+
+            if (!matched) {
+                console.warn("⚠️ Aucune rubrique trouvée pour ce slug/id.");
+                console.log("Liste dispo:", allRubriques.map(r => `${r.id} - ${r.nom}`));
+                setLoading(false);
+                return; // Restera null -> notFound()
+            }
+
+            console.log("✅ Rubrique identifiée :", matched.nom, `(ID: ${matched.id})`);
+            setCurrentRubrique(matched);
+
+            // 3. Charger les articles
+            console.log(`📡 Fetching articles pour ID: ${matched.id}`);
+            const arts = await PublicService.getArticlesByRubrique(matched.id);
+            console.log(`📦 ${arts.length} Articles reçus`);
+            
+            setArticles(arts);
+
+        } catch(error) {
+            console.error("❌ CRASH Fetch :", error);
+        } finally {
+            setLoading(false);
+            console.groupEnd();
+        }
+    };
+
+    fetchData();
+  }, [slug]);
+
+  // Si on a fini de charger et qu'il n'y a rien : 404
+  if (!loading && !currentRubrique) {
+      return notFound();
   }
 
-  const categoryInfo = CATEGORY_MAP[categoryKey];
-  const articles = ARTICLES_DATA.filter(article => article.categorySlug === slug);
-
   return (
-    <div className="min-h-screen bg-[#FBFBFB] dark:bg-black font-sans">
+    <div className="min-h-screen bg-[#FBFBFB] dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-8 md:py-12">
+      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 flex-1">
         
-        {/* HEADER CATEGORIE */}
-        <div className="mb-10">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-[#111] dark:text-white tracking-tight mb-2">
-                {categoryInfo.label}
-            </h1>
-            <p className="text-gray-500 dark:text-zinc-400 text-sm">
-                Informations vérifiées sur {categoryInfo.label.toLowerCase()} africaine.
-            </p>
+        {/* --- 1. HEADER (NOM CATÉGORIE) --- */}
+        <div className="mb-12 border-b border-gray-200 dark:border-zinc-800 pb-8">
+            {loading ? (
+                // SQUELETTE DU HEADER
+                <div className="space-y-4 animate-pulse">
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                    <div className="h-14 w-1/2 bg-gray-200 dark:bg-zinc-800 rounded-lg"></div>
+                    <div className="h-6 w-3/4 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                </div>
+            ) : (
+                <>
+                    {/* FIL D'ARIANE */}
+                    <div className="flex items-center gap-2 mb-4 text-[10px] font-bold uppercase tracking-widest text-[#3E7B52] dark:text-[#13EC13]">
+                        <FolderOpen size={14}/>
+                        <span>Rubrique</span>
+                        <span className="text-gray-300">/</span>
+                        <span>{currentRubrique?.nom}</span>
+                    </div>
+
+                    {/* TITRE & DESCRIPTION */}
+                    <h1 className="text-4xl md:text-6xl font-extrabold text-[#111] dark:text-white tracking-tight mb-4 uppercase leading-[1.1]">
+                        {currentRubrique?.nom}
+                    </h1>
+                    <p className="text-gray-500 dark:text-zinc-400 text-lg max-w-2xl leading-relaxed">
+                        {currentRubrique?.description || `Toute l'actualité et les dossiers spéciaux concernant la rubrique ${currentRubrique?.nom}.`}
+                    </p>
+                </>
+            )}
         </div>
 
-        {/* TOOLBAR (Filtres fictifs) */}
-        <div className="flex items-center justify-between py-4 border-y border-gray-100 dark:border-zinc-800 mb-8">
-            <div className="flex gap-2">
-               <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-zinc-900 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-zinc-800 transition">
-                  Trier par : Popularité <span className="ml-1">↓</span>
-               </button>
-               <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-zinc-900 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-zinc-800 transition">
-                  Date de publication <span className="ml-1">↓</span>
-               </button>
-            </div>
-            <div className="flex items-center gap-3 text-gray-400">
-               <Calendar size={18} className="cursor-pointer hover:text-gray-600 dark:hover:text-white" />
-               <Grid size={18} className="cursor-pointer text-gray-900 dark:text-white" /> {/* Vue Active */}
-               <List size={18} className="cursor-pointer hover:text-gray-600 dark:hover:text-white" />
-            </div>
-        </div>
-
-        {/* GRID D'ARTICLES */}
-        {articles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
-            {articles.map((article) => (
-                <Link key={article.id} href={`/articles/${article.id}`} className="group flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg dark:hover:border-zinc-700 transition-all duration-300">
-                    <div className="relative w-full h-52 bg-gray-200 dark:bg-zinc-800 overflow-hidden">
-                        <Image 
-                            src={article.image}
-                            alt={article.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                    </div>
-                    <div className="p-5 flex flex-col flex-1 gap-3">
-                        <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-wider",
-                            // Couleur dynamique en fonction de la catégorie (simulation)
-                            article.category === "Économie" ? "text-green-600" :
-                            article.category === "Politique" ? "text-blue-600" :
-                            article.category === "Technologie" ? "text-purple-600" : "text-orange-600",
-                            "dark:text-[#13EC13]" 
-                        )}>
-                            {article.category}
-                        </span>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50 leading-tight line-clamp-3 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors">
-                            {article.title}
-                        </h2>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 line-clamp-3 leading-relaxed flex-1">
-                            {article.summary}
-                        </p>
-                        <div className="pt-4 mt-auto border-t border-gray-50 dark:border-zinc-800 flex items-center justify-between">
-                            <span className="text-[10px] font-semibold text-gray-400 uppercase">{article.author}</span>
-                            <span className="text-[10px] text-gray-400">{article.date}</span>
-                        </div>
-                    </div>
-                </Link>
-            ))}
+        {/* --- 2. CONTENU DES ARTICLES --- */}
+        {loading ? (
+            // GRILLE SQUELETTES (6 items)
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+                {[1,2,3,4,5,6].map(i => <CategorySkeleton key={i} />)}
             </div>
         ) : (
-            <div className="text-center py-20">
-                <p className="text-gray-500 dark:text-gray-400">Aucun article disponible pour cette catégorie pour le moment.</p>
-            </div>
+            // CONTENU RÉEL OU MESSAGE VIDE
+            articles.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    {articles.map((article) => (
+                        <ArticleCard key={article.id} article={article} />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-zinc-900 border border-dashed border-gray-300 dark:border-zinc-800 rounded-3xl text-center px-4">
+                    <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-full mb-4 text-gray-400 dark:text-gray-500">
+                        <RefreshCw size={32} />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        Aucun article pour le moment
+                    </h3>
+                    <p className="text-gray-500 text-sm max-w-sm">
+                        La rédaction n'a pas encore publié d'article dans la rubrique <strong>{currentRubrique?.nom}</strong>.
+                    </p>
+                    <Link href="/" className="mt-6 flex items-center gap-2 text-sm font-bold text-[#3E7B52] border border-[#3E7B52] dark:border-[#13EC13] dark:text-[#13EC13] px-6 py-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors">
+                        <ArrowLeft size={16}/>
+                        Retour à l'accueil
+                    </Link>
+                </div>
+            )
         )}
-
-        {/* PAGINATION SIMPLIFIÉE */}
-        <div className="mt-16 flex justify-center items-center gap-2">
-            <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><span className="text-xs">&lt;</span></button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-900 dark:text-white font-bold text-sm">1</button>
-            <button className="w-8 h-8 flex items-center justify-center bg-[#13EC13]/10 text-[#3E7B52] dark:text-[#13EC13] font-bold rounded-md text-sm">2</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 text-sm">3</button>
-            <span className="text-gray-400 text-xs">...</span>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 text-sm">10</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><span className="text-xs">&gt;</span></button>
-        </div>
-
       </main>
       <Footer />
     </div>
