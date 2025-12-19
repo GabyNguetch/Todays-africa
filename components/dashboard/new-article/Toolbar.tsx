@@ -39,7 +39,7 @@ export default function Toolbar({ editor }: ToolbarProps) {
         // On stocke l'ID technique dans un attribut data-media-id (IMPORTANT pour le Parser)
         editor.chain().focus().setImage({ 
             src: media.urlAcces, 
-            alt: media.altText,
+            alt: media.nomOriginal,
             title: media.nomOriginal, // Peut servir de légende temporaire
         }).run();
 
