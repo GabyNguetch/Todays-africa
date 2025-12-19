@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ArticleReadDto } from "@/services/article";
+import { ArticleReadDto } from "@/types/article";
 import { Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
