@@ -293,7 +293,7 @@ export default function AdminArticles() {
                                             {art.auteurNom ? art.auteurNom.substring(0,2).toUpperCase() : "U"}
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-xs text-gray-900 dark:text-gray-200">{art.auteurNom || `Rédacteur #${art.auteurId}`}</span>
+                                            <span className="font-bold text-xs text-gray-900 dark:text-gray-200">{art.auteurNom || "Rédacteur Inconnu"}</span>
                                             <span className="text-[10px] text-gray-400">Rédacteur</span>
                                         </div>
                                     </div>
