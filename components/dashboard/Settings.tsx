@@ -75,7 +75,7 @@ export default function Settings() {
                             </div>
                             <div>
                                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Rôle</label>
-                                <Input label="" disabled value={user.role === 'editor' ? 'Rédacteur' : user.role} className="h-10 bg-gray-50 dark:bg-zinc-950/50 text-gray-500 border-gray-200 cursor-not-allowed"/>
+                                <Input label="" disabled value={user.role === 'REDACTEUR' ? 'Rédacteur' : user.role} className="h-10 bg-gray-50 dark:bg-zinc-950/50 text-gray-500 border-gray-200 cursor-not-allowed"/>
                             </div>
                         </div>
                         <div>
