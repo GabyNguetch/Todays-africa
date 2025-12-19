@@ -61,9 +61,10 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                         unoptimized={true} // Important si URL externe (S3, Cloudinary via proxy)
                     />
                 </div>
-                {(block.legende || block.titre) && (
+{/* On n'utilise que la légende car 'titre' n'existe plus dans le type BlocContenuDto */}
+                {block.legende && (
                     <figcaption className="text-center text-gray-500 text-xs mt-2 italic">
-                        {block.legende || block.titre}
+                        {block.legende}
                     </figcaption>
                 )}
             </figure>
