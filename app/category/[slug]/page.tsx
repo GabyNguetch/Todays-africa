@@ -131,7 +131,7 @@ export default function CategoryPage({ params }: PageProps) {
                         {currentRubrique?.nom}
                     </h1>
                     <p className="text-gray-500 dark:text-zinc-400 text-lg max-w-2xl leading-relaxed">
-                        {currentRubrique?.description || `Toute l'actualité et les dossiers spéciaux concernant la rubrique ${currentRubrique?.nom}.`}
+                        {currentRubrique?.nom || `Toute l'actualité et les dossiers spéciaux concernant la rubrique ${currentRubrique?.nom}.`}
                     </p>
                 </>
             )}
