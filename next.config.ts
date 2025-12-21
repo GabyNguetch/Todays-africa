@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  output: 'standalone', // Pour Docker
   images: {
     remotePatterns: [
       {
@@ -10,11 +11,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'totayafrica.onrender.com', // Ton domaine backend
+        hostname: 'totayafrica.onrender.com',
       },
       {
         protocol: 'http',
-        hostname: 'localhost', // Pour les tests si backend local
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '194.163.175.53', // IP du serveur
       },
     ],
   },
