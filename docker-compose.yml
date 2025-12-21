@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Application Next.js
   frontend:
-    build: ./totayafrica
+    build: .
     container_name: todayafrica_frontend
     restart: unless-stopped
     ports:
@@ -23,9 +23,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./totayafrica/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./totayafrica/nginx/sites-available:/etc/nginx/sites-available
-      - ./totayafrica/nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites-available:/etc/nginx/sites-available
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - frontend
