@@ -1,8 +1,8 @@
 // services/api.ts
 import axios from 'axios';
 
-// L'URL de base de votre API déployée sur Render
-const API_BASE_URL = 'https://totayafrica.onrender.com/api/v1';
+// L'URL de base de votre API déployée sur votre serveur
+const API_BASE_URL = 'http://194.163.175.53:8080/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

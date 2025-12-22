@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/proxy/:path*',
-        destination: 'https://totayafrica.onrender.com/api/v1/:path*',
+        destination: 'http://194.163.175.53:8080/api/v1/:path*',
       },
     ]
   },
