@@ -14,9 +14,8 @@ import {
 export const APP_CONFIG = {
   name: "TODAY'S AFRICA",
   year: 2025,
-  // MODIFICATION ICI : On pointe vers le serveur local
-  // Le navigateur verra une requête vers http://194.163.175.53:8080/api/v1
-  apiUrl: "http://194.163.175.53:8080/api/v1", 
+  // Retour au backend Render fonctionnel
+  apiUrl: "https://totayafrica.onrender.com/api/v1", 
 };
 // ... le reste du fichier
 

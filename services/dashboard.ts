@@ -2,7 +2,7 @@
 import { authService } from "./auth";
 import { ArticleBackend, PageResponse, StatsDashboard } from "@/types/dashboard";
 
-const API_PROXY = "http://194.163.175.53:8080/api/v1"; 
+const API_PROXY = "https://totayafrica.onrender.com/api/v1"; 
 
 // --- Endpoints Rédacteur (Nécessite Token) ---
 const ENDPOINT_MY_ARTICLES = `${API_PROXY}/articles`; 

@@ -23,15 +23,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Proxy pour contourner le CORS
-  async rewrites() {
-    return [
-      {
-        source: '/api/proxy/:path*',
-        destination: 'http://194.163.175.53:8080/api/v1/:path*',
-      },
-    ]
-  },
+  // Supprimer le proxy car on pointe directement vers le backend
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/proxy/:path*',
+  //       destination: 'http://194.163.175.53:8080/api/v1/:path*',
+  //     },
+  //   ]
+  // },
 };
 
 export default nextConfig;

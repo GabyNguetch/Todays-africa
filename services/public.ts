@@ -3,9 +3,9 @@ import { APP_CONFIG } from "@/lib/constant";
 import { ArticleReadDto, Rubrique } from "@/types/article"; // <--- Import absolu correct
 import { PageResponse } from "@/types/dashboard";
 
-// On cible les routes publiques pour éviter les problèmes de Token sur la home
-const API_PUBLIC = `${APP_CONFIG.apiUrl}/public`; 
-const API_BASE = APP_CONFIG.apiUrl; 
+// On utilise le backend Render fonctionnel
+const API_PUBLIC = `https://totayafrica.onrender.com/api/v1/public`; 
+const API_BASE = `https://totayafrica.onrender.com/api/v1`; 
 
 export const PublicService = {
   
