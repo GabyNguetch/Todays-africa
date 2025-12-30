@@ -20,6 +20,18 @@ export default function Footer() {
           <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed max-w-xs">
             {HOME_DATA.footer.description}
           </p>
+          
+          {/* Devise de l'application */}
+          <div className="mt-4 space-y-2">
+            <div className="text-[10px] font-bold text-[#3E7B52] dark:text-[#13EC13] uppercase tracking-wider">
+              Notre Mission
+            </div>
+            <div className="space-y-1 text-[10px] text-gray-600 dark:text-zinc-400 leading-relaxed">
+              <div>AIDER L'AFRIQUE À MIEUX CONNAÎTRE</div>
+              <div>AIDER L'AFRIQUE À MIEUX SE CONNAÎTRE</div>
+              <div>AIDER À MIEUX CONNAÎTRE L'AFRIQUE</div>
+            </div>
+          </div>
         </div>
 
         {/* Colonne Sections Dynamique via le navLinks principal */}

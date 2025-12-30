@@ -69,29 +69,52 @@ export default function Navbar() {
         </span>
       </Link>
 
-      {/* 2. LIENS BUREAU (Desktop) */}
-      <div id="nav-categories" className="hidden lg:flex items-center gap-8 flex-1 justify-center">
+      {/* 2. NOUVEAUX BOUTONS PRINCIPAUX */}
+      <div className="hidden lg:flex items-center gap-4 flex-1 justify-center">
+        {/* Bouton Intelligence Interculturelle */}
+        <Link href="/intelligence-interculturelle">
+          <Button className="h-9 px-4 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg text-xs font-bold uppercase shadow-lg">
+            INTRODUCTION À LA THÉORIE DE L'INTELLIGENCE INTERCULTURELLE
+          </Button>
+        </Link>
+        
+        {/* Bouton Écran Principal (Actualité) */}
+        <Link href="/">
+          <Button className="h-9 px-4 bg-[#059669] hover:bg-[#047857] text-white rounded-lg text-xs font-bold uppercase shadow-lg">
+            ÉCRAN PRINCIPAL (ACTUALITÉ)
+          </Button>
+        </Link>
+        
+        {/* Bouton Cabinet de Conseil */}
+        <Link href="/consulting-cabinet">
+          <Button className="h-9 px-4 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg text-xs font-bold uppercase shadow-lg">
+            INTERCULTURAL CONSULTING CABINET
+          </Button>
+        </Link>
+      </div>
+
+      {/* 3. LIENS RUBRIQUES (Desktop) - Déplacé après les boutons principaux */}
+      <div id="nav-categories" className="hidden lg:flex items-center gap-6 ml-8">
         {rubriques.length === 0 ? (
             // Skeleton loader discret
             <div className="flex gap-4 animate-pulse">
                 {[1,2,3,4].map(i => <div key={i} className="h-2 w-16 bg-gray-200 dark:bg-zinc-800 rounded"></div>)}
             </div>
         ) : (
-            rubriques.map((rub) => (
+            rubriques.slice(0, 5).map((rub) => (
                 <Link 
                   key={rub.id} 
-                  href={`/category/${rub.id}`} // On utilise l'ID, plus sûr que le slug si non garanti
-                  className="text-[13px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white relative group py-2"
+                  href={`/category/${rub.id}`}
+                  className="text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white relative group py-2"
                 >
                   {rub.nom}
-                  {/* Petit dot indicateur au hover */}
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#3E7B52] dark:bg-white transition-all duration-300 group-hover:w-full"></span>
                 </Link>
             ))
         )}
       </div>
 
- {/* 3. ACTIONS */}
+ {/* 4. ACTIONS */}
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
         
         {/* Affichage conditionnel Bouton Connexion */}
@@ -143,12 +166,44 @@ export default function Navbar() {
 
             {/* Links Mobile */}
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                {/* Nouveaux boutons principaux en mobile */}
+                <Link 
+                    href="/intelligence-interculturelle"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-bold uppercase text-blue-600 dark:text-blue-400 flex items-center justify-between border-b border-blue-100 dark:border-blue-900 pb-4"
+                >
+                    Intelligence Interculturelle
+                    <ArrowRight size={20} className="-rotate-45 text-blue-300"/>
+                </Link>
+                
+                <Link 
+                    href="/"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-bold uppercase text-green-600 dark:text-green-400 flex items-center justify-between border-b border-green-100 dark:border-green-900 pb-4"
+                >
+                    Écran Principal (Actualité)
+                    <ArrowRight size={20} className="-rotate-45 text-green-300"/>
+                </Link>
+                
+                <Link 
+                    href="/consulting-cabinet"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-lg font-bold uppercase text-purple-600 dark:text-purple-400 flex items-center justify-between border-b border-purple-100 dark:border-purple-900 pb-4"
+                >
+                    Consulting Cabinet
+                    <ArrowRight size={20} className="-rotate-45 text-purple-300"/>
+                </Link>
+                
+                {/* Séparateur */}
+                <div className="border-t border-gray-200 dark:border-zinc-800 my-4"></div>
+                
+                {/* Rubriques existantes */}
                 {rubriques.map(rub => (
                     <Link 
                         key={rub.id} 
                         href={`/category/${rub.id}`}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="text-2xl font-bold uppercase text-gray-800 dark:text-white flex items-center justify-between border-b border-gray-50 dark:border-zinc-900 pb-4"
+                        className="text-xl font-bold uppercase text-gray-800 dark:text-white flex items-center justify-between border-b border-gray-50 dark:border-zinc-900 pb-4"
                     >
                         {rub.nom}
                         <ArrowRight size={20} className="-rotate-45 text-gray-300"/>

@@ -237,4 +237,28 @@ export const PublicService = {
     return await res.json();
   },
 
+  // === ARTICLES ADMIN ===
+  getAdminArticles: async (page = 0, size = 10): Promise<PageResponse<ArticleReadDto>> => {
+    try {
+      const res = await fetch(`${API_PROXY}/articles/admin?page=${page}&size=${size}&sort=datePublication,desc`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Erreur ${res.status}`);
+      
+      const data = await res.json();
+      
+      // Si l'API renvoie un tableau simple
+      if (Array.isArray(data)) {
+         return {
+            content: data.slice(0, size),
+            totalElements: data.length,
+            totalPages: Math.ceil(data.length / size)
+         };
+      }
+      
+      return data;
+    } catch (e) {
+      console.error("❌ Erreur Fetch Admin Articles:", e);
+      return { content: [], totalElements: 0, totalPages: 0 };
+    }
+  },
+
 };
