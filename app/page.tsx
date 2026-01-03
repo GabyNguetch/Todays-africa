@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Brain, House, Monitor } from "lucide-react";
+import { ArrowRight, Brain, House, Monitor, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { APP_CONFIG } from "@/lib/constant";
 import ArticleCard from "@/components/ui/ArticleCard";
@@ -40,7 +40,7 @@ export default function Home() {
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+ useEffect(() => {
     const initData = async () => {
       setLoading(true);
       try {
@@ -52,20 +52,22 @@ export default function Home() {
           PublicService.getRubriques()
         ]);
 
-        setHeroArticles(trendingData);
-        setLatestArticles(feedData.content || []);
+        setHeroArticles(trendingData.length > 0 ? trendingData : feedData.content || []);
 
-        const rootCategories = allRubriques.filter(r => r.parentId === null).slice(0, 3);
+        // 1. On prend TOUTES les rubriques racines (pas de slice)
+        const rootCategories = allRubriques.filter(r => r.parentId === null);
         
+        // 2. On charge les articles pour chaque rubrique
         const sectionsPromises = rootCategories.map(async (rub) => {
           const arts = await PublicService.getArticlesByRubrique(rub.id);
-          if(arts && arts.length > 0) {
-            return { rubrique: rub, articles: arts.slice(0, 5) };
-          }
-          return null;
+          // ⚠️ CHANGEMENT : On retourne la rubrique même si pas d'articles
+          return { 
+            rubrique: rub, 
+            articles: arts ? arts.slice(0, 5) : [] 
+          };
         });
 
-        const loadedSections = (await Promise.all(sectionsPromises)).filter(Boolean) as SectionData[];
+        const loadedSections = await Promise.all(sectionsPromises);
         setSections(loadedSections);
 
       } catch(e) {
@@ -159,59 +161,76 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* ================================================================
-            2. SECTIONS DYNAMIQUES
-           ================================================================ */}
+        {/* --- 2. SECTIONS DYNAMIQUES (AVEC EMPTY STATE) --- */}
         {loading ? (
-          <div className="space-y-16">
-            {[1, 2].map((s) => (
-              <div key={s} className="pt-8">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="h-8 w-48 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"/>
-                  <div className="h-10 w-32 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"/>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                  <div className="lg:col-span-2 h-64 bg-gray-200 dark:bg-zinc-800 rounded-xl animate-pulse"/>
-                  <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl animate-pulse"/>
-                  <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl animate-pulse"/>
-                  <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl animate-pulse"/>
-                </div>
-              </div>
-            ))}
-          </div>
+           <div className="space-y-16">
+               {[1,2].map(k => (
+                   <div key={k}>
+                       <div className="h-8 w-48 bg-gray-200 dark:bg-zinc-800 rounded mb-6 animate-pulse"/>
+                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                           {[1,2,3,4].map(i => <SkeletonCard key={i}/>)}
+                       </div>
+                   </div>
+               ))}
+           </div>
         ) : (
           sections.map((section) => (
             <section key={section.rubrique.id} className="pt-8 border-t border-dashed border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                   <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-[10px] uppercase mb-1 block">Explorer</span>
                   <h2 className="text-3xl font-black text-[#111] dark:text-white uppercase">{section.rubrique.nom}</h2>
                 </div>
-                <Link href={`/category/${section.rubrique.id}`}>
-                  <Button variant="outline" className="w-auto h-10 px-5 text-xs font-bold border-gray-300 dark:border-zinc-700 hover:border-[#3E7B52] dark:hover:border-[#13EC13]">
-                    Voir plus dans {section.rubrique.nom}
-                  </Button>
-                </Link>
+                {section.articles.length > 0 && (
+                    <Link href={`/category/${section.rubrique.id}`}>
+                    <Button variant="outline" className="w-auto h-10 px-5 text-xs font-bold border-gray-300 dark:border-zinc-700 hover:border-[#3E7B52]">
+                        Voir tout
+                    </Button>
+                    </Link>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {section.articles.map((art, idx) => (
-                  <div 
-                    key={art.id} 
-                    className={`${idx === 0 ? 'lg:col-span-2' : 'lg:col-span-1'} h-full`}
-                  >
-                    <ArticleCard 
-                      article={art} 
-                      imageHeight={idx === 0 ? "h-64" : "h-40"} 
-                      className="h-full"
-                    />
-                  </div>
-                ))}
-              </div>
+              {section.articles.length > 0 ? (
+                // ✅ CAS AVEC ARTICLES
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {section.articles.map((art, idx) => (
+                    <div key={art.id} className={`${idx === 0 ? 'lg:col-span-2' : 'lg:col-span-1'} h-full`}>
+                        <ArticleCard article={art} imageHeight={idx === 0 ? "h-64" : "h-40"} className="h-full"/>
+                    </div>
+                    ))}
+                </div>
+              ) : (
+                // ✅ CAS VIDE (DESIGN)
+                <div className="relative rounded-2xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-12 text-center overflow-hidden group">
+                     {/* Décoration background */}
+                     <div className="absolute top-0 right-0 w-64 h-64 bg-gray-200/50 dark:bg-zinc-800/50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[#3E7B52]/10 transition-colors duration-700"></div>
+                     
+                     <div className="relative z-10 flex flex-col items-center justify-center gap-4">
+                         <div className="h-16 w-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-zinc-700">
+                             <FolderOpen size={32} className="text-gray-300 dark:text-zinc-600 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors" />
+                         </div>
+                         
+                         <div>
+                            <h3 className="text-lg font-bold text-gray-500 dark:text-zinc-400">Aucun article pour le moment</h3>
+                            <p className="text-xs text-gray-400 dark:text-zinc-500 max-w-sm mx-auto mt-2 leading-relaxed">
+                                Nos rédacteurs travaillent sur les prochains contenus de la rubrique <span className="font-bold text-gray-600 dark:text-gray-300">{section.rubrique.nom}</span>. Revenez très bientôt !
+                            </p>
+                         </div>
+                         
+                         {/* Optionnel: Si vous voulez permettre de naviguer quand même */}
+                         <Link href={`/category/${section.rubrique.id}`}>
+                            <Button variant="ghost" className="mt-4 text-xs font-bold text-gray-400 hover:text-[#3E7B52]">
+                                Aller à la catégorie <ArrowRight size={14} className="ml-2"/>
+                            </Button>
+                         </Link>
+                     </div>
+                </div>
+              )}
             </section>
           ))
         )}
+        
 
         {/* ================================================================
             3. CTA FOOTER

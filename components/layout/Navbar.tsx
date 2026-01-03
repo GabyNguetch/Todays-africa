@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Globe, Menu, Search, UserIcon, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Globe, LayoutGrid, Menu, UserIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { APP_CONFIG } from "@/lib/constant";
 import { PublicService } from "@/services/public";
@@ -54,6 +54,11 @@ export default function Navbar() {
       }
   };
 
+    // 🔢 Séparation pour l'affichage (5 max + Dropdown)
+  const VISIBLE_COUNT = 5;
+  const visibleRubriques = rubriques.slice(0, VISIBLE_COUNT);
+  const hiddenRubriques = rubriques.slice(VISIBLE_COUNT);
+  const hasMore = hiddenRubriques.length > 0;
 
   return (
     <>
@@ -68,27 +73,58 @@ export default function Navbar() {
             {APP_CONFIG.name}
         </span>
       </Link>
-
-      {/* 3. LIENS RUBRIQUES (Desktop) - Déplacé après les boutons principaux */}
+      {/* 3. LIENS RUBRIQUES (Desktop) */}
       <div id="nav-categories" className="hidden lg:flex items-center gap-6 ml-8">
         {rubriques.length === 0 ? (
-            // Skeleton loader discret
             <div className="flex gap-4 animate-pulse">
                 {[1,2,3,4].map(i => <div key={i} className="h-2 w-16 bg-gray-200 dark:bg-zinc-800 rounded"></div>)}
             </div>
         ) : (
-            rubriques.slice(0, 5).map((rub) => (
-                <Link 
-                  key={rub.id} 
-                  href={`/category/${rub.id}`}
-                  className="text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white relative group py-2"
-                >
-                  {rub.nom}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#3E7B52] dark:bg-white transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-            ))
+            <>
+                {/* Rubriques visibles directes */}
+                {visibleRubriques.map((rub) => (
+                    <Link 
+                        key={rub.id} 
+                        href={`/category/${rub.id}`}
+                        className="text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white relative group py-2"
+                    >
+                        {rub.nom}
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#3E7B52] dark:bg-white transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                ))}
+
+                {/* Dropdown "Voir plus" */}
+                {hasMore && (
+                    <div className="relative group py-2">
+                        <button className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white">
+                            Plus <ChevronDown size={14} />
+                        </button>
+                        
+                        {/* Menu déroulant */}
+                        <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 p-2 grid gap-1">
+                            {/* Titre optionnel */}
+                            <div className="px-3 py-2 text-[10px] font-black uppercase text-gray-300 dark:text-zinc-600 tracking-wider">
+                                Autres Rubriques
+                            </div>
+                            
+                            {/* Liste Cachée */}
+                            {hiddenRubriques.map((rub) => (
+                                <Link 
+                                    key={rub.id} 
+                                    href={`/category/${rub.id}`}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-[#3E7B52] dark:hover:text-[#13EC13] rounded-lg transition-colors"
+                                >
+                                    <LayoutGrid size={14} />
+                                    {rub.nom}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </>
         )}
       </div>
+
 
  {/* 4. ACTIONS */}
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
