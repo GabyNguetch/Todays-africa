@@ -4,9 +4,8 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Brain, House, Monitor, FolderOpen } from "lucide-react";
+import { ArrowRight, Brain, BriefcaseBusiness, FolderOpen } from "lucide-react"; // Ajout de BriefcaseBusiness
 import { Button } from "@/components/ui/Button";
-import { APP_CONFIG } from "@/lib/constant";
 import ArticleCard from "@/components/ui/ArticleCard";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -14,7 +13,7 @@ import { PublicService } from "@/services/public";
 import { ArticleReadDto, Rubrique } from "@/types/article";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
 
-// --- COMPOSANT SKELETON CARD (Interne) ---
+// --- COMPOSANT SKELETON CARD ---
 const SkeletonCard = () => (
   <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl overflow-hidden p-4 space-y-4 animate-pulse">
     <div className="h-48 w-full bg-gray-200 dark:bg-zinc-800 rounded-lg"></div>
@@ -54,13 +53,10 @@ export default function Home() {
 
         setHeroArticles(trendingData.length > 0 ? trendingData : feedData.content || []);
 
-        // 1. On prend TOUTES les rubriques racines (pas de slice)
         const rootCategories = allRubriques.filter(r => r.parentId === null);
         
-        // 2. On charge les articles pour chaque rubrique
         const sectionsPromises = rootCategories.map(async (rub) => {
           const arts = await PublicService.getArticlesByRubrique(rub.id);
-          // ⚠️ CHANGEMENT : On retourne la rubrique même si pas d'articles
           return { 
             rubrique: rub, 
             articles: arts ? arts.slice(0, 5) : [] 
@@ -82,13 +78,80 @@ export default function Home() {
   const heroArticle = heroArticles.length > 0 ? heroArticles[0] : latestArticles[0];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col relative">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 space-y-24">
+{/* ================================================================
+          ZONE DES WIDGETS FLOTTANTS (MODERNE & ANIMÉE)
+         ================================================================ */}
+      
+      {/* 1. Widget Gauche : Intelligence Interculturelle (Thème Bleu) */}
+      <div className="hidden xl:flex fixed top-20 left-8 z-40 animate-in fade-in slide-in-from-left-24 duration-1000 delay-300">
+        <Link href="/intelligence-interculturelle">
+            <div className="group relative">
+                {/* Effet de Halo lumineux au survol (Glow) */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-green-500 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-500 group-hover:duration-200" />
+                
+                {/* Le Bouton lui-même */}
+                <Button className="relative h-auto py-3 pl-3 pr-6 bg-white/80 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-900 backdrop-blur-xl border border-green-100 dark:border-green-900/30 text-slate-800 dark:text-white rounded-full flex items-center gap-4 transition-all duration-300 shadow-xl shadow-green-900/5 group-hover:scale-[1.02]">
+                    
+                    {/* Cercle d'icône animé */}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-600 to-green-400 flex items-center justify-center shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-all duration-300 group-hover:rotate-[360deg]">
+                        <Brain className="w-5 h-5 text-white" />
+                    </div>
+
+                    {/* Texte avec effet de typographie */}
+                    <div className="flex flex-col items-start">
+                        <span className="text-[9px] font-bold text-green-600 dark:text-green-400 uppercase tracking-widest mb-0.5">
+                            Théorie & Analyse
+                        </span>
+                        <span className="text-xs font-bold leading-none max-w-[140px] text-left">
+                            Intelligence Interculturelle
+                        </span>
+                    </div>
+
+                    {/* Petite flèche indicatrice qui apparaît au hover */}
+                    <div className="absolute right-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+                         <div className="w-1.5 h-1.5 border-t-2 border-r-2 border-blue-500 rotate-45" />
+                    </div>
+                </Button>
+            </div>
+        </Link>
+      </div>
+
+      {/* 2. Widget Droite : Consulting Cabinet (Thème Violet) */}
+      <div className="hidden xl:flex fixed top-20 right-8 z-40 animate-in fade-in slide-in-from-right-24 duration-1000 delay-300">
+        <Link href="/consulting-cabinet">
+            <div className="group relative">
+                {/* Effet de Halo lumineux au survol */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-green-500 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-500 group-hover:duration-200" />
+                
+                {/* Le Bouton */}
+                <Button className="relative h-auto py-3 pl-3 pr-6 bg-white/80 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-900 backdrop-blur-xl border border-green-100 dark:border-green-900/30 text-slate-800 dark:text-white rounded-full flex items-center gap-4 transition-all duration-300 shadow-xl shadow-green-900/5 group-hover:scale-[1.02]">
+
+                    {/* Texte d'abord (car à droite) */}
+                    <div className="flex flex-col items-end">
+                        <span className="text-[9px] font-bold text-green-600 dark:text-green-400 uppercase tracking-widest mb-0.5">
+                            Expertise & Audit
+                        </span>
+                        <span className="text-xs font-bold leading-none max-w-[150px] text-right">
+                            Cabinet de Consulting
+                        </span>
+                    </div>
+
+                    {/* Cercle d'icône animé */}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-bl from-green-600 to-green-400 flex items-center justify-center shadow-lg shadow-green-500/30 group-hover:shadow-green-500/50 transition-all duration-300 group-hover:-rotate-12 group-hover:scale-110">
+                        <BriefcaseBusiness className="w-5 h-5 text-white" />
+                    </div>
+                </Button>
+            </div>
+        </Link>
+      </div>
+
+      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 space-y-24 relative z-10">
         
         {/* ================================================================
-            1. HERO SECTION AVEC NAVIGATION MODERNE
+            1. HERO SECTION (Nettoyée des boutons)
            ================================================================ */}
         <section className="bg-white dark:bg-zinc-900 p-0 md:p-8 rounded-3xl dark:border dark:border-zinc-800 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden">
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -105,39 +168,11 @@ export default function Home() {
               {heroArticle ? heroArticle.description : "Informations vérifiées et analyses approfondies sur l'économie, la politique et le développement à travers le continent."}
             </p>
 
-            {/* NOUVEAUX BOUTONS DE NAVIGATION - GRILLE 3 COLONNES */}
-            <div className="space-y-4 pt-2">
-              {/* Grille de 3 boutons d'action */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {/* Bouton Intelligence Interculturelle */}
-                <Link href="/intelligence-interculturelle" className="group">
-                  <Button className="w-full h-24 px-4 bg-green-900 hover:bg-green-800 text-white rounded-lg text-xs font-bold uppercase shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center gap-2">
-                    <Brain className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                    <span className="text-center leading-tight">Intelligence Interculturelle</span>
-                  </Button>
-                </Link>
-
-                {/* Bouton Écran Principal */}
-                <Link href="/" className="group">
-                  <Button className="w-full h-24 px-4 bg-green-900 hover:bg-green-800 text-white rounded-lg text-xs font-bold uppercase shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center gap-2">
-                    <Monitor className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                    <span className="text-center leading-tight">Écran Principal</span>
-                  </Button>
-                </Link>
-
-                {/* Bouton Cabinet de Conseil */}
-                <Link href="/consulting-cabinet" className="group">
-                  <Button className="w-full h-24 px-4 bg-green-900 hover:bg-green-800 text-white rounded-lg text-xs font-bold uppercase shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-center gap-2">
-                    <House className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                    <span className="text-center leading-tight">Consulting Cabinet</span>
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Bouton Article Principal (seul en bas) */}
+            <div className="pt-4">
+              {/* Bouton Principal - Seul ici désormais pour un focus clair */}
               {heroArticle && (
-                <Link href={`/article/${heroArticle.id}`} className="group">
-                  <Button className="w-full h-12 px-6 bg-gradient-to-r from-[#3E7B52] to-[#13EC13] hover:from-[#2d5c3d] hover:to-[#0fd60f] text-white rounded-lg font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2">
+                <Link href={`/article/${heroArticle.id}`} className="group inline-block w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto h-12 px-8 bg-gradient-to-r from-[#3E7B52] to-[#13EC13] hover:from-[#2d5c3d] hover:to-[#0fd60f] text-white rounded-lg font-bold text-sm shadow-xl shadow-green-500/20 hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2">
                     <span>Lire l'Article Principal</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -161,7 +196,10 @@ export default function Home() {
             </div>
           </div>
         </section>
-        {/* --- 2. SECTIONS DYNAMIQUES (AVEC EMPTY STATE) --- */}
+
+        {/* ================================================================
+            2. SECTIONS DYNAMIQUES
+           ================================================================ */}
         {loading ? (
            <div className="space-y-16">
                {[1,2].map(k => (
@@ -192,7 +230,7 @@ export default function Home() {
               </div>
 
               {section.articles.length > 0 ? (
-                // ✅ CAS AVEC ARTICLES
+                // CAS AVEC ARTICLES
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {section.articles.map((art, idx) => (
                     <div key={art.id} className={`${idx === 0 ? 'lg:col-span-2' : 'lg:col-span-1'} h-full`}>
@@ -201,24 +239,19 @@ export default function Home() {
                     ))}
                 </div>
               ) : (
-                // ✅ CAS VIDE (DESIGN)
+                // CAS VIDE (DESIGN)
                 <div className="relative rounded-2xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-12 text-center overflow-hidden group">
-                     {/* Décoration background */}
                      <div className="absolute top-0 right-0 w-64 h-64 bg-gray-200/50 dark:bg-zinc-800/50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none group-hover:bg-[#3E7B52]/10 transition-colors duration-700"></div>
-                     
                      <div className="relative z-10 flex flex-col items-center justify-center gap-4">
                          <div className="h-16 w-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-zinc-700">
                              <FolderOpen size={32} className="text-gray-300 dark:text-zinc-600 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors" />
                          </div>
-                         
                          <div>
                             <h3 className="text-lg font-bold text-gray-500 dark:text-zinc-400">Aucun article pour le moment</h3>
                             <p className="text-xs text-gray-400 dark:text-zinc-500 max-w-sm mx-auto mt-2 leading-relaxed">
                                 Nos rédacteurs travaillent sur les prochains contenus de la rubrique <span className="font-bold text-gray-600 dark:text-gray-300">{section.rubrique.nom}</span>. Revenez très bientôt !
                             </p>
                          </div>
-                         
-                         {/* Optionnel: Si vous voulez permettre de naviguer quand même */}
                          <Link href={`/category/${section.rubrique.id}`}>
                             <Button variant="ghost" className="mt-4 text-xs font-bold text-gray-400 hover:text-[#3E7B52]">
                                 Aller à la catégorie <ArrowRight size={14} className="ml-2"/>
