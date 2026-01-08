@@ -94,6 +94,8 @@ export interface ArticleReadDto {
   telechargements?: number;
   partages?: number;
   commentaires?: number;
+  enAvantPremiere?: boolean;
+  dateFinAvantPremiere?: string;
   region?: string;
   visible?: boolean;
 }
@@ -151,23 +153,44 @@ export function normalizeBlocContenu(
   };
 }
 
-// FICHIER: types/article.ts (Ajoutez ceci à la fin du fichier)
-
+// === COMMENTAIRES ===
 export interface CommentaireDto {
   id: number;
   contenu: string;
-  dateCreation: string;
-  auteurNom: string; // ou on déduit de utilisateurId
-  utilisateurId: number;
   articleId: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  auteurId: number;
+  auteurNom?: string; // Peut être null si non joint, à gérer
+  dateCreation: string; // ISO String
+  dateModification?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED' | 'DELETED';
+  likes?: number;
+  parentId?: number | null; // Pour les réponses
+  replies?: CommentaireDto[]; // Si le backend groupe, sinon on le fait en front
 }
 
-export interface CreateCommentaireDto {
+export interface CreateCommentairePayload {
   contenu: string;
   articleId: number;
-  utilisateurId: number;
+  auteurId: number;
+  parentId?: number | null;
 }
 
+export interface PreviewConfigDto {
+  dateFinAvantPremiere?: string;
+  accessRestreint?: boolean;
+}
 
+// === NOUVEAUX DTOs POUR PUBLICATION AVANCÉE ===
+
+export interface ArticlePublicationDto {
+  datePublication?: string | null;     // ISO 8601
+  enAvantPremiere: boolean;
+  dateFinAvantPremiere?: string | null;
+  regionsTargetees?: string[];         // ["FR", "BE", "US", etc.]
+  notifierAbonnes: boolean;
+  messageNotification?: string;
+  publierReseauxSociaux: boolean;
+  plateformesSociales?: string[];      // ["FACEBOOK", "LINKEDIN", "X"]
+  forcerVisibilite: boolean;
+}
 

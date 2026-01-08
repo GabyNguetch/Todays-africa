@@ -463,5 +463,78 @@ getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> =
     } catch {
       return null;
     }
+  },
+    /**
+   * ✅ PUBLICATION AVANCÉE
+   */
+  publishAdvanced: async (id: number, config: ArticlePublicationDto): Promise<void> => {
+    const token = authService.getToken();
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/publish-advanced`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(config)
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Erreur lors de la publication avancée");
+    }
+  },
+
+  /**
+   * ✅ MODE AVANT-PREMIÈRE
+   */
+  setPreviewMode: async (id: number, config: { dateFinAvantPremiere?: string, accessRestreint?: boolean }) => {
+      const token = authService.getToken();
+      await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/set-preview`, {
+          method: "PATCH",
+          headers: { 
+              "Content-Type": "application/json", 
+              "Authorization": `Bearer ${token}` 
+          },
+          body: JSON.stringify(config)
+      });
+  },
+    /**
+   * ✅ GESTION DES TAGS (NEW)
+   */
+  
+  // Assigner des tags (string[]) à un article
+  assignTags: async (articleId: number, tags: string[]): Promise<void> => {
+    const token = authService.getToken();
+    const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
+      body: JSON.stringify(tags)
+    });
+    if (!res.ok) throw new Error("Erreur assignation tags");
+  },
+
+  // Déclencher l'Auto-Tagging par l'IA
+  generateAutoTags: async (articleId: number): Promise<string[]> => {
+    const token = authService.getToken();
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/auto-tag`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error("Erreur génération auto-tags");
+    return await res.json();
+  },
+
+  // Récupérer les tags d'un article (utile pour recharger en mode édition)
+  getArticleTags: async (articleId: number): Promise<any[]> => {
+     try {
+         const token = authService.getToken();
+         const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
+             headers: { "Authorization": `Bearer ${token}` }
+         });
+         return res.ok ? await res.json() : [];
+     } catch { return []; }
   }
 };

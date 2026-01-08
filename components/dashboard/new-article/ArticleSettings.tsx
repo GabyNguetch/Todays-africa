@@ -7,7 +7,7 @@ import Image from "next/image";
 import { 
   UploadCloud, ImageIcon, Loader2, AlertCircle, Plus, 
   ChevronDown, Check, Search, X, RefreshCw, 
-  CornerDownRight, Globe, MapPin, Sparkles, Trash2
+  CornerDownRight, Globe, MapPin, Sparkles, Trash2, Tag, Wand2
 } from "lucide-react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { ArticleService } from "@/services/article";
@@ -36,6 +36,11 @@ interface ArticleSettingsProps {
   setCoverImageUrl: (v: string | null) => void;
   region: string;
   setRegion: (v: string) => void;
+    // ✅ Nouvelles Props Tags
+  tags: string[];
+  setTags: (t: string[]) => void;
+  onAutoTag: () => Promise<void>; // Fonction pour déclencher l'IA
+  isAutoTagging: boolean;
 }
 
 export default function ArticleSettings(props: ArticleSettingsProps) {
@@ -48,6 +53,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   const [newName, setNewName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [tagInput, setTagInput] = useState("");
 
   // Chargement rubriques
   useEffect(() => {
@@ -154,6 +160,26 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   const filteredRubriques = flatRubriques.filter(r => 
     (r.nom || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+    // Handler ajout tag manuel
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    const val = tagInput.trim();
+    if (val && !props.tags.includes(val)) {
+        props.setTags([...props.tags, val]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    props.setTags(props.tags.filter(t => t !== tagToRemove));
+  };
   
   const currentRubriqueName = flatRubriques.find(r => r.id === props.rubriqueId)?.nom || "Sélectionner une rubrique";
 
@@ -210,21 +236,56 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
             <p className="text-xs text-red-500 mt-1">Minimum 50 caractères requis</p>
           )}
         </div>
-
-        {/* Tags auto */}
-        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3">
-          <div className="flex items-start gap-2">
-            <Sparkles size={16} className="text-blue-500 mt-0.5 shrink-0" />
-            <div>
-              <h4 className="text-[10px] font-bold uppercase text-blue-700 dark:text-blue-400">
-                Génération Auto de Tags
-              </h4>
-              <p className="text-[10px] text-blue-600 dark:text-blue-300/80 leading-snug mt-1">
-                L'IA analysera votre contenu pour attribuer les tags pertinents lors de la validation.
-              </p>
-            </div>
+              {/* ✅ SECTION TAGS & IA (NEW) */}
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
+          
+          <div className="flex items-center justify-between mb-1">
+             <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1">
+               <Tag size={12} className="text-[#3E7B52]" /> Tags & Mots-clés
+             </label>
+             <button 
+                onClick={props.onAutoTag}
+                disabled={props.isAutoTagging}
+                type="button"
+                className="text-[9px] font-bold uppercase flex items-center gap-1 bg-purple-50 text-purple-600 px-2 py-1 rounded-md border border-purple-100 hover:bg-purple-100 transition disabled:opacity-50"
+             >
+                {props.isAutoTagging ? <Loader2 size={10} className="animate-spin"/> : <Wand2 size={10}/>}
+                Générer par IA
+             </button>
           </div>
-        </div>
+
+          {/* Zone de Tags (Chips) */}
+          <div className="flex flex-wrap gap-2 mb-3">
+             {props.tags.map((tag) => (
+                 <span key={tag} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
+                    #{tag}
+                    <button onClick={() => removeTag(tag)} className="hover:text-red-500 ml-1"><X size={12}/></button>
+                 </span>
+             ))}
+          </div>
+
+          {/* Input Ajout */}
+          <div className="relative">
+              <input 
+                type="text"
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm outline-none focus:ring-2 focus:ring-[#3E7B52]/20"
+                placeholder="Ajouter un tag..."
+              />
+              <button 
+                 onClick={addTag}
+                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-[#3E7B52]"
+              >
+                  <Plus size={16}/>
+              </button>
+          </div>
+          <p className="text-[9px] text-gray-400 px-1">
+             Appuyez sur Entrée pour valider un tag. Ces tags serviront à l'algorithme de recommandation.
+          </p>
+      </div>
+
       </div>
 
       {/* === SECTION 2: IMAGE COUVERTURE === */}

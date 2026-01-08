@@ -11,7 +11,8 @@ import { ArticleReadDto } from '@/types/article';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import ArticlePreviewModal from './ArticlePreviewModal'; 
+import ArticlePreviewModal from './ArticlePreviewModal';
+import AdvancedPublishModal from './AdvancedPublishModal'; 
 
 // Petit helper interne pour les cards stat
 const StatCard = ({ label, value, icon: Icon, colorClass, borderClass }: any) => (
@@ -37,6 +38,8 @@ export default function AdminArticles() {
   // -- MODAL --
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewArticle, setPreviewArticle] = useState<ArticleReadDto | null>(null);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [articleToPublish, setArticleToPublish] = useState<number | null>(null);
   
   // States Stats 
   const [stats, setStats] = useState({ 
@@ -114,6 +117,12 @@ export default function AdminArticles() {
         closeModalAndRefresh("🎉 Article mis en ligne !");
     } catch (e: any) { alert(`Erreur: ${e.message}`); }
   };
+
+  // Remplacer handlePublish par :
+const initiatePublish = (id: number) => {
+    setArticleToPublish(id);
+    setIsPublishModalOpen(true);
+}
 
   const handleReject = async (id: number) => {
       const motif = prompt("Motif du rejet :", "Non conforme à la ligne éditoriale.");
@@ -204,6 +213,15 @@ export default function AdminArticles() {
             onPublish={handlePublish}
             onArchive={handleArchive}
         />
+        {/* En dehors des boucles, au même niveau que ArticlePreviewModal */}
+        {articleToPublish && (
+            <AdvancedPublishModal 
+                isOpen={isPublishModalOpen}
+                onClose={() => { setIsPublishModalOpen(false); setArticleToPublish(null); }}
+                articleId={articleToPublish}
+                onSuccess={() => { closeModalAndRefresh("Publication configurée avec succès !"); }}
+            />
+        )}
 
         {/* --- HEADER --- */}
         <div>

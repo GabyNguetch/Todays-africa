@@ -3,6 +3,7 @@ import { APP_CONFIG } from "@/lib/constant";
 import { ArticleReadDto, CommentaireDto, Rubrique } from "@/types/article";
 import { PageResponse } from "@/types/dashboard";
 import { authService } from "./auth";
+import { CreateCommentairePayload } from "@/types/article";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
 
@@ -158,30 +159,6 @@ export const PublicService = {
       } catch { return false; }
   },
 
-  postComment: async (articleId: number, contenu: string): Promise<CommentaireDto> => {
-    const user = authService.getUserFromStorage();
-    if (!user) throw new Error("Vous devez être connecté.");
-
-    const payload = {
-        articleId,
-        utilisateurId: user.id,
-        contenu,
-        // Status sera géré par le backend (souvent PENDING par défaut)
-    };
-
-    const res = await fetch(`${API_PROXY}/commentaires`, {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${authService.getToken()}`
-        },
-        body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) throw new Error("Impossible d'envoyer le commentaire");
-    return await res.json();
-  },
-
     // 3. Gestion des Likes / Favoris
   toggleLike: async (articleId: number, isCurrentlyLiked: boolean): Promise<void> => {
       const user = authService.getUserFromStorage();
@@ -260,5 +237,105 @@ export const PublicService = {
       return { content: [], totalElements: 0, totalPages: 0 };
     }
   },
+
+    /**
+   * ✅ TRACKING VUE SOPHISTIQUÉ
+   * Enregistre durée + scroll + user
+   */
+  recordView: async (articleId: number, metrics: { dureeVue: number; scrollDepth: number; userId?: number }) => {
+    try {
+      const queryParams = new URLSearchParams({
+        dureeVue: metrics.dureeVue.toString(),
+        scrollDepth: metrics.scrollDepth.toString()
+      });
+      
+      if (metrics.userId) queryParams.append("userId", metrics.userId.toString());
+
+      // Fire and forget (on n'attend pas forcément le résultat pour ne pas bloquer l'UI)
+      fetch(`${API_PROXY}/articles/${articleId}/view?${queryParams.toString()}`, {
+        method: 'POST'
+      }).catch(e => console.warn("Analytics Error", e));
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
+  /**
+   * ✅ COMMENTAIRES
+   */
+  getCommentsByArticle: async (articleId: number): Promise<any[]> => {
+    try {
+      const res = await fetch(`${API_PROXY}/commentaires/article/${articleId}`);
+      if (!res.ok) return [];
+      const comments = await res.json();
+      // On ne retourne que les approuvés pour le public, sauf logique contraire
+      return Array.isArray(comments) ? comments.filter((c: any) => c.status === 'APPROVED') : [];
+    } catch { return []; }
+  },
+   /**
+   * ✅ Récupère UNIQUEMENT les commentaires approuvés pour l'article
+   * GET /api/v1/commentaires/article/{id}/approved
+   */
+  getApprovedComments: async (articleId: number): Promise<CommentaireDto[]> => {
+    try {
+      // Si la route "approved" n'existe pas encore, on peut filtrer côté client temporairement
+      // mais le document spécifie /approved, donc on l'utilise :
+      const res = await fetch(`${API_PROXY}/commentaires/article/${articleId}/approved`);
+      
+      if (!res.ok) {
+         // Fallback sur tous les commentaires si endpoint spécifique manque
+         const fallbackRes = await fetch(`${API_PROXY}/commentaires/article/${articleId}`);
+         if(!fallbackRes.ok) return [];
+         const all: CommentaireDto[] = await fallbackRes.json();
+         return all.filter(c => c.status === 'APPROVED');
+      }
+
+      return await res.json();
+    } catch (e) {
+      console.error("Comment fetch error:", e);
+      return [];
+    }
+  },
+
+  /**
+   * ✅ Poste un commentaire (crée en statut PENDING)
+   * POST /api/v1/commentaires
+   */
+  postComment: async (payload: CreateCommentairePayload): Promise<CommentaireDto> => {
+    const token = authService.getToken();
+    // Note: Bien que le backend demande auteurId dans le body, 
+    // passer le token est crucial pour que le backend valide l'identité.
+    
+    const res = await fetch(`${API_PROXY}/commentaires`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Erreur lors de l'envoi du commentaire");
+    }
+
+    return await res.json();
+  },
+    /**
+   * ✅ ARTICLES SIMILAIRES (NEW)
+   * GET /api/v1/articles/{id}/similar
+   */
+  getSimilarArticles: async (articleId: number, limit = 4): Promise<ArticleReadDto[]> => {
+    try {
+      const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/similar?limit=${limit}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error("Similar fetch error", e);
+      return [];
+    }
+  }
 
 };

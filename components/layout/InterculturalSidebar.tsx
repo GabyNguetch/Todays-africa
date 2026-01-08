@@ -81,7 +81,7 @@ export default function InterculturelSidebar() {
         ) : (
            articles.map((article, idx) => (
              <Link href={`/article/${article.id}`} key={article.id} className="group">
-                <div className="p-3 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl hover:border-[#3E7B52]/30 dark:hover:border-[#3E7B52]/50 hover:shadow-md transition-all duration-300 flex gap-3 items-start">
+                <div className="p-3 bg-white dark:bg-transparent border border-gray-100 dark:border-transparent rounded-xl hover:border-[#3E7B52]/30 dark:hover:border-[#3E7B52]/50 hover:shadow-md transition-all duration-300 flex gap-3 items-start">
                     
                     {/* Miniature */}
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-100 dark:border-zinc-700">
@@ -95,10 +95,7 @@ export default function InterculturelSidebar() {
                     
                     {/* Texte */}
                     <div className="flex-1 min-w-0">
-                        <span className="text-[9px] font-bold text-[#3E7B52] bg-green-50 dark:bg-[#3E7B52]/10 px-1.5 py-0.5 rounded uppercase">
-                            Analyse
-                        </span>
-                        <h5 className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1 leading-snug line-clamp-2 group-hover:text-[#3E7B52] transition-colors">
+                        <h5 className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1 leading-snug line-clamp-3 group-hover:text-[#3E7B52] transition-colors">
                             {article.titre}
                         </h5>
                     </div>

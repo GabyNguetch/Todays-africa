@@ -19,6 +19,89 @@ interface NewArticleProps {
   editArticleId?: number | null; 
 }
 
+// Sous-composant Skeleton pour NewArticle
+const ArticleEditorSkeleton = () => (
+  <div className="max-w-7xl mx-auto pb-32 animate-pulse space-y-6">
+    
+    {/* Header Skeleton */}
+    <div className="sticky top-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur py-4 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+             {/* Back Button */}
+             <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800"></div>
+             <div className="space-y-2">
+                 {/* Title */}
+                 <div className="w-32 h-5 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                 {/* Subtitle */}
+                 <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+             </div>
+        </div>
+        <div className="flex gap-3">
+             {/* Action Buttons */}
+             <div className="w-24 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800"></div>
+             <div className="w-32 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800"></div>
+        </div>
+    </div>
+
+    {/* Content Grid Skeleton */}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Colonne Principale (Éditeur) */}
+        <div className="lg:col-span-8 space-y-4">
+             <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl h-[700px] p-4 flex flex-col gap-4">
+                 {/* Toolbar fake */}
+                 <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
+                 {/* Text fake */}
+                 <div className="space-y-4 mt-4 px-4">
+                      <div className="w-3/4 h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
+                      <div className="w-full h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
+                      <div className="w-5/6 h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
+                      <div className="w-full h-64 bg-gray-100 dark:bg-zinc-800 rounded-xl mt-8"></div>
+                      <div className="w-full h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
+                 </div>
+             </div>
+        </div>
+
+        {/* Colonne Sidebar (Paramètres) */}
+        <div className="lg:col-span-4 space-y-6">
+            
+            {/* Box 1: Infos */}
+            <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 space-y-6">
+                 {/* Input Titre */}
+                 <div className="space-y-2">
+                     <div className="flex justify-between">
+                         <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                         <div className="w-8 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                     </div>
+                     <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
+                 </div>
+                 {/* Input Description */}
+                 <div className="space-y-2">
+                     <div className="flex justify-between">
+                         <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                         <div className="w-8 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+                     </div>
+                     <div className="w-full h-24 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
+                 </div>
+            </div>
+
+            {/* Box 2: Image */}
+            <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5">
+                 <div className="w-24 h-3 bg-gray-200 dark:bg-zinc-800 rounded mb-3"></div>
+                 <div className="w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-xl"></div>
+            </div>
+
+             {/* Box 3: Targeting */}
+            <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 space-y-4">
+                 <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
+                 <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+        </div>
+
+    </div>
+  </div>
+);
+
 export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewArticleProps) {
   
   const { user } = useAuth();
@@ -33,17 +116,28 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState("");
+  const [contentLoaded, setContentLoaded] = useState(false); // Flag pour savoir si le HTML est prêt
+    // ✅ STATE TAGS
+  const [tags, setTags] = useState<string[]>([]);
+  const [isAutoTagging, setIsAutoTagging] = useState(false);
+
+  // UI State
   const [uiState, setUiState] = useState({ 
     loading: false, 
     saving: false, 
     error: null as string | null 
   });
 
-  // === CHARGEMENT MODE ÉDITION ===
+  // =========================================================
+  // 1. CHARGEMENT DES DONNÉES (API -> STATE)
+  // =========================================================
   useEffect(() => {
     if (editArticleId) {
       setUiState(p => ({ ...p, loading: true }));
+      setContentLoaded(false);
       
+      console.log(`📡 [NewArticle] Chargement du brouillon #${editArticleId}...`);
+
       ArticleService.getById(editArticleId)
         .then(article => {
           setArticleId(article.id);
@@ -51,37 +145,73 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
           setDescription(article.description || "");
           setRubriqueId(article.rubriqueId || null);
           setRegion(article.region || "GLOBAL");
+          
+          // Image Couverture
           setCoverImageUrl(getImageUrl(article.imageCouvertureUrl) || null);
           setCoverImageId(article.imageCouvertureId || null);
 
-          // Reconstruction HTML
+          // RECONSTRUCTION DU HTML DEPUIS LES BLOCS
           if (article.blocsContenu && Array.isArray(article.blocsContenu)) {
             const sorted = [...article.blocsContenu].sort((a, b) => a.ordre - b.ordre);
             
-            let contentHtml = "";
+            let rebuiltHtml = "";
+            
             sorted.forEach(bloc => {
               if (bloc.type === 'IMAGE') {
-                const dataId = bloc.mediaId ? `data-media-id="${bloc.mediaId}"` : "";
-                const imgSrc = getImageUrl(bloc.url || bloc.contenu || "");
-                contentHtml += `<img src="${imgSrc}" alt="${bloc.altText || ''}" title="${bloc.legende || ''}" ${dataId} />`;
+                // IMPORTANT: On reconstruit l'image avec data-media-id pour le parsing futur
+                const mediaIdAttr = bloc.mediaId ? `data-media-id="${bloc.mediaId}"` : "";
+                // Utiliser bloc.url s'il existe (url absolue), sinon bloc.contenu (path relatif)
+                const rawSrc = bloc.url || bloc.contenu;
+                const finalSrc = getImageUrl(rawSrc);
+
+                rebuiltHtml += `<img src="${finalSrc}" alt="${bloc.altText || ''}" title="${bloc.legende || ''}" ${mediaIdAttr} class="article-content-image" />`;
+                // Ajout d'un saut de ligne après image pour éditeur plus propre
+                rebuiltHtml += `<p></p>`; 
+              
               } else if (bloc.type === 'CITATION') {
-                contentHtml += `<blockquote>${bloc.contenu}</blockquote>`;
-              } else if (bloc.type === 'TEXTE') {
-                contentHtml += bloc.contenu;
+                rebuiltHtml += `<blockquote>${bloc.contenu}</blockquote>`;
+              
+              } else if (bloc.type === 'VIDEO') {
+                  // Reconstruction vidéo basique pour preview
+                  rebuiltHtml += `<p>[VIDEO: ${bloc.url || bloc.contenu}]</p>`;
+
+              } else {
+                // Type TEXTE (C'est du HTML brut sauvegardé)
+                rebuiltHtml += bloc.contenu;
               }
             });
 
-            if (editorInstance && !editorInstance.isDestroyed) {
-              editorInstance.commands.setContent(contentHtml);
-            } else {
-              setHtmlContent(contentHtml);
-            }
+            console.log("📝 Contenu HTML reconstruit :", rebuiltHtml.substring(0, 50) + "...");
+            setHtmlContent(rebuiltHtml);
+            setContentLoaded(true);
+          } else {
+              setHtmlContent("");
+              setContentLoaded(true);
           }
         })
-        .catch(() => setUiState(p => ({ ...p, error: "Erreur chargement" })))
+        .catch((err) => {
+            console.error("❌ Erreur chargement", err);
+            setUiState(p => ({ ...p, error: "Impossible de charger l'article." }));
+        })
         .finally(() => setUiState(p => ({ ...p, loading: false })));
+    } else {
+        // Mode Création : on dit que le contenu est chargé (vide)
+        setContentLoaded(true);
     }
-  }, [editArticleId, editorInstance]);
+  }, [editArticleId]);
+
+  // =========================================================
+  // 2. SYNCHRONISATION (STATE -> EDITOR)
+  // =========================================================
+  // On attend que l'éditeur soit monté ET que le contenu soit fetché
+  useEffect(() => {
+      if (editorInstance && !editorInstance.isDestroyed && contentLoaded && editArticleId) {
+          // On vérifie si l'éditeur est vide pour éviter d'écraser si l'utilisateur a commencé à taper pendant un re-render
+          // (Optionnel: forcer l'overwrite pour être sûr d'avoir le brouillon exact)
+          console.log("🔄 Injection du contenu dans l'éditeur Tiptap");
+          editorInstance.commands.setContent(htmlContent);
+      }
+  }, [editorInstance, contentLoaded, editArticleId]); // Retrait de htmlContent des dépendances pour éviter boucle infinie
 
 // ✅ FONCTION PARSE: DOM -> BLOC OBJECTS
   const parseEditorContent = (html: string): BlocContenuDto[] => {
@@ -143,6 +273,42 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
      return blocs;
   };
 
+  // ✅ FONCTION IA AUTO-TAGGING
+  const handleAutoTag = async () => {
+      // Pour auto-tagger, l'article doit être sauvegardé ou on envoie le contenu texte ?
+      // L'endpoint est POST /articles/{id}/auto-tag. Il faut donc un ID.
+      // Si pas d'ID (nouvel article), on doit d'abord faire un "brouillon auto".
+      
+      if (!articleId && !confirm("L'article doit être sauvegardé en brouillon pour l'analyse IA. Sauvegarder maintenant ?")) {
+          return;
+      }
+      
+      try {
+          setIsAutoTagging(true);
+          
+          // 1. Si pas d'ID, on sauvegarde
+          let currentId = articleId;
+          if (!currentId) {
+             await handleSave(false); // Cela va setArticleId
+             // Attention: setState est asynchrone, dans ce scope articleId peut être null
+             // Hack: handleSave met à jour l'UI, on force l'utilisateur à re-cliquer ou on attend le re-render.
+             // Mieux: retourner l'ID dans handleSave. Pour ce correctif, supposons qu'il est sauvegardé.
+             alert("Brouillon créé. Cliquez à nouveau sur 'Générer' pour lancer l'IA.");
+             return;
+          }
+
+          // 2. Appel Service
+          const generatedTags = await ArticleService.generateAutoTags(currentId!);
+          
+          // 3. Merge avec existants
+          setTags(prev => [...new Set([...prev, ...generatedTags])]);
+
+      } catch (e) {
+          alert("Erreur génération tags");
+      } finally {
+          setIsAutoTagging(false);
+      }
+  };
 
 
  // === SAUVEGARDE ===
@@ -156,8 +322,16 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
     setUiState(p => ({ ...p, saving: true, error: null }));
 
     try {
+            // 1. Récupération HTML Editor actuel
+      // Si l'éditeur n'est pas chargé, on prend le htmlContent initial (cas modification métadonnées seule)
+      const currentHtml = editorInstance ? editorInstance.getHTML() : htmlContent;
+
       const blocksPayload = parseEditorContent(htmlContent);
-      if (blocksPayload.length === 0) throw new Error("Article vide");
+            // Sécurité pour ne pas effacer un article par erreur
+      if (blocksPayload.length === 0 && !confirm("L'article semble vide. Continuer la sauvegarde ?")) {
+          setUiState(p => ({ ...p, saving: false }));
+          return;
+      }
 
       // ID Cover Image (Int32 pour article, attention)
       // Si l'article prend un Int pour cover, on garde parseInt. Si c'est UUID, on change.
@@ -176,10 +350,26 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
         imageCouvertureId: finalCoverId, 
         region: region,
         visible: false,
-        statut: isSubmission ? 'PENDING_REVIEW' : 'DRAFT',
+        statut: isSubmission ? 'PENDING_REVIEW' : (articleId ? 'DRAFT' : 'DRAFT'), // Si modification on garde le statut ou force Draft
         tagIds: [],
         blocsContenu: blocksPayload // Contient des UUID strings dans mediaId
       };
+
+      let targetId = articleId;
+
+        if (articleId) {
+             await ArticleService.update(articleId, payload);
+        } else {
+             const created = await ArticleService.create(payload);
+             targetId = created.id;
+             setArticleId(created.id);
+        }
+
+        // ✅ SAUVEGARDE DES TAGS (Appel séparé)
+        // On ne le fait que si l'article est créé avec succès
+        if (targetId && tags.length > 0) {
+             await ArticleService.assignTags(targetId, tags);
+        }
 
       if (articleId) {
         await ArticleService.update(articleId, payload);
@@ -199,6 +389,12 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
       setUiState(p => ({ ...p, saving: false }));
     }
   };
+
+
+
+  if (uiState.loading) {
+      return <ArticleEditorSkeleton />;
+  }
 
   return (
     <div className="max-w-6xl mx-auto pb-32 animate-in fade-in">
@@ -287,6 +483,10 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
               setCoverImageUrl={setCoverImageUrl}
               region={region} 
               setRegion={setRegion}
+              tags={tags}           // 👈 PASS
+              setTags={setTags}     // 👈 PASS
+              onAutoTag={handleAutoTag}  // 👈 PASS
+              isAutoTagging={isAutoTagging} // 👈 PASS
             />
             
             {/* Bloc info */}
