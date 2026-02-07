@@ -7,7 +7,8 @@ import {
   ArticleReadDto, 
   MediaResponseDto, 
   Rubrique,
-  validateArticlePayload
+  validateArticlePayload,
+  ArticlePublicationDto  // <--- AJOUTEZ CETTE LIGNE ICI
 } from "@/types/article";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
