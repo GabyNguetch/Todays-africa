@@ -19,7 +19,7 @@ export const APP_CONFIG = {
   backendUrl: "http://194.163.175.53:8080", 
   mediaBaseUrl: "http://194.163.175.53:8080/api/v1/media/", 
 };
-// ... le reste du fichier
+
 
 export const COLORS = {
   primaryLight: "#13EC13",
