@@ -1,4 +1,5 @@
-// FICHIER: components/dashboard/new-article/Toolbar.tsx
+// FICHIER: components/dashboard/new-article/Toolbar.tsx - VERSION CORRIGÉE PREVIEW LOCAL
+
 "use client";
 
 import React, { useRef, useState } from 'react';
@@ -8,7 +9,7 @@ import {
   List, ListOrdered, Image as ImageIcon, Video, Undo, Redo, 
   Loader2
 } from 'lucide-react';
-import { cn, getImageUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { ArticleService } from '@/services/article';
 
 interface ToolbarProps {
@@ -17,12 +18,11 @@ interface ToolbarProps {
 
 export default function Toolbar({ editor }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   if (!editor) return null;
 
-  // -- LOGIQUE AVANCÉE D'INSERTION IMAGE --
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -35,41 +35,73 @@ export default function Toolbar({ editor }: ToolbarProps) {
     setUploadSuccess(false);
 
     try {
-        // 1. Upload vers le Backend -> On récupère ID + URL
-        const media = await ArticleService.uploadMedia(file);
+        console.group("📷 [Toolbar] Upload Image Contenu");
+        console.log("Fichier:", file.name, `(${file.size} bytes)`);
         
-        console.log("📷 Image uploaded via Editor:", media);
-
-        // 2. Insérer dans l'éditeur avec attributs étendus
-        // NOTE: On utilise setAttribute sur setImage pour persister le mediaId
-        // Si l'extension Tiptap Image de base ne supporte pas d'attributs custom,
-        // nous insérons via 'command' standard et mettons à jour les attributs via le DOM ensuite.
+        // ✅ PREVIEW LOCAL IMMÉDIAT
+        const localUrl = URL.createObjectURL(file);
+        console.log("🖼️ Preview local:", localUrl);
         
-        const imageUrl = getImageUrl(media.urlAcces);
-        
+        // Insérer immédiatement l'image avec URL locale
         editor.chain().focus().setImage({ 
-            src: imageUrl, 
-            alt: media.nomOriginal,
-            title: media.nomOriginal // Sert souvent de légende par défaut
+            src: localUrl, 
+            alt: file.name,
+            title: file.name
         }).run();
 
-        // 3. Hack propre: On attache le mediaId à la dernière image insérée (ou celle ayant cet URL)
-        // Ceci est vital pour le parsing plus tard dans NewArticle.tsx
-        // Nous le faisons via un petit délai pour laisser Tiptap rendre le node.
+        // Marquer temporairement l'image comme "en cours d'upload"
         setTimeout(() => {
-            const images = document.querySelectorAll(`img[src="${imageUrl}"]`);
+            const images = document.querySelectorAll(`img[src="${localUrl}"]`);
             images.forEach(img => {
-                img.setAttribute('data-media-id', String(media.id));
-                img.classList.add("article-content-image"); // Classe CSS pour styling
+                img.setAttribute('data-uploading', 'true');
+                img.classList.add('article-content-image', 'opacity-50', 'animate-pulse');
             });
+        }, 50);
+        
+        // Upload vers le backend en arrière-plan
+        const media = await ArticleService.uploadMedia(file);
+        
+        console.log("✅ Média reçu:", media);
+        console.log("🆔 UUID:", media.id);
+        console.log("🔗 URL serveur:", media.urlAcces);
+
+        // Remplacer l'URL locale par l'URL serveur
+        setTimeout(() => {
+            const images = document.querySelectorAll(`img[src="${localUrl}"]`);
+            
+            images.forEach(img => {
+                // Remplacer src
+                img.setAttribute('src', media.urlAcces);
+                
+                // Stocker l'UUID
+                img.setAttribute('data-media-id', String(media.id));
+                
+                // Retirer indicateurs de chargement
+                img.removeAttribute('data-uploading');
+                img.classList.remove('opacity-50', 'animate-pulse');
+                img.classList.add("article-content-image");
+                
+                console.log(`✅ Image mise à jour avec URL serveur et UUID: ${media.id}`);
+            });
+            
+            // Libérer l'URL locale
+            URL.revokeObjectURL(localUrl);
+            
+            console.log(`✅ ${images.length} image(s) mise(s) à jour avec URL serveur`);
         }, 100);
 
         setUploadSuccess(true);
         setTimeout(() => setUploadSuccess(false), 2000);
+        
+        console.groupEnd();
 
     } catch (err) {
-        alert("Erreur upload image contenu. Vérifiez format/taille.");
-        console.error(err);
+        console.error("❌ Erreur upload image contenu:", err);
+        console.groupEnd();
+        alert("Erreur lors de l'upload. Vérifiez le format/taille du fichier.");
+        
+        // En cas d'erreur, retirer l'image du document
+        // (À améliorer avec une gestion plus fine si nécessaire)
     } finally {
         setIsUploading(false);
         if(fileInputRef.current) fileInputRef.current.value = ""; 
@@ -80,7 +112,6 @@ export default function Toolbar({ editor }: ToolbarProps) {
     const url = prompt('Entrez l\'URL YouTube');
     if (url) {
       editor.commands.setContent(`${editor.getHTML()}<p>URL Vidéo: ${url}</p>`); 
-      // Note: Idéalement utilisez @tiptap/extension-youtube
     }
   };
 
@@ -137,21 +168,37 @@ export default function Toolbar({ editor }: ToolbarProps) {
     },
     { divider: true },
     {
-        icon: isUploading ? Loader2 : ImageIcon, // Loader si en cours
+        icon: isUploading ? Loader2 : ImageIcon,
         action: handleImageClick,
-        isActive: false,
+        isActive: uploadSuccess,
         label: "Image",
-        specialClass: "text-[#3E7B52] dark:text-[#13EC13] hover:bg-green-50 dark:hover:bg-green-900/20"
+        specialClass: uploadSuccess 
+            ? "text-green-600 bg-green-50 dark:bg-green-900/20" 
+            : "text-[#3E7B52] dark:text-[#13EC13] hover:bg-green-50 dark:hover:bg-green-900/20"
     },
-    { icon: Video, action: addYoutube, isActive: false, label: "Vidéo Youtube" },
+    { 
+        icon: Video, 
+        action: addYoutube, 
+        isActive: false, 
+        label: "Vidéo Youtube" 
+    },
     { divider: true },
-    { icon: Undo, action: () => editor.chain().focus().undo().run(), label: "Undo" },
-    { icon: Redo, action: () => editor.chain().focus().redo().run(), label: "Redo" },
+    { 
+        icon: Undo, 
+        action: () => editor.chain().focus().undo().run(), 
+        label: "Annuler",
+        disabled: !editor.can().undo()
+    },
+    { 
+        icon: Redo, 
+        action: () => editor.chain().focus().redo().run(), 
+        label: "Rétablir",
+        disabled: !editor.can().redo()
+    },
   ];
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-100 dark:border-zinc-800 sticky top-0 z-10 backdrop-blur-sm">
-        {/* Hidden Input File pour les images */}
         <input 
             type="file" 
             ref={fileInputRef} 
@@ -164,26 +211,40 @@ export default function Toolbar({ editor }: ToolbarProps) {
             if (btn.divider) {
                 return <div key={index} className="w-px h-6 bg-gray-200 dark:bg-zinc-700 mx-2" />;
             }
-            // TypeScript guard
+            
             if (!btn.icon) return null;
             
             const Icon = btn.icon;
+            const isDisabled = btn.disabled || (isUploading && btn.label === 'Image');
+            
             return (
                 <button
                     key={index}
                     onClick={btn.action}
                     title={btn.label}
-                    disabled={isUploading && btn.label === 'Image'}
+                    disabled={isDisabled}
                     className={cn(
-                        "p-2 rounded-md transition-colors text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-zinc-700 hover:shadow-sm hover:text-gray-900 dark:hover:text-white",
+                        "p-2 rounded-md transition-all text-gray-500 dark:text-gray-400",
+                        "hover:bg-white dark:hover:bg-zinc-700 hover:shadow-sm hover:text-gray-900 dark:hover:text-white",
+                        "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent",
                         btn.isActive ? "bg-white dark:bg-zinc-700 text-[#3E7B52] dark:text-[#13EC13] shadow-sm font-bold" : "",
                         btn.specialClass
                     )}
                 >
-                    <Icon size={18} className={isUploading && btn.label === 'Image' ? "animate-spin" : ""} />
+                    <Icon 
+                        size={18} 
+                        className={isUploading && btn.label === 'Image' ? "animate-spin" : ""} 
+                    />
                 </button>
             )
         })}
+
+        {uploadSuccess && (
+            <div className="ml-auto flex items-center gap-2 text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full animate-in fade-in slide-in-from-right-2">
+                <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                Image ajoutée !
+            </div>
+        )}
     </div>
   );
 }

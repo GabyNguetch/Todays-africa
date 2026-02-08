@@ -9,11 +9,10 @@ import {
   ChevronDown, Check, Search, X, RefreshCw, 
   CornerDownRight, Globe, MapPin, Wand2, Trash2, Tag
 } from "lucide-react";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ArticleService } from "@/services/article";
 import { Rubrique } from "@/types/article";
 
-// RÉGIONS
 const TARGET_REGIONS = [
   { id: "GLOBAL", label: "🌍 Afrique (Global)" },
   { id: "AFRIQUE_OUEST", label: "📍 Afrique de l'Ouest" },
@@ -53,11 +52,20 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
-  // Chargement rubriques
   useEffect(() => {
     loadRubriques();
   }, []);
+
+  // Cleanup preview URL
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
 
   const loadRubriques = async () => {
     setIsRubriqueLoading(true);
@@ -102,13 +110,14 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
     }
   };
 
-  // --- 🔥 UPLOAD HANDLER AMÉLIORÉ ---
+  /**
+   * ✅ CORRECTION: Upload avec preview local immédiat ET stockage de l'ID numérique
+   */
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Validation côté client
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 
     if (!allowedTypes.includes(file.type)) {
@@ -123,52 +132,84 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         return;
     }
 
-    // Reset UI
     setIsUploading(true);
     setUploadError(null);
 
+    // ✅ PREVIEW LOCAL IMMÉDIAT
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+    props.setCoverImageUrl(previewUrl);
+
     try {
-        console.log("🚀 Start Cover Upload...");
+        console.group("🖼️ [ArticleSettings] Upload Cover Image");
+        console.log("Fichier:", file.name, `(${file.size} bytes)`);
         
-        // 1. Upload
         const media = await ArticleService.uploadMedia(file);
         
-        console.log("📦 Media reçu du backend:", media);
+        console.log("✅ Média reçu:", media);
+        console.log("🆔 ID numérique:", media.id);
+        console.log("🔗 URL serveur:", media.urlAcces);
         
-        // 2. Set ID
-        props.setCoverImageId(media.id); 
+        // ✅ CORRECTION CRITIQUE: Stocker l'ID comme STRING contenant un nombre
+        // Le service article.ts le convertira en INTEGER lors de l'envoi au backend
+        const numericId = parseInt(media.id);
+        if (isNaN(numericId)) {
+          throw new Error("Le serveur n'a pas retourné un ID valide");
+        }
         
-        // 3. Set URL de Preview immédiatement
-        // ✅ Utiliser le champ 'urlAcces' du MediaResponseDto formaté
-        const previewUrl = getImageUrl(media.urlAcces);
-        console.log("📸 Mise à jour UI avec URL:", previewUrl);
-        props.setCoverImageUrl(previewUrl);
+        props.setCoverImageId(media.id); // String représentant un nombre (ex: "123")
+        props.setCoverImageUrl(media.urlAcces);
+        
+        // Remplacer le preview local par l'URL serveur
+        if (localPreviewUrl) {
+          URL.revokeObjectURL(localPreviewUrl);
+        }
+        setLocalPreviewUrl(null);
+        
+        console.log("✅ État mis à jour:");
+        console.log("   - coverImageId:", media.id);
+        console.log("   - coverImageUrl:", media.urlAcces);
+        console.groupEnd();
 
     } catch (err: any) {
-        console.error("❌ Erreur Component Upload:", err);
+        console.error("❌ Erreur Upload Cover:", err);
+        console.groupEnd();
         
-        // Message d'erreur utilisateur-friendly
         const errorMessage = err.message || "Erreur serveur lors de l'envoi.";
         setUploadError(errorMessage);
         
-        // Si c'est une erreur serveur 500, suggérer de réessayer
         if (errorMessage.includes("500") || errorMessage.includes("stocker")) {
-            setUploadError("⚠️ Le serveur ne peut pas enregistrer le fichier actuellement. Vérifiez que le dossier d'upload existe et que vous avez les permissions nécessaires. Contactez l'administrateur si le problème persiste.");
+            setUploadError("⚠️ Le serveur ne peut pas enregistrer le fichier. Vérifiez les permissions ou contactez l'administrateur.");
         }
+        
+        // Annuler le preview local en cas d'erreur
+        if (localPreviewUrl) {
+          URL.revokeObjectURL(localPreviewUrl);
+        }
+        setLocalPreviewUrl(null);
+        props.setCoverImageUrl(null);
+        props.setCoverImageId(null);
     } finally {
         setIsUploading(false);
-        e.target.value = ""; // Allow re-upload same file
+        e.target.value = "";
     }
   };
 
   const handleRemoveCover = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    setLocalPreviewUrl(null);
     props.setCoverImageUrl(null);
     props.setCoverImageId(null);
     setUploadError(null);
+    console.log("🗑️ Image de couverture supprimée");
   };
 
-  // Handler ajout tag manuel
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -190,13 +231,15 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   
   const currentRubriqueName = flatRubriques.find(r => r.id === props.rubriqueId)?.nom || "Sélectionner une rubrique";
 
+  // ✅ URL de prévisualisation (local ou serveur)
+  const displayUrl = localPreviewUrl || props.coverImageUrl;
+
   return (
-    <div className="space-y-6 pb-24 animate-in fade-in sticky top-24">
+    <div className="space-y-6 pb-24 animate-in fade-in overflow-y-auto scrollbar-hide max-h-[calc(100vh-120px)]">
       
-      {/* === SECTION 1: ESSENTIELS === */}
+      {/* SECTION 1: ESSENTIELS */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
         
-        {/* Titre */}
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 flex justify-between">
             Titre Principal 
@@ -220,7 +263,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
           )}
         </div>
         
-        {/* Description */}
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 flex justify-between">
             Résumé (Chapeau)
@@ -245,7 +287,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         </div>
       </div>
 
-      {/* === SECTION TAGS & IA === */}
+      {/* SECTION TAGS & IA */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
           
           <div className="flex items-center justify-between mb-1">
@@ -263,7 +305,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
              </button>
           </div>
 
-          {/* Zone de Tags (Chips) */}
           <div className="flex flex-wrap gap-2 mb-3">
              {props.tags.map((tag, idx) => (
                  <span key={`${tag}-${idx}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
@@ -273,7 +314,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
              ))}
           </div>
 
-          {/* Input Ajout */}
           <div className="relative">
               <input 
                 type="text"
@@ -295,14 +335,21 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
           </p>
       </div>
 
-      {/* === SECTION 2: IMAGE COUVERTURE === */}
+      {/* SECTION 2: IMAGE COUVERTURE */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3 flex justify-between">
-            Image de Couverture
+        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3 flex justify-between items-center">
+            <span className="flex items-center gap-2">
+                <ImageIcon size={12} className="text-[#3E7B52]"/>
+                Image de Couverture
+            </span>
             {isUploading && <Loader2 size={12} className="animate-spin text-[#3E7B52]"/>}
+            {props.coverImageId && !isUploading && (
+                <span className="text-[9px] text-green-600 dark:text-green-400 font-mono bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded">
+                    ✓ Uploadé
+                </span>
+            )}
         </label>
         
-        {/* Message d'erreur */}
         {uploadError && (
           <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg flex items-start gap-2">
               <AlertCircle size={14} className="flex-shrink-0 mt-0.5"/>
@@ -312,7 +359,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
 
         <div className={cn(
           "relative w-full aspect-video border-2 border-dashed rounded-xl overflow-hidden flex flex-col items-center justify-center transition-all group",
-          props.coverImageUrl ? "border-transparent bg-black" : "border-gray-200 dark:border-zinc-700 hover:border-[#3E7B52] cursor-pointer"
+          displayUrl ? "border-transparent bg-black" : "border-gray-200 dark:border-zinc-700 hover:border-[#3E7B52] cursor-pointer"
         )}>
            <input 
               type="file" 
@@ -327,10 +374,10 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   <Loader2 size={24} className="animate-spin mb-2"/>
                   <span className="text-[10px] font-bold uppercase">Téléchargement...</span>
               </div>
-           ) : props.coverImageUrl ? (
+           ) : displayUrl ? (
               <>
                  <Image 
-                    src={props.coverImageUrl} 
+                    src={displayUrl} 
                     alt="Cover" 
                     fill 
                     className="object-cover group-hover:opacity-50 transition-opacity" 
@@ -356,9 +403,16 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                </div>
            )}
         </div>
+        
+        {process.env.NODE_ENV === 'development' && props.coverImageId && (
+            <div className="mt-2 p-2 bg-gray-50 dark:bg-zinc-950 rounded text-[9px] font-mono text-gray-500 dark:text-gray-400">
+                <div>ID: {props.coverImageId}</div>
+                <div className="truncate">URL: {displayUrl}</div>
+            </div>
+        )}
       </div>
 
-      {/* === SECTION 3: CIBLAGE === */}
+      {/* SECTION 3: CIBLAGE */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-5 z-20 relative">
         
         {/* RUBRIQUE */}
@@ -395,11 +449,9 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
               />
             </button>
 
-            {/* Dropdown */}
             {isDropdownOpen && (
               <div className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-2xl max-h-64 flex flex-col mt-2 z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
                 
-                {/* Filtre */}
                 <div className="p-3 border-b dark:border-zinc-700 bg-gray-50 dark:bg-zinc-950 sticky top-0 z-10">
                   <div className="flex items-center bg-white dark:bg-zinc-900 border dark:border-zinc-700 px-3 rounded-lg h-9 focus-within:ring-1 focus-within:ring-[#3E7B52]">
                     <Search size={14} className="text-gray-400 mr-2" />
@@ -413,8 +465,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   </div>
                 </div>
                 
-                {/* Liste */}
-                <div className="overflow-y-auto flex-1 p-1">
+                <div className="overflow-y-auto flex-1 p-1 scrollbar-hide">
                   {flatRubriques.filter(r => 
                     (r.nom || "").toLowerCase().includes(searchTerm.toLowerCase())
                   ).map(rub => (
@@ -441,7 +492,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   ))}
                 </div>
 
-                {/* Create */}
                 <div className="p-2 border-t dark:border-zinc-700 bg-gray-50 dark:bg-zinc-950">
                   {isCreating ? (
                     <div className="flex gap-2 items-center px-1">

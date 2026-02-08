@@ -3848,7 +3848,7 @@ export default function EditorContentComp({ setEditorRef, onChange, initialConte
 FICHIER: D:\Projet Business\TODY\tody-africa\components\dashboard\new-article\ArticleSettings.tsx
 ================================================================================
 
-// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - VERSION CORRIGÉE
+// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - VERSION CORRIGÉE PREVIEW LOCAL
 
 "use client";
 
@@ -3859,11 +3859,10 @@ import {
   ChevronDown, Check, Search, X, RefreshCw, 
   CornerDownRight, Globe, MapPin, Wand2, Trash2, Tag
 } from "lucide-react";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ArticleService } from "@/services/article";
 import { Rubrique } from "@/types/article";
 
-// RÉGIONS
 const TARGET_REGIONS = [
   { id: "GLOBAL", label: "🌍 Afrique (Global)" },
   { id: "AFRIQUE_OUEST", label: "📍 Afrique de l'Ouest" },
@@ -3903,11 +3902,20 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 
-  // Chargement rubriques
   useEffect(() => {
     loadRubriques();
   }, []);
+
+  // Cleanup preview URL
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
 
   const loadRubriques = async () => {
     setIsRubriqueLoading(true);
@@ -3952,13 +3960,14 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
     }
   };
 
-  // --- 🔥 UPLOAD HANDLER AMÉLIORÉ ---
+  /**
+   * ✅ CORRECTION: Upload avec preview local immédiat
+   */
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Validation côté client
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 
     if (!allowedTypes.includes(file.type)) {
@@ -3973,52 +3982,71 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         return;
     }
 
-    // Reset UI
     setIsUploading(true);
     setUploadError(null);
 
+    // ✅ PREVIEW LOCAL IMMÉDIAT
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(previewUrl);
+    props.setCoverImageUrl(previewUrl);
+
     try {
-        console.log("🚀 Start Cover Upload...");
+        console.group("🖼️ [ArticleSettings] Upload Cover Image");
+        console.log("Fichier:", file.name, `(${file.size} bytes)`);
         
-        // 1. Upload
         const media = await ArticleService.uploadMedia(file);
         
-        console.log("📦 Media reçu du backend:", media);
+        console.log("✅ Média reçu:", media);
+        console.log("🆔 UUID:", media.id);
+        console.log("🔗 URL:", media.urlAcces);
         
-        // 2. Set ID
-        props.setCoverImageId(media.id); 
+        props.setCoverImageId(media.id);
+        props.setCoverImageUrl(media.urlAcces);
         
-        // 3. Set URL de Preview immédiatement
-        // ✅ Utiliser le champ 'urlAcces' du MediaResponseDto formaté
-        const previewUrl = getImageUrl(media.urlAcces);
-        console.log("📸 Mise à jour UI avec URL:", previewUrl);
-        props.setCoverImageUrl(previewUrl);
+        console.log("✅ État mis à jour:");
+        console.log("   - coverImageId:", media.id);
+        console.log("   - coverImageUrl:", media.urlAcces);
+        console.groupEnd();
 
     } catch (err: any) {
-        console.error("❌ Erreur Component Upload:", err);
+        console.error("❌ Erreur Upload Cover:", err);
+        console.groupEnd();
         
-        // Message d'erreur utilisateur-friendly
         const errorMessage = err.message || "Erreur serveur lors de l'envoi.";
         setUploadError(errorMessage);
         
-        // Si c'est une erreur serveur 500, suggérer de réessayer
         if (errorMessage.includes("500") || errorMessage.includes("stocker")) {
-            setUploadError("⚠️ Le serveur ne peut pas enregistrer le fichier actuellement. Vérifiez que le dossier d'upload existe et que vous avez les permissions nécessaires. Contactez l'administrateur si le problème persiste.");
+            setUploadError("⚠️ Le serveur ne peut pas enregistrer le fichier. Vérifiez les permissions ou contactez l'administrateur.");
         }
+        
+        // Annuler le preview local en cas d'erreur
+        if (localPreviewUrl) {
+          URL.revokeObjectURL(localPreviewUrl);
+        }
+        setLocalPreviewUrl(null);
+        props.setCoverImageUrl(null);
+        props.setCoverImageId(null);
     } finally {
         setIsUploading(false);
-        e.target.value = ""; // Allow re-upload same file
+        e.target.value = "";
     }
   };
 
   const handleRemoveCover = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    setLocalPreviewUrl(null);
     props.setCoverImageUrl(null);
     props.setCoverImageId(null);
     setUploadError(null);
+    console.log("🗑️ Image de couverture supprimée");
   };
 
-  // Handler ajout tag manuel
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -4040,13 +4068,15 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   
   const currentRubriqueName = flatRubriques.find(r => r.id === props.rubriqueId)?.nom || "Sélectionner une rubrique";
 
+  // ✅ URL de prévisualisation (local ou serveur)
+  const displayUrl = localPreviewUrl || props.coverImageUrl;
+
   return (
-    <div className="space-y-6 pb-24 animate-in fade-in sticky top-24">
+    <div className="space-y-6 pb-24 animate-in fade-in overflow-y-auto scrollbar-hide max-h-[calc(100vh-120px)]">
       
-      {/* === SECTION 1: ESSENTIELS === */}
+      {/* SECTION 1: ESSENTIELS */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
         
-        {/* Titre */}
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 flex justify-between">
             Titre Principal 
@@ -4070,7 +4100,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
           )}
         </div>
         
-        {/* Description */}
         <div>
           <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 flex justify-between">
             Résumé (Chapeau)
@@ -4095,7 +4124,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         </div>
       </div>
 
-      {/* === SECTION TAGS & IA === */}
+      {/* SECTION TAGS & IA */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
           
           <div className="flex items-center justify-between mb-1">
@@ -4113,7 +4142,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
              </button>
           </div>
 
-          {/* Zone de Tags (Chips) */}
           <div className="flex flex-wrap gap-2 mb-3">
              {props.tags.map((tag, idx) => (
                  <span key={`${tag}-${idx}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
@@ -4123,7 +4151,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
              ))}
           </div>
 
-          {/* Input Ajout */}
           <div className="relative">
               <input 
                 type="text"
@@ -4145,14 +4172,21 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
           </p>
       </div>
 
-      {/* === SECTION 2: IMAGE COUVERTURE === */}
+      {/* SECTION 2: IMAGE COUVERTURE */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3 flex justify-between">
-            Image de Couverture
+        <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3 flex justify-between items-center">
+            <span className="flex items-center gap-2">
+                <ImageIcon size={12} className="text-[#3E7B52]"/>
+                Image de Couverture
+            </span>
             {isUploading && <Loader2 size={12} className="animate-spin text-[#3E7B52]"/>}
+            {props.coverImageId && !isUploading && (
+                <span className="text-[9px] text-green-600 dark:text-green-400 font-mono bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded">
+                    ✓ Uploadé
+                </span>
+            )}
         </label>
         
-        {/* Message d'erreur */}
         {uploadError && (
           <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg flex items-start gap-2">
               <AlertCircle size={14} className="flex-shrink-0 mt-0.5"/>
@@ -4162,7 +4196,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
 
         <div className={cn(
           "relative w-full aspect-video border-2 border-dashed rounded-xl overflow-hidden flex flex-col items-center justify-center transition-all group",
-          props.coverImageUrl ? "border-transparent bg-black" : "border-gray-200 dark:border-zinc-700 hover:border-[#3E7B52] cursor-pointer"
+          displayUrl ? "border-transparent bg-black" : "border-gray-200 dark:border-zinc-700 hover:border-[#3E7B52] cursor-pointer"
         )}>
            <input 
               type="file" 
@@ -4177,10 +4211,10 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   <Loader2 size={24} className="animate-spin mb-2"/>
                   <span className="text-[10px] font-bold uppercase">Téléchargement...</span>
               </div>
-           ) : props.coverImageUrl ? (
+           ) : displayUrl ? (
               <>
                  <Image 
-                    src={props.coverImageUrl} 
+                    src={displayUrl} 
                     alt="Cover" 
                     fill 
                     className="object-cover group-hover:opacity-50 transition-opacity" 
@@ -4206,9 +4240,16 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                </div>
            )}
         </div>
+        
+        {process.env.NODE_ENV === 'development' && props.coverImageId && (
+            <div className="mt-2 p-2 bg-gray-50 dark:bg-zinc-950 rounded text-[9px] font-mono text-gray-500 dark:text-gray-400">
+                <div>ID: {props.coverImageId}</div>
+                <div className="truncate">URL: {displayUrl}</div>
+            </div>
+        )}
       </div>
 
-      {/* === SECTION 3: CIBLAGE === */}
+      {/* SECTION 3: CIBLAGE */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-5 z-20 relative">
         
         {/* RUBRIQUE */}
@@ -4245,11 +4286,9 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
               />
             </button>
 
-            {/* Dropdown */}
             {isDropdownOpen && (
               <div className="absolute top-full left-0 right-0 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-2xl max-h-64 flex flex-col mt-2 z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
                 
-                {/* Filtre */}
                 <div className="p-3 border-b dark:border-zinc-700 bg-gray-50 dark:bg-zinc-950 sticky top-0 z-10">
                   <div className="flex items-center bg-white dark:bg-zinc-900 border dark:border-zinc-700 px-3 rounded-lg h-9 focus-within:ring-1 focus-within:ring-[#3E7B52]">
                     <Search size={14} className="text-gray-400 mr-2" />
@@ -4263,8 +4302,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   </div>
                 </div>
                 
-                {/* Liste */}
-                <div className="overflow-y-auto flex-1 p-1">
+                <div className="overflow-y-auto flex-1 p-1 scrollbar-hide">
                   {flatRubriques.filter(r => 
                     (r.nom || "").toLowerCase().includes(searchTerm.toLowerCase())
                   ).map(rub => (
@@ -4291,7 +4329,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                   ))}
                 </div>
 
-                {/* Create */}
                 <div className="p-2 border-t dark:border-zinc-700 bg-gray-50 dark:bg-zinc-950">
                   {isCreating ? (
                     <div className="flex gap-2 items-center px-1">
@@ -4364,7 +4401,8 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
 FICHIER: D:\Projet Business\TODY\tody-africa\components\dashboard\new-article\Toolbar.tsx
 ================================================================================
 
-// FICHIER: components/dashboard/new-article/Toolbar.tsx
+// FICHIER: components/dashboard/new-article/Toolbar.tsx - VERSION CORRIGÉE PREVIEW LOCAL
+
 "use client";
 
 import React, { useRef, useState } from 'react';
@@ -4374,7 +4412,7 @@ import {
   List, ListOrdered, Image as ImageIcon, Video, Undo, Redo, 
   Loader2
 } from 'lucide-react';
-import { cn, getImageUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { ArticleService } from '@/services/article';
 
 interface ToolbarProps {
@@ -4383,12 +4421,11 @@ interface ToolbarProps {
 
 export default function Toolbar({ editor }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   if (!editor) return null;
 
-  // -- LOGIQUE AVANCÉE D'INSERTION IMAGE --
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -4401,41 +4438,73 @@ export default function Toolbar({ editor }: ToolbarProps) {
     setUploadSuccess(false);
 
     try {
-        // 1. Upload vers le Backend -> On récupère ID + URL
-        const media = await ArticleService.uploadMedia(file);
+        console.group("📷 [Toolbar] Upload Image Contenu");
+        console.log("Fichier:", file.name, `(${file.size} bytes)`);
         
-        console.log("📷 Image uploaded via Editor:", media);
-
-        // 2. Insérer dans l'éditeur avec attributs étendus
-        // NOTE: On utilise setAttribute sur setImage pour persister le mediaId
-        // Si l'extension Tiptap Image de base ne supporte pas d'attributs custom,
-        // nous insérons via 'command' standard et mettons à jour les attributs via le DOM ensuite.
+        // ✅ PREVIEW LOCAL IMMÉDIAT
+        const localUrl = URL.createObjectURL(file);
+        console.log("🖼️ Preview local:", localUrl);
         
-        const imageUrl = getImageUrl(media.urlAcces);
-        
+        // Insérer immédiatement l'image avec URL locale
         editor.chain().focus().setImage({ 
-            src: imageUrl, 
-            alt: media.nomOriginal,
-            title: media.nomOriginal // Sert souvent de légende par défaut
+            src: localUrl, 
+            alt: file.name,
+            title: file.name
         }).run();
 
-        // 3. Hack propre: On attache le mediaId à la dernière image insérée (ou celle ayant cet URL)
-        // Ceci est vital pour le parsing plus tard dans NewArticle.tsx
-        // Nous le faisons via un petit délai pour laisser Tiptap rendre le node.
+        // Marquer temporairement l'image comme "en cours d'upload"
         setTimeout(() => {
-            const images = document.querySelectorAll(`img[src="${imageUrl}"]`);
+            const images = document.querySelectorAll(`img[src="${localUrl}"]`);
             images.forEach(img => {
-                img.setAttribute('data-media-id', String(media.id));
-                img.classList.add("article-content-image"); // Classe CSS pour styling
+                img.setAttribute('data-uploading', 'true');
+                img.classList.add('article-content-image', 'opacity-50', 'animate-pulse');
             });
+        }, 50);
+        
+        // Upload vers le backend en arrière-plan
+        const media = await ArticleService.uploadMedia(file);
+        
+        console.log("✅ Média reçu:", media);
+        console.log("🆔 UUID:", media.id);
+        console.log("🔗 URL serveur:", media.urlAcces);
+
+        // Remplacer l'URL locale par l'URL serveur
+        setTimeout(() => {
+            const images = document.querySelectorAll(`img[src="${localUrl}"]`);
+            
+            images.forEach(img => {
+                // Remplacer src
+                img.setAttribute('src', media.urlAcces);
+                
+                // Stocker l'UUID
+                img.setAttribute('data-media-id', String(media.id));
+                
+                // Retirer indicateurs de chargement
+                img.removeAttribute('data-uploading');
+                img.classList.remove('opacity-50', 'animate-pulse');
+                img.classList.add("article-content-image");
+                
+                console.log(`✅ Image mise à jour avec URL serveur et UUID: ${media.id}`);
+            });
+            
+            // Libérer l'URL locale
+            URL.revokeObjectURL(localUrl);
+            
+            console.log(`✅ ${images.length} image(s) mise(s) à jour avec URL serveur`);
         }, 100);
 
         setUploadSuccess(true);
         setTimeout(() => setUploadSuccess(false), 2000);
+        
+        console.groupEnd();
 
     } catch (err) {
-        alert("Erreur upload image contenu. Vérifiez format/taille.");
-        console.error(err);
+        console.error("❌ Erreur upload image contenu:", err);
+        console.groupEnd();
+        alert("Erreur lors de l'upload. Vérifiez le format/taille du fichier.");
+        
+        // En cas d'erreur, retirer l'image du document
+        // (À améliorer avec une gestion plus fine si nécessaire)
     } finally {
         setIsUploading(false);
         if(fileInputRef.current) fileInputRef.current.value = ""; 
@@ -4446,7 +4515,6 @@ export default function Toolbar({ editor }: ToolbarProps) {
     const url = prompt('Entrez l\'URL YouTube');
     if (url) {
       editor.commands.setContent(`${editor.getHTML()}<p>URL Vidéo: ${url}</p>`); 
-      // Note: Idéalement utilisez @tiptap/extension-youtube
     }
   };
 
@@ -4503,21 +4571,37 @@ export default function Toolbar({ editor }: ToolbarProps) {
     },
     { divider: true },
     {
-        icon: isUploading ? Loader2 : ImageIcon, // Loader si en cours
+        icon: isUploading ? Loader2 : ImageIcon,
         action: handleImageClick,
-        isActive: false,
+        isActive: uploadSuccess,
         label: "Image",
-        specialClass: "text-[#3E7B52] dark:text-[#13EC13] hover:bg-green-50 dark:hover:bg-green-900/20"
+        specialClass: uploadSuccess 
+            ? "text-green-600 bg-green-50 dark:bg-green-900/20" 
+            : "text-[#3E7B52] dark:text-[#13EC13] hover:bg-green-50 dark:hover:bg-green-900/20"
     },
-    { icon: Video, action: addYoutube, isActive: false, label: "Vidéo Youtube" },
+    { 
+        icon: Video, 
+        action: addYoutube, 
+        isActive: false, 
+        label: "Vidéo Youtube" 
+    },
     { divider: true },
-    { icon: Undo, action: () => editor.chain().focus().undo().run(), label: "Undo" },
-    { icon: Redo, action: () => editor.chain().focus().redo().run(), label: "Redo" },
+    { 
+        icon: Undo, 
+        action: () => editor.chain().focus().undo().run(), 
+        label: "Annuler",
+        disabled: !editor.can().undo()
+    },
+    { 
+        icon: Redo, 
+        action: () => editor.chain().focus().redo().run(), 
+        label: "Rétablir",
+        disabled: !editor.can().redo()
+    },
   ];
 
   return (
     <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-100 dark:border-zinc-800 sticky top-0 z-10 backdrop-blur-sm">
-        {/* Hidden Input File pour les images */}
         <input 
             type="file" 
             ref={fileInputRef} 
@@ -4530,26 +4614,40 @@ export default function Toolbar({ editor }: ToolbarProps) {
             if (btn.divider) {
                 return <div key={index} className="w-px h-6 bg-gray-200 dark:bg-zinc-700 mx-2" />;
             }
-            // TypeScript guard
+            
             if (!btn.icon) return null;
             
             const Icon = btn.icon;
+            const isDisabled = btn.disabled || (isUploading && btn.label === 'Image');
+            
             return (
                 <button
                     key={index}
                     onClick={btn.action}
                     title={btn.label}
-                    disabled={isUploading && btn.label === 'Image'}
+                    disabled={isDisabled}
                     className={cn(
-                        "p-2 rounded-md transition-colors text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-zinc-700 hover:shadow-sm hover:text-gray-900 dark:hover:text-white",
+                        "p-2 rounded-md transition-all text-gray-500 dark:text-gray-400",
+                        "hover:bg-white dark:hover:bg-zinc-700 hover:shadow-sm hover:text-gray-900 dark:hover:text-white",
+                        "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent",
                         btn.isActive ? "bg-white dark:bg-zinc-700 text-[#3E7B52] dark:text-[#13EC13] shadow-sm font-bold" : "",
                         btn.specialClass
                     )}
                 >
-                    <Icon size={18} className={isUploading && btn.label === 'Image' ? "animate-spin" : ""} />
+                    <Icon 
+                        size={18} 
+                        className={isUploading && btn.label === 'Image' ? "animate-spin" : ""} 
+                    />
                 </button>
             )
         })}
+
+        {uploadSuccess && (
+            <div className="ml-auto flex items-center gap-2 text-xs font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full animate-in fade-in slide-in-from-right-2">
+                <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                Image ajoutée !
+            </div>
+        )}
     </div>
   );
 }
@@ -5493,8 +5591,8 @@ FICHIER: D:\Projet Business\TODY\tody-africa\components\dashboard\AdminArticles.
 import React, { useEffect, useState } from 'react';
 import { 
   CheckCircle, AlertTriangle, Archive, Calendar, 
-  FileText, Loader2, ArrowUpRight, Check, X, Shield, 
-  Eye, LayoutGrid, RotateCcw, Trash2
+  FileText, Loader2, ArrowUpRight, Shield, 
+  Eye, LayoutGrid, RotateCcw, Trash2, Lock, Rocket
 } from 'lucide-react';
 import { ArticleService } from '@/services/article';
 import { ArticleReadDto } from '@/types/article';
@@ -5504,14 +5602,13 @@ import { fr } from 'date-fns/locale';
 import ArticlePreviewModal from './ArticlePreviewModal';
 import AdvancedPublishModal from './AdvancedPublishModal'; 
 
-// Petit helper interne pour les cards stat
 const StatCard = ({ label, value, icon: Icon, colorClass, borderClass }: any) => (
-    <div className={cn("p-5 rounded-xl border bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-between animate-in fade-in zoom-in-95 duration-500 hover:shadow-md transition-shadow", borderClass)}>
+    <div className={cn("p-5 rounded-xl border bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-between animate-in fade-in zoom-in-95 duration-500 hover:shadow-md transition-all group cursor-pointer", borderClass)}>
         <div>
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-1">{label}</p>
-            <p className={cn("text-3xl font-black", colorClass)}>{value !== null ? value : "-"}</p>
+            <p className={cn("text-3xl font-black transition-all group-hover:scale-110", colorClass)}>{value !== null ? value : "-"}</p>
         </div>
-        <div className={cn("p-3 rounded-xl opacity-20", colorClass.replace('text-', 'bg-'))}>
+        <div className={cn("p-3 rounded-xl opacity-20 group-hover:opacity-30 transition-all", colorClass.replace('text-', 'bg-'))}>
             <Icon size={24} className={colorClass} style={{ opacity: 1 }}/>
         </div>
     </div>
@@ -5519,19 +5616,16 @@ const StatCard = ({ label, value, icon: Icon, colorClass, borderClass }: any) =>
 
 export default function AdminArticles() {
   
-  // -- STATES --
   const [activeTab, setActiveTab] = useState<'PENDING_REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARCHIVED'>('PENDING_REVIEW');
   const [articles, setArticles] = useState<ArticleReadDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
   
-  // -- MODAL --
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewArticle, setPreviewArticle] = useState<ArticleReadDto | null>(null);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [articleToPublish, setArticleToPublish] = useState<number | null>(null);
   
-  // States Stats 
   const [stats, setStats] = useState({ 
       total: 0,
       pending: 0, 
@@ -5540,7 +5634,6 @@ export default function AdminArticles() {
       archived: 0
   });
 
-  // -- INIT LOAD --
   useEffect(() => {
     loadArticles();
     updateStats(); 
@@ -5550,7 +5643,6 @@ export default function AdminArticles() {
     setLoading(true);
     try {
         console.log(`📡 ADMIN LOAD LIST [${activeTab}]...`);
-        // Note: Assurez-vous que votre backend gère bien le status 'ARCHIVED' dans /articles/by-status/
         const res = await ArticleService.getArticlesByStatus(activeTab, 0, 100);
         const list = Array.isArray(res) ? res : (res.content || []);
         setArticles(list);
@@ -5562,14 +5654,13 @@ export default function AdminArticles() {
     }
   };
 
-  // Chargement des compteurs pour les Stats
   const updateStats = async () => {
       try {
           const [p, a, pub, arc] = await Promise.all([
               ArticleService.getArticlesByStatus('PENDING_REVIEW', 0, 1),
               ArticleService.getArticlesByStatus('APPROVED', 0, 1),
               ArticleService.getArticlesByStatus('PUBLISHED', 0, 1),
-              ArticleService.getArticlesByStatus('ARCHIVED', 0, 1) // On suppose que cette route existe ou retourne vide
+              ArticleService.getArticlesByStatus('ARCHIVED', 0, 1)
           ]);
 
           const countPending = p.totalElements ?? p.length ?? 0;
@@ -5587,8 +5678,6 @@ export default function AdminArticles() {
       } catch (e) { console.error("Stats Error", e); }
   };
 
-  // --- ACTIONS PRINCIPALES (Passées au Modal) ---
-  
   const openPreview = (article: ArticleReadDto) => {
       setPreviewArticle(article);
       setIsPreviewOpen(true);
@@ -5597,22 +5686,15 @@ export default function AdminArticles() {
   const handleApprove = async (id: number) => {
     try {
         await ArticleService.approve(id);
-        closeModalAndRefresh("✅ Article approuvé !");
+        closeModalAndRefresh("✅ Article approuvé avec succès !");
     } catch (e: any) { alert(`Erreur: ${e.message}`); }
   };
 
-  const handlePublish = async (id: number) => {
-    try {
-        await ArticleService.publish(id);
-        closeModalAndRefresh("🎉 Article mis en ligne !");
-    } catch (e: any) { alert(`Erreur: ${e.message}`); }
-  };
-
-  // Remplacer handlePublish par :
-const initiatePublish = (id: number) => {
+  const initiatePublish = (id: number) => {
+    setIsPreviewOpen(false); // Fermer le preview
     setArticleToPublish(id);
     setIsPublishModalOpen(true);
-}
+  };
 
   const handleReject = async (id: number) => {
       const motif = prompt("Motif du rejet :", "Non conforme à la ligne éditoriale.");
@@ -5633,14 +5715,10 @@ const initiatePublish = (id: number) => {
       } catch (e) { alert("Erreur archivage."); }
   };
 
-  // --- ACTIONS SPECIFIQUES ARCHIVAGE (Utilisées dans le Tableau) ---
-
   const handleRepublish = async (id: number) => {
       if(!confirm("📢 Voulez-vous remettre cet article en ligne immédiatement ?")) return;
       setActionLoadingId(id);
       try {
-          // On réutilise publish car le backend permet souvent Archive -> Publish directement
-          // Sinon il faut faire un restore (pending) -> approve -> publish
           await ArticleService.publish(id); 
           
           setArticles(prev => prev.filter(a => a.id !== id));
@@ -5661,6 +5739,7 @@ const initiatePublish = (id: number) => {
           await ArticleService.delete(id);
           setArticles(prev => prev.filter(a => a.id !== id));
           updateStats();
+          alert("Article supprimé définitivement.");
       } catch(e) {
           alert("Erreur lors de la suppression.");
       } finally {
@@ -5668,19 +5747,37 @@ const initiatePublish = (id: number) => {
       }
   };
 
+  const handleSetPreview = async (id: number) => {
+      const dateEnd = prompt("Date de fin de l'avant-première (format: YYYY-MM-DDTHH:MM:SS):", 
+          new Date(Date.now() + 7*24*60*60*1000).toISOString().slice(0,19));
+      
+      if(!dateEnd) return;
+
+      try {
+          await ArticleService.setPreviewMode(id, { 
+              dateFinAvantPremiere: dateEnd,
+              accessRestreint: true 
+          });
+          closeModalAndRefresh("Mode avant-première activé !");
+      } catch(e: any) {
+          alert("Erreur: " + e.message);
+      }
+  };
+
   const closeModalAndRefresh = (msg?: string) => {
       if(msg) alert(msg);
       setIsPreviewOpen(false);
       setPreviewArticle(null);
-      // Optimistic update pour fluidité
+      setIsPublishModalOpen(false);
+      setArticleToPublish(null);
+      
       if (previewArticle) {
           setArticles(prev => prev.filter(a => a.id !== previewArticle.id));
       }
-      updateStats(); // Mise à jour réelle des compteurs
-      loadArticles(); // Reload complet au cas où
+      updateStats();
+      loadArticles();
   };
 
-  // -- CONFIG TABS --
   const tabs = [
       { id: 'PENDING_REVIEW', label: 'En attente', icon: AlertTriangle, color: "text-orange-500" },
       { id: 'APPROVED', label: 'Validés', icon: CheckCircle, color: "text-blue-500" },
@@ -5691,38 +5788,54 @@ const initiatePublish = (id: number) => {
   return (
     <div className="space-y-8 animate-in fade-in pb-32">
         
-        {/* --- MODAL INTERACTIF --- */}
+        {/* MODALS */}
         <ArticlePreviewModal 
             isOpen={isPreviewOpen} 
             onClose={() => setIsPreviewOpen(false)} 
             article={previewArticle}
             isLoading={false} 
-            // Passage des handlers au modal pour l'affichage Preview
             onApprove={handleApprove}
             onReject={handleReject}
-            onPublish={handlePublish}
+            onPublish={() => previewArticle && initiatePublish(previewArticle.id)}
             onArchive={handleArchive}
+            onRepublish={handleRepublish}
+            onDelete={handleDeletePermanently}
+            onSetPreview={handleSetPreview}
         />
-        {/* En dehors des boucles, au même niveau que ArticlePreviewModal */}
+
         {articleToPublish && (
             <AdvancedPublishModal 
                 isOpen={isPublishModalOpen}
                 onClose={() => { setIsPublishModalOpen(false); setArticleToPublish(null); }}
                 articleId={articleToPublish}
-                onSuccess={() => { closeModalAndRefresh("Publication configurée avec succès !"); }}
+                onSuccess={() => { closeModalAndRefresh("🎉 Publication configurée avec succès !"); }}
             />
         )}
 
-        {/* --- HEADER --- */}
-        <div>
-            <h2 className="text-3xl font-black dark:text-white flex items-center gap-3">
-                <Shield className="text-[#3E7B52] dark:text-[#13EC13] h-8 w-8"/> 
-                Administration
-            </h2>
-            <p className="text-gray-500 dark:text-zinc-400 mt-2 font-medium">Pilotage du flux éditorial, validation et gestion des archives.</p>
+        {/* HEADER */}
+        <div className="flex items-start justify-between">
+            <div>
+                <h2 className="text-3xl font-black dark:text-white flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-[#3E7B52] to-[#2e623f] dark:from-[#13EC13] dark:to-[#0dbd0d] rounded-xl">
+                        <Shield className="text-white dark:text-black h-6 w-6"/>
+                    </div>
+                    Administration
+                </h2>
+                <p className="text-gray-500 dark:text-zinc-400 mt-2 font-medium">Pilotage du flux éditorial, validation et gestion des archives.</p>
+            </div>
+
+            <div className="flex gap-2">
+                <button 
+                    onClick={() => { updateStats(); loadArticles(); }}
+                    className="p-3 rounded-lg border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors text-gray-500 dark:text-gray-400"
+                    title="Actualiser"
+                >
+                    <RotateCcw size={18}/>
+                </button>
+            </div>
         </div>
 
-        {/* --- STATS CARDS (GRID OPTIMISÉE) --- */}
+        {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <StatCard 
                 label="Total Articles" 
@@ -5736,39 +5849,39 @@ const initiatePublish = (id: number) => {
                 value={stats.pending} 
                 icon={AlertTriangle} 
                 colorClass="text-orange-600" 
-                borderClass={activeTab === 'PENDING_REVIEW' ? "border-orange-500 ring-1 ring-orange-500" : "border-transparent"}
+                borderClass={activeTab === 'PENDING_REVIEW' ? "border-orange-500 ring-2 ring-orange-500/20" : "border-transparent"}
             />
             <StatCard 
                 label="Prêts" 
                 value={stats.approved} 
-                icon={Check} 
+                icon={CheckCircle} 
                 colorClass="text-blue-600 dark:text-blue-400" 
-                borderClass={activeTab === 'APPROVED' ? "border-blue-500 ring-1 ring-blue-500" : "border-transparent"}
+                borderClass={activeTab === 'APPROVED' ? "border-blue-500 ring-2 ring-blue-500/20" : "border-transparent"}
             />
             <StatCard 
                 label="En Ligne" 
                 value={stats.published} 
                 icon={ArrowUpRight} 
                 colorClass="text-green-600 dark:text-green-400" 
-                borderClass={activeTab === 'PUBLISHED' ? "border-green-500 ring-1 ring-green-500" : "border-transparent"}
+                borderClass={activeTab === 'PUBLISHED' ? "border-green-500 ring-2 ring-green-500/20" : "border-transparent"}
             />
             <StatCard 
                 label="Archivés" 
                 value={stats.archived} 
                 icon={Archive} 
                 colorClass="text-gray-500 dark:text-zinc-400" 
-                borderClass={activeTab === 'ARCHIVED' ? "border-gray-400 ring-1 ring-gray-400" : "border-transparent"}
+                borderClass={activeTab === 'ARCHIVED' ? "border-gray-400 ring-2 ring-gray-400/20" : "border-transparent"}
             />
         </div>
 
-        {/* --- TABS --- */}
+        {/* TABS */}
         <div className="border-b border-gray-100 dark:border-zinc-800 pb-1 flex gap-6 overflow-x-auto">
             {tabs.map((tab) => (
                 <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
                     className={cn(
-                        "flex items-center gap-2 pb-3 px-1 text-xs font-bold uppercase tracking-widest transition-all border-b-2 shrink-0",
+                        "flex items-center gap-2 pb-3 px-1 text-xs font-bold uppercase tracking-widest transition-all border-b-2 shrink-0 relative group",
                         activeTab === tab.id 
                             ? `border-[#3E7B52] dark:border-[#13EC13] text-black dark:text-white` 
                             : "border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
@@ -5776,16 +5889,24 @@ const initiatePublish = (id: number) => {
                 >
                     <tab.icon size={16} className={activeTab === tab.id ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-300"} />
                     {tab.label}
+                    {activeTab === tab.id && (
+                        <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gradient-to-r from-[#3E7B52] to-[#2e623f] dark:from-[#13EC13] dark:to-[#0dbd0d] rounded-full"></span>
+                    )}
                 </button>
             ))}
         </div>
 
-        {/* --- TABLEAU LISTING --- */}
+        {/* TABLEAU */}
         <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 min-h-[400px]">
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 gap-4">
-                    <Loader2 className="animate-spin text-[#3E7B52] dark:text-[#13EC13]" size={40}/>
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider animate-pulse">Synchronisation...</p>
+                    <div className="relative">
+                        <Loader2 className="animate-spin text-[#3E7B52] dark:text-[#13EC13]" size={40}/>
+                        <div className="absolute inset-0 animate-ping">
+                            <Loader2 className="text-[#3E7B52]/20 dark:text-[#13EC13]/20" size={40}/>
+                        </div>
+                    </div>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider animate-pulse">Synchronisation en cours...</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
@@ -5807,7 +5928,15 @@ const initiatePublish = (id: number) => {
                                             <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-full">
                                                 <FileText size={32} className="text-gray-400 dark:text-zinc-500"/>
                                             </div>
-                                            <p className="text-sm font-semibold">Aucun article ici pour le moment.</p>
+                                            <div>
+                                                <p className="text-sm font-semibold text-gray-600 dark:text-zinc-400">Aucun article ici pour le moment.</p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {activeTab === 'PENDING_REVIEW' && "Les articles soumis apparaîtront ici"}
+                                                    {activeTab === 'APPROVED' && "Les articles validés apparaîtront ici"}
+                                                    {activeTab === 'PUBLISHED' && "Les articles publiés apparaîtront ici"}
+                                                    {activeTab === 'ARCHIVED' && "Les articles archivés apparaîtront ici"}
+                                                </p>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -5816,23 +5945,35 @@ const initiatePublish = (id: number) => {
                             {articles.map((art) => (
                                 <tr key={art.id} className="group hover:bg-gray-50 dark:hover:bg-zinc-800/20 transition-colors">
                                     
-                                    {/* TITRE & ID */}
                                     <td className="px-8 py-5 max-w-xs md:max-w-md cursor-pointer" onClick={() => openPreview(art)}>
-                                        <div className="font-bold text-base text-gray-900 dark:text-white group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors line-clamp-1">
-                                            {art.titre || "Sans titre"}
-                                        </div>
-                                        <div className="flex items-center gap-2 mt-1.5">
-                                            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
-                                                {art.rubriqueNom || "Général"}
-                                            </span>
-                                            {art.id && <span className="text-[10px] font-mono text-gray-300">#{art.id}</span>}
+                                        <div className="flex items-start gap-3">
+                                            {art.imageCouvertureUrl && (
+                                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-800 shrink-0 ring-1 ring-gray-200 dark:ring-zinc-700">
+                                                    <img src={art.imageCouvertureUrl} alt="" className="w-full h-full object-cover"/>
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-bold text-base text-gray-900 dark:text-white group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors line-clamp-2 mb-2">
+                                                    {art.titre || "Sans titre"}
+                                                </div>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400">
+                                                        {art.rubriqueNom || "Général"}
+                                                    </span>
+                                                    {art.enAvantPremiere && (
+                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                                                            <Lock size={8}/> Premium
+                                                        </span>
+                                                    )}
+                                                    {art.id && <span className="text-[10px] font-mono text-gray-300">#{art.id}</span>}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
 
-                                    {/* AUTEUR */}
                                     <td className="px-6 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-800 flex items-center justify-center font-bold text-xs text-gray-600 dark:text-zinc-300 shadow-sm shrink-0">
+                                            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-800 flex items-center justify-center font-bold text-xs text-gray-600 dark:text-zinc-300 shadow-sm shrink-0">
                                                 {art.auteurNom ? art.auteurNom.substring(0,2).toUpperCase() : "U"}
                                             </div>
                                             <div className="flex flex-col">
@@ -5842,54 +5983,53 @@ const initiatePublish = (id: number) => {
                                         </div>
                                     </td>
 
-                                    {/* DATES */}
                                     <td className="px-6 py-5">
-                                        <div className="flex flex-col gap-1 text-xs">
+                                        <div className="flex flex-col gap-1.5 text-xs">
                                             <div className="flex items-center gap-2 text-gray-500 dark:text-zinc-500 whitespace-nowrap">
                                                 <Calendar size={12}/>
                                                 <span>{art.dateCreation ? format(new Date(art.dateCreation), "d MMM yyyy", { locale: fr }) : "-"}</span>
                                             </div>
                                             {art.statut === 'PUBLISHED' && art.datePublication && (
-                                                <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold text-[10px] whitespace-nowrap">Publié le {format(new Date(art.datePublication), "dd/MM")}</span>
+                                                <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold text-[10px] whitespace-nowrap flex items-center gap-1">
+                                                    <Rocket size={10}/> {format(new Date(art.datePublication), "dd/MM à HH:mm")}
+                                                </span>
                                             )}
                                         </div>
                                     </td>
 
-                                    {/* ACTIONS */}
                                     <td className="px-6 py-5">
                                         <div className="flex items-center justify-end gap-2">
                                             
-                                            {/* Action Spécifique Archivé: Supprimer / Republier */}
                                             {activeTab === 'ARCHIVED' && (
                                                 <>
                                                     <button 
                                                         onClick={() => handleRepublish(art.id)}
                                                         disabled={actionLoadingId === art.id}
-                                                        className="h-8 w-8 flex items-center justify-center rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                                                        className="h-9 px-3 flex items-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-xs font-bold disabled:opacity-50"
                                                         title="Republier"
                                                     >
-                                                        {actionLoadingId === art.id ? <Loader2 className="animate-spin" size={16}/> : <RotateCcw size={16}/>}
+                                                        {actionLoadingId === art.id ? <Loader2 className="animate-spin" size={14}/> : <RotateCcw size={14}/>}
+                                                        <span className="hidden md:inline">Republier</span>
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDeletePermanently(art.id)}
                                                         disabled={actionLoadingId === art.id}
-                                                        className="h-8 w-8 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                                        className="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
                                                         title="Supprimer définitivement"
                                                     >
                                                         <Trash2 size={16}/>
                                                     </button>
-                                                    <span className="w-px h-4 bg-gray-200 dark:bg-zinc-800 mx-1"></span>
+                                                    <span className="w-px h-6 bg-gray-200 dark:bg-zinc-800 mx-1"></span>
                                                 </>
                                             )}
 
-                                            {/* Bouton Principal (Voir/Valider) */}
                                             <button 
                                                 onClick={() => openPreview(art)}
                                                 className={cn(
                                                     "h-9 px-4 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-sm whitespace-nowrap",
                                                     activeTab === 'PENDING_REVIEW' 
-                                                        ? "bg-[#3E7B52] hover:bg-[#2e623f] text-white hover:shadow-md dark:bg-[#13EC13] dark:text-black dark:hover:bg-[#0dbd0d]" 
-                                                        : "bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-300"
+                                                        ? "bg-gradient-to-r from-[#3E7B52] to-[#2e623f] hover:from-[#2e623f] hover:to-[#1e4a2f] text-white hover:shadow-md dark:from-[#13EC13] dark:to-[#0dbd0d] dark:text-black dark:hover:from-[#0dbd0d] dark:hover:to-[#0a9d0a]" 
+                                                        : "bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-300 dark:hover:bg-zinc-700"
                                                 )}
                                             >
                                                 {activeTab === 'PENDING_REVIEW' ? <CheckCircle size={14}/> : <Eye size={14}/>}
@@ -6280,51 +6420,48 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { 
   X, CheckCircle, Calendar, User, ArrowLeft, Loader2, 
-  XCircle, Send, Archive, Globe, AlertTriangle, 
-  Trash2, RotateCcw // ✅ Icônes ajoutées
+  XCircle, Archive, Globe, AlertTriangle, 
+  Trash2, RotateCcw, Lock, Rocket, Clock, Eye
 } from "lucide-react";
 import { ArticleReadDto } from "@/types/article"; 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface PreviewProps {
   isOpen: boolean;
   onClose: () => void;
   article: ArticleReadDto | null;
-  // Handlers d'actions (promesses pour gérer le loading local)
   onApprove?: (id: number) => Promise<void>;
   onReject?: (id: number) => Promise<void>;
   onPublish?: (id: number) => Promise<void>;
   onArchive?: (id: number) => Promise<void>;
-  // ✅ Nouveaux Handlers pour les Archives
   onRepublish?: (id: number) => Promise<void>;
   onDelete?: (id: number) => Promise<void>;
-  
-  isLoading?: boolean; // Loading global du parent
+  onSetPreview?: (id: number) => Promise<void>; // Nouvelle action
+  isLoading?: boolean;
 }
 
 export default function ArticlePreviewModal({ 
     isOpen, onClose, article, isLoading: parentLoading, 
     onApprove, onReject, onPublish, onArchive,
-    onRepublish, onDelete // ✅ Destructuring des nouvelles props
+    onRepublish, onDelete, onSetPreview
 }: PreviewProps) {
   
-  // Gestion d'état local pour le loading des boutons d'action
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [showPreviewConfig, setShowPreviewConfig] = useState(false);
 
-  // Bloque le scroll du body quand le modal est ouvert
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
-  // Handler wrapper pour gérer le state de chargement
   const handleAction = async (action: ((id: number) => Promise<void>) | undefined) => {
       if (!action || !article) return;
       setIsActionLoading(true);
       try {
           await action(article.id);
-          // Le modal ne se ferme pas ici, c'est le parent qui décide
       } catch (e) {
           console.error(e);
       } finally {
@@ -6338,17 +6475,15 @@ export default function ArticlePreviewModal({
       return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in">
             <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl flex flex-col items-center gap-3 border border-gray-100 dark:border-zinc-800 shadow-2xl">
-                <Loader2 className="animate-spin text-[#3E7B52]" size={32}/>
-                <span className="text-sm font-medium dark:text-white">Chargement...</span>
+                <Loader2 className="animate-spin text-[#3E7B52] dark:text-[#13EC13]" size={32}/>
+                <span className="text-sm font-medium dark:text-white">Chargement de l'article...</span>
             </div>
         </div>
       );
   }
 
-  // Sécurisation et tri des blocs de contenu
   const safeBlocs = (article.blocsContenu || []).sort((a: any, b: any) => a.ordre - b.ordre);
 
-  // --- Rendu des Blocs (Fonction de rendu) ---
   const renderBlock = (bloc: any, idx: number) => {
       if(bloc.type === 'IMAGE') {
           return (
@@ -6371,12 +6506,11 @@ export default function ArticlePreviewModal({
       if(bloc.type === 'CITATION') {
           return (
             <blockquote key={idx} className="relative pl-6 my-10 italic text-xl md:text-2xl text-gray-800 dark:text-gray-200 leading-relaxed font-serif">
-                <span className="absolute left-0 top-0 text-6xl text-[#3E7B52] opacity-30 font-black h-4 leading-3">“</span>
+                <span className="absolute left-0 top-0 text-6xl text-[#3E7B52] opacity-30 font-black h-4 leading-3">"</span>
                 {bloc.contenu}
             </blockquote>
           );
       }
-      // HTML Text
       return (
           <div key={idx} 
                className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-loose my-6 font-serif" 
@@ -6385,14 +6519,14 @@ export default function ArticlePreviewModal({
       );
   };
 
-  // Helper pour badge statut
   const getStatusInfo = (status: string) => {
       switch(status) {
           case 'PENDING_REVIEW': return { label: 'En attente de validation', class: 'bg-orange-100 text-orange-700 border-orange-200', icon: AlertTriangle };
-          case 'APPROVED': return { label: 'Validé (Prêt à publier)', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: CheckCircle };
-          case 'PUBLISHED': return { label: 'En ligne (Publique)', class: 'bg-green-100 text-green-700 border-green-200', icon: Globe };
+          case 'APPROVED': return { label: 'Validé - Prêt à publier', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: CheckCircle };
+          case 'PUBLISHED': return { label: 'En ligne', class: 'bg-green-100 text-green-700 border-green-200', icon: Globe };
           case 'REJECTED': return { label: 'Rejeté', class: 'bg-red-100 text-red-700 border-red-200', icon: XCircle };
           case 'ARCHIVED': return { label: 'Archivé', class: 'bg-gray-100 text-gray-700 border-gray-200', icon: Archive };
+          case 'DRAFT': return { label: 'Brouillon', class: 'bg-gray-100 text-gray-600 border-gray-200', icon: Eye };
           default: return { label: status, class: 'bg-gray-100 text-gray-500', icon: CheckCircle };
       }
   };
@@ -6402,13 +6536,11 @@ export default function ArticlePreviewModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-center items-end md:items-center animate-in fade-in duration-300">
-      {/* Overlay Clsoing Click */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* Main Card */}
       <div className="relative w-full h-[95vh] md:w-[90vw] md:h-[90vh] bg-white dark:bg-[#0a0a0a] md:rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10 animate-in slide-in-from-bottom-10 duration-500">
         
-        {/* --- HEADER --- */}
+        {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-zinc-800 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur z-20 sticky top-0">
             <div className="flex items-center gap-4">
                 <button onClick={onClose} className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors text-gray-500 dark:text-white">
@@ -6417,7 +6549,7 @@ export default function ArticlePreviewModal({
                 </button>
                 <div className="flex flex-col">
                     <h3 className="font-bold text-gray-900 dark:text-white text-sm hidden md:block">
-                        APERCU ARTICLE #{article.id}
+                        APERÇU ARTICLE #{article.id}
                     </h3>
                     <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-fit border", statusInfo.class)}>
                         <StatusIcon size={10} /> {statusInfo.label}
@@ -6425,17 +6557,20 @@ export default function ArticlePreviewModal({
                 </div>
             </div>
             
-            {/* Infos rapides Admin */}
             <div className="flex items-center gap-4 text-xs font-mono text-gray-400">
                 <span className="hidden sm:block">Auteur: {article.auteurNom}</span>
+                {article.enAvantPremiere && (
+                    <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded text-[10px] font-bold">
+                        <Lock size={10}/> AVANT-PREMIÈRE
+                    </span>
+                )}
             </div>
         </div>
 
-        {/* --- CONTENU DE L'ARTICLE (SCROLLABLE) --- */}
+        {/* CONTENU SCROLLABLE */}
         <div className="flex-1 overflow-y-auto bg-white dark:bg-black scroll-smooth custom-scrollbar">
             <main className="max-w-[800px] mx-auto px-6 py-12 md:py-16">
                  
-                 {/* En-tête Article */}
                  <div className="text-center max-w-3xl mx-auto mb-12">
                      <span className="text-[#3E7B52] dark:text-[#13EC13] text-xs font-black uppercase tracking-[0.2em] mb-4 inline-block px-3 py-1 rounded border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
                          {article.rubriqueNom || "Rubrique"}
@@ -6449,25 +6584,27 @@ export default function ArticlePreviewModal({
                         {article.description}
                      </p>
                      
-                     {/* Méta-données Auteur/Date */}
                      <div className="flex justify-center items-center gap-3 mt-10 pt-8 border-t border-gray-100 dark:border-zinc-800 text-xs font-bold uppercase tracking-wider text-gray-400">
                         <span className="flex items-center gap-2 text-black dark:text-white bg-gray-100 dark:bg-zinc-800 px-3 py-1.5 rounded-full">
                              <User size={14} className="text-[#3E7B52] dark:text-[#13EC13]"/> {article.auteurNom || "Rédaction"}
                         </span>
                         <span className="flex items-center gap-2 px-2">
-                            <Calendar size={14}/> {article.dateCreation ? new Date(article.dateCreation).toLocaleDateString() : "Date N/A"}
+                            <Calendar size={14}/> {article.dateCreation ? format(new Date(article.dateCreation), "d MMM yyyy", { locale: fr }) : "Date N/A"}
                         </span>
+                        {article.datePublication && (
+                            <span className="flex items-center gap-2 px-2 text-green-600 dark:text-green-400">
+                                <Clock size={14}/> Publié: {format(new Date(article.datePublication), "d MMM yyyy HH:mm", { locale: fr })}
+                            </span>
+                        )}
                      </div>
                  </div>
 
-                 {/* Cover Image (Grande) */}
                  {article.imageCouvertureUrl && (
                      <div className="relative w-full aspect-video md:aspect-[2/1] rounded-2xl overflow-hidden mb-16 shadow-2xl border-4 border-white dark:border-zinc-900 ring-1 ring-gray-100 dark:ring-zinc-800">
                          <Image src={article.imageCouvertureUrl} alt={article.titre} fill className="object-cover" priority unoptimized={true} />
                      </div>
                  )}
 
-                 {/* Corps du texte */}
                  <div className="max-w-[700px] mx-auto article-content">
                     {safeBlocs.length > 0 
                         ? safeBlocs.map((b: any, i: number) => renderBlock(b, i)) 
@@ -6477,21 +6614,26 @@ export default function ArticlePreviewModal({
             </main>
         </div>
 
-        {/* --- FOOTER : BARRE D'ACTIONS ADMIN (Sticky Bottom) --- */}
+        {/* FOOTER - ACTIONS ADMIN */}
         <div className="p-4 md:px-8 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] z-30 shrink-0">
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between max-w-6xl mx-auto w-full">
                 
-                {/* Information contexte (Visible sur Desktop) */}
                 <div className="hidden sm:flex items-center gap-2 text-xs text-gray-400">
                     <span className="font-mono">ID:{article.id}</span>
                     <span className="h-4 w-px bg-gray-200 dark:bg-zinc-700"/>
                     <span>Zone: {article.region || "Global"}</span>
                 </div>
                 
-                {/* Zone de Boutons dynamiques selon Workflow */}
-                <div className="flex gap-3 w-full sm:w-auto justify-end">
+                <div className="flex gap-3 w-full sm:w-auto justify-end flex-wrap">
                     
-                    {/* SCÉNARIO 1 : ARTICLE EN REVUE (DRAFT -> VALIDATED) */}
+                    {/* DRAFT / BROUILLON */}
+                    {article.statut === 'DRAFT' && (
+                        <div className="text-xs text-gray-400 italic px-3 py-2">
+                            Article en brouillon - Non soumis
+                        </div>
+                    )}
+
+                    {/* EN ATTENTE DE VALIDATION */}
                     {article.statut === 'PENDING_REVIEW' && (
                         <>
                             {onReject && (
@@ -6499,7 +6641,7 @@ export default function ArticlePreviewModal({
                                     onClick={() => handleAction(onReject)}
                                     disabled={isActionLoading}
                                     variant="outline"
-                                    className="border-red-200 p-3 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950"
+                                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950"
                                 >
                                     <XCircle size={18} className="mr-2"/> Rejeter
                                 </Button>
@@ -6508,50 +6650,64 @@ export default function ArticlePreviewModal({
                                 <Button 
                                     onClick={() => handleAction(onApprove)} 
                                     disabled={isActionLoading}
-                                    className="bg-blue-600 p-3 hover:bg-blue-700 text-white font-bold"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
                                 >
                                     {isActionLoading ? <Loader2 className="animate-spin mr-2" size={18}/> : <CheckCircle size={18} className="mr-2"/>}
-                                    Approuver la rédaction
+                                    Approuver
                                 </Button>
                             )}
                         </>
                     )}
 
-                    {/* SCÉNARIO 2 : ARTICLE VALIDÉ (APPROVED -> PUBLISHED) */}
+                    {/* VALIDÉ - PRÊT À PUBLIER */}
                     {article.statut === 'APPROVED' && onPublish && (
                         <>
-                            <div className="text-xs text-blue-600 font-bold bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded hidden sm:block">
-                                Cet article a été validé. Prêt pour mise en ligne.
+                            <div className="text-xs text-blue-600 font-bold bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded hidden sm:flex items-center gap-2">
+                                <CheckCircle size={14}/> Article validé
                             </div>
                             <Button 
                                 onClick={() => handleAction(onPublish)}
                                 disabled={isActionLoading}
-                                className="w-full p-3 sm:w-auto bg-[#3E7B52] hover:bg-[#326342] text-white font-bold shadow-lg shadow-green-900/20"
+                                className="w-full sm:w-auto bg-[#3E7B52] hover:bg-[#326342] dark:bg-[#13EC13] dark:hover:bg-[#0dbd0d] text-white dark:text-black font-bold shadow-lg shadow-green-900/20"
                             >
-                                {isActionLoading ? <Loader2 className="animate-spin mr-2" size={18}/> : <Globe size={18} className="mr-2"/>}
-                                Publier maintenant
+                                {isActionLoading ? <Loader2 className="animate-spin mr-2" size={18}/> : <Rocket size={18} className="mr-2"/>}
+                                Publier
                             </Button>
                         </>
                     )}
 
-                    {/* SCÉNARIO 3 : ARTICLE EN LIGNE (PUBLISHED -> ARCHIVED) */}
-                    {article.statut === 'PUBLISHED' && onArchive && (
-                        <Button 
-                            onClick={() => handleAction(onArchive)}
-                            disabled={isActionLoading}
-                            variant="outline"
-                            className="text-gray-500 p-3 border-gray-300 hover:bg-gray-100 hover:text-black dark:border-zinc-700 dark:text-gray-400 dark:hover:text-white"
-                        >
-                            {isActionLoading ? <Loader2 className="animate-spin mr-2" size={18}/> : <Archive size={18} className="mr-2"/>}
-                            Archiver / Retirer du site
-                        </Button>
+                    {/* PUBLIÉ */}
+                    {article.statut === 'PUBLISHED' && (
+                        <>
+                            {onSetPreview && !article.enAvantPremiere && (
+                                <Button 
+                                    onClick={() => handleAction(onSetPreview)}
+                                    disabled={isActionLoading}
+                                    variant="outline"
+                                    className="border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400"
+                                >
+                                    <Lock size={18} className="mr-2"/> Mode Premium
+                                </Button>
+                            )}
+                            {onArchive && (
+                                <Button 
+                                    onClick={() => handleAction(onArchive)}
+                                    disabled={isActionLoading}
+                                    variant="outline"
+                                    className="text-gray-500 border-gray-300 hover:bg-gray-100 hover:text-black dark:border-zinc-700 dark:text-gray-400 dark:hover:text-white"
+                                >
+                                    {isActionLoading ? <Loader2 className="animate-spin mr-2" size={18}/> : <Archive size={18} className="mr-2"/>}
+                                    Archiver
+                                </Button>
+                            )}
+                        </>
                     )}
 
-                    {/* ✅ SCÉNARIO 4 : ARTICLE ARCHIVÉ (ARCHIVED -> RESTORE or DELETE) */}
+                    {/* ARCHIVÉ */}
                     {article.statut === 'ARCHIVED' && (
                         <>
                            <div className="text-xs text-gray-400 italic font-medium px-3 py-2 hidden sm:block">
-                                Cet article est hors ligne.
+                                Article hors ligne
                             </div>
                             {onDelete && (
                                 <Button 
@@ -6576,10 +6732,10 @@ export default function ArticlePreviewModal({
                         </>
                     )}
 
-                    {/* Default fallback */}
-                    {['REJECTED', 'DRAFT'].includes(article.statut) && (
-                        <span className="text-xs text-gray-400 italic">
-                            Aucune action disponible pour le statut {article.statut}.
+                    {/* REJETÉ */}
+                    {article.statut === 'REJECTED' && (
+                        <span className="text-xs text-red-500 italic px-3 py-2">
+                            Article rejeté par l'éditeur
                         </span>
                     )}
                 </div>
@@ -7114,10 +7270,11 @@ FICHIER: D:\Projet Business\TODY\tody-africa\components\dashboard\AdvancedPublis
 "use client";
 
 import React, { useState } from 'react';
-import { X, Calendar, Globe, Bell, Share2, Rocket, Lock } from 'lucide-react';
+import { X, Calendar, Globe, Bell, Share2, Rocket, Lock, Clock, Zap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ArticleService } from '@/services/article';
 import { ArticlePublicationDto } from '@/types/article';
+import { cn } from '@/lib/utils';
 
 interface AdvancedPublishModalProps {
     isOpen: boolean;
@@ -7126,12 +7283,22 @@ interface AdvancedPublishModalProps {
     onSuccess: () => void;
 }
 
+const REGIONS = [
+    { id: 'AFRIQUE_OUEST', label: '🌍 Afrique de l Ouest', color: 'bg-blue-100 text-blue-700' },
+    { id: 'AFRIQUE_CENTRALE', label: '🌍 Afrique Centrale', color: 'bg-green-100 text-green-700' },
+    { id: 'AFRIQUE_EST', label: '🌍 Afrique de l Est', color: 'bg-yellow-100 text-yellow-700' },
+    { id: 'AFRIQUE_NORD', label: '🌍 Afrique du Nord', color: 'bg-orange-100 text-orange-700' },
+    { id: 'AFRIQUE_SUD', label: '🌍 Afrique Australe', color: 'bg-purple-100 text-purple-700' },
+    { id: 'GLOBAL', label: '🌐 Mondiale', color: 'bg-indigo-100 text-indigo-700' },
+];
+
 export default function AdvancedPublishModal({ isOpen, onClose, articleId, onSuccess }: AdvancedPublishModalProps) {
     const [isLoading, setIsLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState<'scheduling' | 'premium' | 'distribution'>('scheduling');
     
     // Form States
     const [scheduleDate, setScheduleDate] = useState("");
-    const [isPremium, setIsPremium] = useState(false); // Avant-première
+    const [isPremium, setIsPremium] = useState(false);
     const [previewEndDate, setPreviewEndDate] = useState("");
     const [regions, setRegions] = useState<string[]>([]);
     const [notify, setNotify] = useState(true);
@@ -7149,8 +7316,8 @@ export default function AdvancedPublishModal({ isOpen, onClose, articleId, onSuc
                 regionsTargetees: regions.length > 0 ? regions : undefined,
                 notifierAbonnes: notify,
                 publierReseauxSociaux: socials,
-                plateformesSociales: socials ? ["FACEBOOK", "TWITTER"] : [], // Par défaut si coché
-                forcerVisibilite: true // On veut que ça soit visible
+                plateformesSociales: socials ? ["FACEBOOK", "TWITTER"] : [],
+                forcerVisibilite: true
             };
 
             await ArticleService.publishAdvanced(articleId, payload);
@@ -7167,109 +7334,301 @@ export default function AdvancedPublishModal({ isOpen, onClose, articleId, onSuc
         setRegions(prev => prev.includes(reg) ? prev.filter(r => r !== reg) : [...prev, reg]);
     };
 
+    const tabs = [
+        { id: 'scheduling', label: 'Programmation', icon: Clock },
+        { id: 'premium', label: 'Avant-Première', icon: Lock },
+        { id: 'distribution', label: 'Diffusion', icon: Settings },
+    ];
+
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl border dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]">
                 
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center bg-gray-50 dark:bg-zinc-950">
-                    <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Rocket className="text-[#3E7B52]" size={20}/>
-                        Publication Avancée
-                    </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition"><X size={20}/></button>
+                {/* Header avec gradient */}
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-zinc-800 bg-gradient-to-r from-[#3E7B52] to-[#2e623f] dark:from-[#13EC13] dark:to-[#0dbd0d]">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/20 rounded-lg">
+                                <Rocket className="text-white" size={24}/>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-white text-lg">Publication Avancée</h3>
+                                <p className="text-white/80 text-xs">Configurez la visibilité de votre article</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={onClose} 
+                            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+                        >
+                            <X size={20}/>
+                        </button>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex gap-2 mt-4">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={cn(
+                                    "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                                    activeTab === tab.id
+                                        ? "bg-white text-[#3E7B52] dark:bg-black dark:text-[#13EC13] shadow-md"
+                                        : "bg-white/10 text-white/80 hover:bg-white/20"
+                                )}
+                            >
+                                <tab.icon size={14}/>
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Body Scrollable */}
-                <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar">
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
                     
-                    {/* 1. Programmation */}
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-                            <Calendar size={14}/> Date de publication
-                        </label>
-                        <div className="grid grid-cols-2 gap-4">
-                             <div 
-                                className={`p-3 border rounded-xl text-center cursor-pointer transition-all ${!scheduleDate ? 'border-[#3E7B52] bg-green-50 text-[#3E7B52] font-bold' : 'border-gray-200 dark:border-zinc-700'}`}
-                                onClick={() => setScheduleDate("")}
-                             >
-                                Immédiate
-                             </div>
-                             <input 
-                                type="datetime-local" 
-                                className="p-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs dark:bg-black dark:text-white outline-none focus:border-[#3E7B52]"
-                                onChange={(e) => setScheduleDate(e.target.value)}
-                             />
+                    {/* TAB 1: PROGRAMMATION */}
+                    {activeTab === 'scheduling' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                                <Calendar className="text-blue-600 dark:text-blue-400" size={20}/>
+                                <div>
+                                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Date de Publication</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Publiez maintenant ou programmez pour plus tard</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <button 
+                                    onClick={() => setScheduleDate("")}
+                                    className={cn(
+                                        "p-6 rounded-xl border-2 transition-all text-center group",
+                                        !scheduleDate 
+                                            ? 'border-[#3E7B52] bg-green-50 dark:bg-green-900/20 dark:border-[#13EC13]' 
+                                            : 'border-gray-200 dark:border-zinc-700 hover:border-[#3E7B52]/50'
+                                    )}
+                                >
+                                    <Zap size={32} className={cn(
+                                        "mx-auto mb-3",
+                                        !scheduleDate ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-400 group-hover:text-[#3E7B52]"
+                                    )}/>
+                                    <h5 className={cn(
+                                        "font-bold text-sm mb-1",
+                                        !scheduleDate ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-600 dark:text-gray-400"
+                                    )}>
+                                        Publication Immédiate
+                                    </h5>
+                                    <p className="text-xs text-gray-500">Mise en ligne instantanée</p>
+                                </button>
+
+                                <div className={cn(
+                                    "p-6 rounded-xl border-2 transition-all",
+                                    scheduleDate 
+                                        ? 'border-[#3E7B52] bg-green-50 dark:bg-green-900/20 dark:border-[#13EC13]' 
+                                        : 'border-gray-200 dark:border-zinc-700'
+                                )}>
+                                    <Clock size={32} className={cn(
+                                        "mx-auto mb-3",
+                                        scheduleDate ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-400"
+                                    )}/>
+                                    <h5 className={cn(
+                                        "font-bold text-sm mb-3 text-center",
+                                        scheduleDate ? "text-[#3E7B52] dark:text-[#13EC13]" : "text-gray-600 dark:text-gray-400"
+                                    )}>
+                                        Programmée
+                                    </h5>
+                                    <input 
+                                        type="datetime-local" 
+                                        value={scheduleDate}
+                                        onChange={(e) => setScheduleDate(e.target.value)}
+                                        className="w-full p-2 border border-gray-200 dark:border-zinc-700 rounded-lg text-xs dark:bg-black dark:text-white outline-none focus:border-[#3E7B52]"
+                                    />
+                                </div>
+                            </div>
+
+                            {scheduleDate && (
+                                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 animate-in fade-in slide-in-from-top-2">
+                                    <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                                        <Clock size={16}/>
+                                        L'article sera publié le {new Date(scheduleDate).toLocaleDateString('fr-FR', { 
+                                            day: 'numeric', 
+                                            month: 'long', 
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    )}
 
-                    {/* 2. Avant-Première */}
-                    <div className="space-y-3 pt-4 border-t border-dashed dark:border-zinc-800">
-                        <div className="flex items-center justify-between">
-                             <label className="text-xs font-bold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-                                <Lock size={14}/> Mode Avant-Première
-                             </label>
-                             <input type="checkbox" className="toggle-checkbox" checked={isPremium} onChange={e => setIsPremium(e.target.checked)} />
+                    {/* TAB 2: AVANT-PREMIÈRE */}
+                    {activeTab === 'premium' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
+                                <Lock className="text-purple-600 dark:text-purple-400" size={20}/>
+                                <div>
+                                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">Mode Avant-Première</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Réservé aux abonnés premium</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-white dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700">
+                                <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                        "p-3 rounded-lg",
+                                        isPremium ? "bg-purple-100 dark:bg-purple-900/30" : "bg-gray-100 dark:bg-zinc-700"
+                                    )}>
+                                        <Lock size={20} className={isPremium ? "text-purple-600 dark:text-purple-400" : "text-gray-400"}/>
+                                    </div>
+                                    <div>
+                                        <h5 className="font-bold text-sm text-gray-900 dark:text-white">Activer l'avant-première</h5>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Accès anticipé pour les abonnés</p>
+                                    </div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={isPremium} 
+                                        onChange={(e) => setIsPremium(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#3E7B52]/20 dark:peer-focus:ring-[#13EC13]/20 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-[#3E7B52] dark:peer-checked:bg-[#13EC13]"></div>
+                                </label>
+                            </div>
+
+                            {isPremium && (
+                                <div className="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                                        <Bell size={16}/>
+                                        <p className="text-sm font-bold">Configuration de l'avant-première</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                            Fin de la période exclusive
+                                        </label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={previewEndDate}
+                                            onChange={(e) => setPreviewEndDate(e.target.value)}
+                                            className="w-full p-3 bg-white dark:bg-black border border-amber-200 dark:border-amber-800 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-300"
+                                        />
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                            Après cette date, l'article sera accessible à tous
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        {isPremium && (
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-xs">
-                                <p className="text-amber-800 dark:text-amber-200 mb-2">Accessible uniquement aux abonnés jusqu'au :</p>
-                                <input 
-                                    type="datetime-local" 
-                                    className="w-full p-2 bg-white dark:bg-black border rounded-lg"
-                                    onChange={(e) => setPreviewEndDate(e.target.value)}
-                                />
-                            </div>
-                        )}
-                    </div>
+                    )}
 
-                    {/* 3. Ciblage Régional */}
-                    <div className="space-y-3 pt-4 border-t border-dashed dark:border-zinc-800">
-                         <label className="text-xs font-bold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-                            <Globe size={14}/> Ciblage Régional
-                         </label>
-                         <div className="flex flex-wrap gap-2">
-                             {['FR', 'UK', 'US', 'CM', 'NG', 'ZA'].map(geo => (
-                                 <button
-                                    key={geo}
-                                    onClick={() => toggleRegion(geo)}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-all ${regions.includes(geo) ? 'bg-[#3E7B52] text-white border-[#3E7B52]' : 'bg-gray-50 text-gray-500 border-gray-200'}`}
-                                 >
-                                     {geo}
-                                 </button>
-                             ))}
-                         </div>
-                    </div>
+                    {/* TAB 3: DIFFUSION */}
+                    {activeTab === 'distribution' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-300">
+                            {/* Ciblage Régional */}
+                            <div>
+                                <div className="flex items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 mb-4">
+                                    <Globe className="text-indigo-600 dark:text-indigo-400" size={20}/>
+                                    <div>
+                                        <h4 className="font-bold text-sm text-gray-900 dark:text-white">Ciblage Géographique</h4>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Sélectionnez les régions cibles</p>
+                                    </div>
+                                </div>
 
-                    {/* 4. Diffusion */}
-                    <div className="space-y-3 pt-4 border-t border-dashed dark:border-zinc-800">
-                         <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
-                            <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)} className="accent-[#3E7B52]"/>
-                            <div className="flex-1">
-                                <p className="font-bold text-sm dark:text-white flex items-center gap-2"><Bell size={14}/> Notifier les abonnés</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {REGIONS.map(region => (
+                                        <button
+                                            key={region.id}
+                                            onClick={() => toggleRegion(region.id)}
+                                            className={cn(
+                                                "p-3 rounded-lg border-2 transition-all text-left",
+                                                regions.includes(region.id)
+                                                    ? `${region.color} border-current font-bold`
+                                                    : "border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
+                                            )}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm">{region.label}</span>
+                                                {regions.includes(region.id) && (
+                                                    <div className="w-5 h-5 rounded-full bg-current flex items-center justify-center">
+                                                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                         </label>
 
-                         <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
-                            <input type="checkbox" checked={socials} onChange={e => setSocials(e.target.checked)} className="accent-[#3E7B52]"/>
-                            <div className="flex-1">
-                                <p className="font-bold text-sm dark:text-white flex items-center gap-2"><Share2 size={14}/> Partager sur Réseaux Sociaux</p>
-                                <p className="text-[10px] text-gray-400">Facebook, Twitter (X)</p>
+                            {/* Options de diffusion */}
+                            <div className="space-y-3">
+                                <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-zinc-800 border-gray-200 dark:border-zinc-700 has-[:checked]:border-[#3E7B52] dark:has-[:checked]:border-[#13EC13] has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-900/10">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={notify} 
+                                        onChange={(e) => setNotify(e.target.checked)} 
+                                        className="w-5 h-5 text-[#3E7B52] dark:text-[#13EC13] rounded focus:ring-2 focus:ring-[#3E7B52]/20"
+                                    />
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Bell size={16} className="text-[#3E7B52] dark:text-[#13EC13]"/>
+                                            <p className="font-bold text-sm text-gray-900 dark:text-white">Notifier les abonnés</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Envoyer une notification push aux abonnés</p>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-zinc-800 border-gray-200 dark:border-zinc-700 has-[:checked]:border-[#3E7B52] dark:has-[:checked]:border-[#13EC13] has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-900/10">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={socials} 
+                                        onChange={(e) => setSocials(e.target.checked)} 
+                                        className="w-5 h-5 text-[#3E7B52] dark:text-[#13EC13] rounded focus:ring-2 focus:ring-[#3E7B52]/20"
+                                    />
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Share2 size={16} className="text-[#3E7B52] dark:text-[#13EC13]"/>
+                                            <p className="font-bold text-sm text-gray-900 dark:text-white">Partage automatique</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Publier sur Facebook et X (Twitter)</p>
+                                    </div>
+                                </label>
                             </div>
-                         </label>
-                    </div>
+                        </div>
+                    )}
 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/50">
-                    <Button 
-                        onClick={handleSubmit} 
-                        disabled={isLoading}
-                        className="w-full bg-[#3E7B52] hover:bg-[#326342] text-white font-bold h-12 shadow-lg shadow-[#3E7B52]/20"
-                    >
-                        {isLoading ? "Configuration..." : (scheduleDate ? "Programmer la publication" : "Publier Maintenant")}
-                    </Button>
+                <div className="p-6 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:dark:bg-zinc-900/50">
+                    <div className="flex gap-3">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 h-11 rounded-lg border-2 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                        >
+                            Annuler
+                        </button>
+                        <Button 
+                            onClick={handleSubmit} 
+                            disabled={isLoading}
+                            className="flex-[2] bg-[#3E7B52] hover:bg-[#326342] dark:bg-[#13EC13] dark:hover:bg-[#0dbd0d] text-white dark:text-black font-bold h-11 shadow-lg shadow-[#3E7B52]/20 dark:shadow-[#13EC13]/20 disabled:opacity-50"
+                        >
+                            {isLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Configuration...
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <Rocket size={18}/>
+                                    {scheduleDate ? "Programmer la publication" : "Publier Maintenant"}
+                                </span>
+                            )}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -8349,7 +8708,7 @@ createRedacteur: async (data: RegisterRequest): Promise<void> => {
 FICHIER: D:\Projet Business\TODY\tody-africa\services\article.ts
 ================================================================================
 
-// FICHIER: services/article.ts - VERSION CORRIGÉE
+// FICHIER: services/article.ts - VERSION CORRIGÉE GESTION MÉDIAS
 
 import { APP_CONFIG } from "@/lib/constant";
 import { authService } from "@/services/auth";
@@ -8359,7 +8718,7 @@ import {
   MediaResponseDto, 
   Rubrique,
   validateArticlePayload,
-  ArticlePublicationDto  // <--- AJOUTEZ CETTE LIGNE ICI
+  ArticlePublicationDto
 } from "@/types/article";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
@@ -8370,21 +8729,21 @@ export const ArticleService = {
   // MÉDIAS (UPLOAD & GET)
   // ==========================================
   
-/**
-   * 1. RECUPÉRER VIA ID
+  /**
+   * ✅ CORRECTION: Récupération d'un média par ID (UUID ou Integer)
    */
   getMedia: async (id: string | number): Promise<MediaResponseDto> => {
     const token = authService.getToken();
     try {
-        console.log(`🔎 [ArticleService] getMedia demandé pour ID: ${id}`);
+        console.log(`🔎 [getMedia] Requête pour ID: ${id}`);
         const res = await fetch(`${API_PROXY}/media/info/${id}`, {
             headers: token ? { "Authorization": `Bearer ${token}` } : {}
         });
 
-        if (!res.ok) throw new Error("Média introuvable via l'API");
+        if (!res.ok) throw new Error("Média introuvable");
         const data = await res.json();
         
-        console.log("📥 [ArticleService] Données média brutes:", data);
+        console.log("📥 [getMedia] Réponse:", data);
 
         return ArticleService._formatMediaResponse(data);
     } catch (error) {
@@ -8394,28 +8753,26 @@ export const ArticleService = {
   },
 
   /**
-   * 2. UPLOAD FICHIER - VERSION AMÉLIORÉE
+   * ✅ CORRECTION: Upload média avec retour de l'ID numérique
    */
   uploadMedia: async (file: File): Promise<MediaResponseDto> => {
     const token = authService.getToken();
     if (!token) throw new Error("Authentification requise");
 
-    // ✅ Nettoyage du nom de fichier pour éviter les problèmes d'encodage
     const cleanFileName = file.name
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
-      .replace(/[^\w.-]/g, '_') // Remplacer caractères spéciaux par underscore
-      .replace(/_{2,}/g, '_'); // Éviter les underscores multiples
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w.-]/g, '_')
+      .replace(/_{2,}/g, '_');
     
     const safeName = encodeURIComponent(cleanFileName);
     
-    // Utilisation des query params pour Swagger
     const endpoint = `${API_PROXY}/media/upload?altText=${safeName}&legende=${safeName}`;
     
     const fd = new FormData();
-    fd.append("file", file); // Clé 'file' selon swagger
+    fd.append("file", file);
 
-    console.log(`📤 [ArticleService] Début Upload: ${file.name} → ${cleanFileName} (${file.size} bytes)`);
+    console.log(`📤 [uploadMedia] Upload: ${file.name} (${file.size} bytes)`);
 
     const res = await fetch(endpoint, {
       method: "POST",
@@ -8436,16 +8793,14 @@ export const ArticleService = {
       
       console.error("❌ Echec Upload:", errorJson);
       
-      // Message d'erreur plus explicite pour l'utilisateur
       const errorMsg = errorJson?.message || errorJson?.error || "Erreur inconnue";
       
-      // Cas spécifiques
       if (res.status === 413) {
         throw new Error("Fichier trop volumineux (max 10MB)");
       } else if (res.status === 415) {
         throw new Error("Format de fichier non supporté");
       } else if (res.status === 500 && errorMsg.includes("stocker")) {
-        throw new Error("Erreur serveur : impossible d'enregistrer le fichier. Veuillez réessayer ou contacter l'administrateur.");
+        throw new Error("Erreur serveur : impossible d'enregistrer le fichier.");
       }
       
       throw new Error(`Erreur serveur (${res.status}): ${errorMsg}`);
@@ -8453,75 +8808,132 @@ export const ArticleService = {
     
     const data = await res.json();
     
-    // --- ✅ DEBUG CRUCIAL ---
-    console.group("✅ UPLOAD REUSSI");
+    console.group("✅ UPLOAD RÉUSSI");
     console.log("📦 Réponse Backend:", data);
     const formatted = ArticleService._formatMediaResponse(data);
-    console.log("🔗 URL RECONSTRUITE POUR LE FRONT:", formatted.urlAcces);
+    console.log("🆔 ID numérique:", formatted.id);
+    console.log("🔗 URL Complète:", formatted.urlAcces);
     console.groupEnd();
 
     return formatted;
   },
 
   /**
-   * HELPER CORRIGÉ : Extrait l'URL de preview du backend
+   * ✅ CORRECTION MAJEURE: Formatage de la réponse média
+   * Le backend doit retourner un ID NUMÉRIQUE, pas un UUID
    */
-_formatMediaResponse: (data: any): MediaResponseDto => {
-  console.log("🛠️ Formating media data:", data);
+  _formatMediaResponse: (data: any): MediaResponseDto => {
+    console.log("🛠️ [_formatMediaResponse] Formatting:", data);
 
-  // ✅ Le backend renvoie 'url' directement
-  const finalUrl = data.url || (data.fileName ? `${APP_CONFIG.mediaBaseUrl}${data.fileName}` : "/images/image4.jpeg");
+    // Le backend renvoie l'URL complète dans le champ 'url'
+    const finalUrl = data.url || "/images/placeholder.jpg";
 
-  console.log("🔗 URL finale extraite:", finalUrl);
+    console.log("🔗 URL finale:", finalUrl);
 
-  return {
-    id: String(data.id),
-    urlAcces: finalUrl, // ✅ On mappe 'url' backend vers 'urlAcces' frontend
-    nomOriginal: data.nom || data.nomOriginal || "Fichier",
-    typeMime: data.typeMime || "image/jpeg"
-  };
-},
+    // ✅ CRITIQUE: L'ID doit être un nombre pour le backend Java
+    // Si le backend renvoie un UUID, il faut un autre endpoint pour obtenir l'ID numérique
+    const numericId = typeof data.id === 'number' ? data.id : parseInt(String(data.id));
+    
+    if (isNaN(numericId)) {
+      console.error("❌ ID média invalide:", data.id);
+      throw new Error("Le serveur n'a pas retourné un ID valide pour le média");
+    }
+
+    return {
+      id: String(numericId), // Stocké en string côté frontend pour compatibilité
+      urlAcces: finalUrl,
+      nomOriginal: data.nom || data.nomOriginal || "Fichier",
+      typeMime: data.typeMime || "image/jpeg"
+    };
+  },
+
+  // ==========================================
+  // CRÉATION ARTICLE - CORRECTION CRITIQUE
+  // ==========================================
   
-
-  // === CRÉATION ARTICLE ===
+  /**
+   * ✅ CORRECTION: Création d'article avec gestion correcte des médias
+   */
   create: async (payload: ArticlePayloadDto): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     if (!token) throw new Error("Non authentifié");
 
-    // Validation
     const errors = validateArticlePayload(payload);
     if (errors.length > 0) throw new Error(errors[0]);
 
-    // ✅ NETTOYAGE CRITIQUE DU PAYLOAD
-    // Pour éviter les erreurs 400 Bad Request JSON
+    console.group("📝 [create] Préparation payload article");
+    console.log("Payload brut:", payload);
+
+    // ✅ CORRECTION CRITIQUE: Image de couverture - Le backend attend un INTEGER
+    let coverImageIdToSend: number | null = null;
+    
+    if (payload.imageCouvertureId) {
+      const idValue = payload.imageCouvertureId;
+      
+      // Si c'est déjà un nombre, on l'utilise directement
+      if (typeof idValue === 'number') {
+        coverImageIdToSend = idValue;
+        console.log("✅ Image couverture ID (Integer):", coverImageIdToSend);
+      } 
+      // Si c'est une string, on la convertit en nombre
+      else if (typeof idValue === 'string') {
+        const parsed = parseInt(idValue);
+        if (!isNaN(parsed) && parsed > 0) {
+          coverImageIdToSend = parsed;
+          console.log("✅ Image couverture ID converti:", coverImageIdToSend);
+        } else {
+          console.warn("⚠️ imageCouvertureId invalide:", idValue);
+        }
+      }
+    }
+
+    // ✅ CORRECTION 2: Blocs de contenu avec médias
+    const blocsContenuToSend = payload.blocsContenu.map((b, idx) => {
+      const bloc: any = {
+        type: b.type,
+        contenu: b.contenu || "",
+        ordre: idx,
+        legende: b.legende || "",
+        altText: b.altText || "",
+        url: b.url || "",
+        articleId: 0
+      };
+
+      // ✅ Gestion du mediaId pour les blocs IMAGE - Doit être un INTEGER
+      if (b.type === 'IMAGE' && b.mediaId) {
+        const mediaIdStr = String(b.mediaId);
+        const parsed = parseInt(mediaIdStr);
+        
+        if (!isNaN(parsed) && parsed > 0) {
+          bloc.mediaId = parsed;
+          console.log(`✅ Bloc ${idx} (IMAGE) - mediaId (Integer):`, parsed);
+        } else {
+          bloc.mediaId = null;
+          console.warn(`⚠️ Bloc ${idx} - mediaId invalide:`, mediaIdStr);
+        }
+      } else {
+        bloc.mediaId = null;
+      }
+
+      return bloc;
+    });
+
     const cleanPayload = {
       titre: payload.titre,
       description: payload.description,
       rubriqueId: payload.rubriqueId,
       auteurId: payload.auteurId,
-      // Pour l'instant on force null si pas défini (évite mismatch Int/UUID)
-      // Si votre Swagger dit Int pour coverImageId mais que le media est UUID, 
-      // il faut soit mettre null, soit le backend doit être corrigé. On met null pour que ça passe.
-      imageCouvertureId: payload.imageCouvertureId || null, 
+      imageCouvertureId: coverImageIdToSend, // ✅ INTEGER ou null
       region: payload.region,
       visible: false,
       statut: payload.statut,
       tagIds: payload.tagIds || [],
-      datePublication: payload.datePublication || null, // null pour DRAFT
-
-      // MAPPING BLOCS
-      blocsContenu: payload.blocsContenu.map((b, idx) => ({
-        type: b.type,
-        contenu: b.contenu || "",
-        ordre: idx, // Force l'ordre séquentiel
-        legende: b.legende || "",
-        altText: b.altText || "",
-        url: b.url || "",
-        // 🔴 Correction Majeure : "0" -> null pour les UUID
-        mediaId: (b.mediaId && b.mediaId !== "0") ? b.mediaId : null,
-        articleId: 0 // Requis par certaines Logiques DTO
-      }))
+      datePublication: payload.datePublication || null,
+      blocsContenu: blocsContenuToSend
     };
+
+    console.log("📤 Payload nettoyé:", JSON.stringify(cleanPayload, null, 2));
+    console.groupEnd();
 
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles`, {
       method: "POST",
@@ -8534,28 +8946,79 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
 
     if (!res.ok) {
         const txt = await res.text();
-        console.error("Backend Refusal:", txt);
-        throw new Error(`Erreur Création (${res.status}): ${txt}`);
+        console.error("❌ Backend Refusal:", txt);
+        
+        try {
+          const errorJson = JSON.parse(txt);
+          throw new Error(errorJson.message || errorJson.error || `Erreur ${res.status}`);
+        } catch (e) {
+          throw new Error(`Erreur Création (${res.status}): ${txt.substring(0, 200)}`);
+        }
     }
     
-    return await res.json();
+    const result = await res.json();
+    console.log("✅ Article créé:", result);
+    return result;
   },
 
-  // === MODIFICATION ===
+  /**
+   * ✅ CORRECTION: Modification d'article avec gestion correcte des médias
+   */
   update: async (id: number, payload: ArticlePayloadDto): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     
-    // Payload cleaning similaire au Create
+    console.group(`📝 [update] Modification article #${id}`);
+    
+    // ✅ Même logique de nettoyage que pour create
+    let coverImageIdToSend: number | null = null;
+    
+    if (payload.imageCouvertureId) {
+      const idValue = payload.imageCouvertureId;
+      
+      if (typeof idValue === 'number') {
+        coverImageIdToSend = idValue;
+      } else if (typeof idValue === 'string') {
+        const parsed = parseInt(idValue);
+        if (!isNaN(parsed) && parsed > 0) {
+          coverImageIdToSend = parsed;
+        }
+      }
+    }
+
+    const blocsContenuToSend = payload.blocsContenu.map((b, idx) => {
+      const bloc: any = {
+        type: b.type,
+        contenu: b.contenu || "",
+        ordre: idx,
+        legende: b.legende || "",
+        altText: b.altText || "",
+        url: b.url || "",
+        articleId: id
+      };
+
+      if (b.type === 'IMAGE' && b.mediaId) {
+        const parsed = parseInt(String(b.mediaId));
+        if (!isNaN(parsed) && parsed > 0) {
+          bloc.mediaId = parsed;
+        } else {
+          bloc.mediaId = null;
+        }
+      } else {
+        bloc.mediaId = null;
+      }
+
+      return bloc;
+    });
+    
     const cleanPayload = {
       ...payload,
-      imageCouvertureId: payload.imageCouvertureId ? Number(payload.imageCouvertureId) : null,
-      blocsContenu: payload.blocsContenu.map((b, idx) => ({
-        ...b,
-        ordre: idx,
-        mediaId: (b.mediaId && b.mediaId !== "0") ? String(b.mediaId) : null,
-        articleId: id 
-      }))
+      imageCouvertureId: coverImageIdToSend,
+      blocsContenu: blocsContenuToSend
     };
+
+    console.log("📤 Payload update:", cleanPayload);
+    console.groupEnd();
+    
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -8563,14 +9026,14 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
     });
 
     if (res.status === 204) return ArticleService.getById(id);
-    if (!res.ok) throw new Error("Erreur modification");
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("❌ Erreur modification:", txt);
+      throw new Error("Erreur modification");
+    }
     return await res.json();
   },
 
-  // ==========================================
-  // LECTURE ARTICLE
-  // ==========================================
-  
   getById: async (id: number): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     const headers: HeadersInit = token ? { "Authorization": `Bearer ${token}` } : {};
@@ -8585,19 +9048,16 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
   },
 
   // ==========================================
-  // SOUMISSION POUR VALIDATION
+  // WORKFLOW - SOUMISSION
   // ==========================================
   
-  submit: async (articleId: number, redacteurId: number): Promise<ArticleReadDto> => {
-    return ArticleService.submitForReview(articleId, redacteurId);
-    console.log(`🚀 Soumission de l'article ${articleId} pour validation par le rédacteur ${redacteurId}`);
-    console.log("🔐 Token utilisé:", authService.getToken());
-    console.log("📡 Endpoint appelé:", `${APP_CONFIG.apiUrl}/redacteur/${redacteurId}/articles/${articleId}/submit`) ;
-  },
-
   submitForReview: async (articleId: number, redacteurId: number): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     if (!token) throw new Error("Non authentifié");
+    
+    console.group(`📤 Soumission Article #${articleId}`);
+    console.log("Auteur:", redacteurId);
+    console.log("Endpoint:", `${APP_CONFIG.apiUrl}/redacteur/${redacteurId}/articles/${articleId}/submit`);
     
     const res = await fetch(
       `${APP_CONFIG.apiUrl}/redacteur/${redacteurId}/articles/${articleId}/submit`,
@@ -8608,18 +9068,44 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
     );
     
     if (!res.ok) {
+      const error = await res.text();
+      console.error("Erreur:", error);
+      console.groupEnd();
       throw new Error("Échec soumission pour validation");
+    }
+    
+    const data = await res.json();
+    console.log("✅ Statut:", data.statut);
+    console.groupEnd();
+    
+    return data;
+  },
+
+  submit: async (articleId: number): Promise<ArticleReadDto> => {
+    const token = authService.getToken();
+    if (!token) throw new Error("Non authentifié");
+    
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/submit`, {
+      method: "PATCH",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    
+    if (!res.ok) {
+      throw new Error("Échec soumission");
     }
     
     return await res.json();
   },
 
   // ==========================================
-  // ACTIONS ADMIN
+  // WORKFLOW - VALIDATION ADMIN
   // ==========================================
   
   approve: async (id: number): Promise<void> => {
     const token = authService.getToken();
+    
+    console.group(`✅ Approbation Article #${id}`);
+    
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/approve`, {
       method: "PATCH",
       headers: { 
@@ -8631,12 +9117,45 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
+      console.error("Erreur:", error);
+      console.groupEnd();
       throw new Error(error.message || `Erreur approbation ${id}`);
     }
+    
+    console.log("✅ Article approuvé");
+    console.groupEnd();
   },
 
+  reject: async (id: number, motif: string): Promise<void> => {
+    const token = authService.getToken();
+    const endpoint = `${APP_CONFIG.apiUrl}/articles/${id}/reject?motif=${encodeURIComponent(motif)}`;
+    
+    console.group(`❌ Rejet Article #${id}`);
+    console.log("Motif:", motif);
+    
+    const res = await fetch(endpoint, {
+      method: "PATCH",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    
+    if (!res.ok) {
+      console.groupEnd();
+      throw new Error("Échec du rejet");
+    }
+    
+    console.log("✅ Article rejeté");
+    console.groupEnd();
+  },
+
+  // ==========================================
+  // PUBLICATION
+  // ==========================================
+  
   publish: async (id: number): Promise<void> => {
     const token = authService.getToken();
+    
+    console.group(`🚀 Publication Article #${id}`);
+    
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/publish`, {
       method: "PATCH",
       headers: { 
@@ -8647,46 +9166,193 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
     });
     
     if (!res.ok) {
+      console.groupEnd();
       throw new Error("Erreur publication");
     }
+    
+    console.log("✅ Article publié");
+    console.groupEnd();
   },
 
-  reject: async (id: number, motif: string): Promise<void> => {
+  publishAdvanced: async (id: number, config: ArticlePublicationDto): Promise<void> => {
     const token = authService.getToken();
-    const endpoint = `${APP_CONFIG.apiUrl}/articles/${id}/reject?motif=${encodeURIComponent(motif)}`;
     
-    const res = await fetch(endpoint, {
-      method: "PATCH",
-      headers: { "Authorization": `Bearer ${token}` }
+    console.group(`🚀 Publication Avancée Article #${id}`);
+    console.log("Configuration:", config);
+    
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/publish-advanced`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(config)
     });
-    
+
     if (!res.ok) {
-      throw new Error("Échec du rejet");
+        const err = await res.json().catch(() => ({}));
+        console.error("Erreur:", err);
+        console.groupEnd();
+        throw new Error(err.message || "Erreur lors de la publication avancée");
     }
+    
+    console.log("✅ Publication avancée effectuée");
+    console.groupEnd();
   },
 
+  // ==========================================
+  // AVANT-PREMIÈRE
+  // ==========================================
+  
+  setPreviewMode: async (id: number, config: { dateFinAvantPremiere?: string, accessRestreint?: boolean }) => {
+      const token = authService.getToken();
+      
+      console.group(`🔒 Mode Avant-Première Article #${id}`);
+      console.log("Config:", config);
+      
+      const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/set-preview`, {
+          method: "PATCH",
+          headers: { 
+              "Content-Type": "application/json", 
+              "Authorization": `Bearer ${token}` 
+          },
+          body: JSON.stringify(config)
+      });
+      
+      if (!res.ok) {
+        console.groupEnd();
+        throw new Error("Erreur mode avant-première");
+      }
+      
+      console.log("✅ Avant-première activée");
+      console.groupEnd();
+      
+      return await res.json();
+  },
+
+  // ==========================================
+  // ARCHIVAGE
+  // ==========================================
+  
   archive: async (id: number): Promise<void> => {
     const token = authService.getToken();
+    
+    console.group(`📦 Archivage Article #${id}`);
+    
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/archive`, {
       method: "PATCH",
       headers: { "Authorization": `Bearer ${token}` }
     });
     
     if (!res.ok) {
+      console.groupEnd();
       throw new Error("Échec archivage");
     }
+    
+    console.log("✅ Article archivé");
+    console.groupEnd();
   },
 
   delete: async (id: number): Promise<void> => {
     const token = authService.getToken();
+    
+    console.group(`🗑️ Suppression Article #${id}`);
+    
     const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });
     
     if (!res.ok) {
+      console.groupEnd();
       throw new Error("Suppression impossible");
     }
+    
+    console.log("✅ Article supprimé");
+    console.groupEnd();
+  },
+
+  // ==========================================
+  // VUES & ANALYTICS
+  // ==========================================
+  
+  recordView: async (id: number, dureeVue: number = 0, scrollDepth: number = 0): Promise<any> => {
+    const token = authService.getToken();
+    try {
+      const res = await fetch(
+        `${APP_CONFIG.apiUrl}/articles/${id}/view?dureeVue=${dureeVue}&scrollDepth=${scrollDepth}`, 
+        {
+          method: "POST",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        }
+      );
+      return res.ok ? await res.json() : null;
+    } catch {
+      return null;
+    }
+  },
+
+  // ==========================================
+  // MISE EN AVANT (FEATURED)
+  // ==========================================
+  
+  feature: async (id: number, config: {
+    section: string;
+    ordre: number;
+    dateDebut?: string;
+    dateFin?: string;
+  }): Promise<void> => {
+    const token = authService.getToken();
+    
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/feature`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(config)
+    });
+    
+    if (!res.ok) {
+      throw new Error("Erreur mise en avant");
+    }
+  },
+
+  // ==========================================
+  // TAGS
+  // ==========================================
+  
+  assignTags: async (articleId: number, tags: string[]): Promise<void> => {
+    const token = authService.getToken();
+    const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
+      body: JSON.stringify(tags)
+    });
+    if (!res.ok) throw new Error("Erreur assignation tags");
+  },
+
+  generateAutoTags: async (articleId: number): Promise<string[]> => {
+    const token = authService.getToken();
+    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/auto-tag`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error("Erreur génération auto-tags");
+    return await res.json();
+  },
+
+  getArticleTags: async (articleId: number): Promise<any[]> => {
+     try {
+         const token = authService.getToken();
+         const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
+             headers: { "Authorization": `Bearer ${token}` }
+         });
+         return res.ok ? await res.json() : [];
+     } catch { return []; }
   },
 
   // ==========================================
@@ -8720,11 +9386,9 @@ _formatMediaResponse: (data: any): MediaResponseDto => {
   // LISTES RÉDACTEUR
   // ==========================================
   
-// DANS : services/article.ts
-
-getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> => {
+  getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> => {
     const token = authService.getToken();
-    if (!token) throw new Error("Authentification requise pour voir les brouillons");
+    if (!token) throw new Error("Authentification requise");
 
     try {
         const response = await fetch(
@@ -8739,21 +9403,18 @@ getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> =
         );
 
         if (!response.ok) {
-            // On peut loguer l'erreur mais on ne throw pas forcément pour ne pas casser l'UI
             console.warn(`Erreur récupération brouillons: ${response.status}`);
             return [];
         }
 
         const data = await response.json();
-        
-        // Sécurité : S'assurer que c'est bien un tableau
         return Array.isArray(data) ? data : [];
         
     } catch (error) {
         console.error("❌ Erreur réseau brouillons:", error);
         return [];
     }
-},
+  },
 
   getRedacteurPublies: async (redacteurId: number): Promise<ArticleReadDto[]> => {
     const token = authService.getToken();
@@ -8824,83 +9485,11 @@ getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> =
       return null;
     }
   },
-    /**
-   * ✅ PUBLICATION AVANCÉE
-   */
-  publishAdvanced: async (id: number, config: ArticlePublicationDto): Promise<void> => {
-    const token = authService.getToken();
-    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/publish-advanced`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(config)
-    });
 
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Erreur lors de la publication avancée");
-    }
-  },
-
-  /**
-   * ✅ MODE AVANT-PREMIÈRE
-   */
-  setPreviewMode: async (id: number, config: { dateFinAvantPremiere?: string, accessRestreint?: boolean }) => {
-      const token = authService.getToken();
-      await fetch(`${APP_CONFIG.apiUrl}/articles/${id}/set-preview`, {
-          method: "PATCH",
-          headers: { 
-              "Content-Type": "application/json", 
-              "Authorization": `Bearer ${token}` 
-          },
-          body: JSON.stringify(config)
-      });
-  },
-    /**
-   * ✅ GESTION DES TAGS (NEW)
-   */
+  // ==========================================
+  // FAST-TRACK PUBLICATION
+  // ==========================================
   
-  // Assigner des tags (string[]) à un article
-  assignTags: async (articleId: number, tags: string[]): Promise<void> => {
-    const token = authService.getToken();
-    const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      },
-      body: JSON.stringify(tags)
-    });
-    if (!res.ok) throw new Error("Erreur assignation tags");
-  },
-
-  // Déclencher l'Auto-Tagging par l'IA
-  generateAutoTags: async (articleId: number): Promise<string[]> => {
-    const token = authService.getToken();
-    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/auto-tag`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error("Erreur génération auto-tags");
-    return await res.json();
-  },
-
-  // Récupérer les tags d'un article (utile pour recharger en mode édition)
-  getArticleTags: async (articleId: number): Promise<any[]> => {
-     try {
-         const token = authService.getToken();
-         const res = await fetch(`${APP_CONFIG.apiUrl}/tags/article/${articleId}`, {
-             headers: { "Authorization": `Bearer ${token}` }
-         });
-         return res.ok ? await res.json() : [];
-     } catch { return []; }
-  },
-    /**
-   * ✅ FAST-TRACK : Soumettre, Approuver et Publier en une seule action
-   * Réservé aux Admins ou Rédacteurs avec privilèges
-   */
   quickPublish: async (articleId: number, authorId: number): Promise<void> => {
     const token = authService.getToken();
     if (!token) throw new Error("Authentification requise");
@@ -8908,16 +9497,13 @@ getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> =
     try {
       console.group(`🚀 Fast-Track Publishing pour #${articleId}`);
       
-      // 1. Soumission
-      console.log(" étape 1: Soumission...");
+      console.log("⏳ Étape 1: Soumission...");
       await ArticleService.submitForReview(articleId, authorId);
 
-      // 2. Approbation (directe car l'auteur est Admin)
-      console.log(" étape 2: Approbation...");
+      console.log("⏳ Étape 2: Approbation...");
       await ArticleService.approve(articleId);
 
-      // 3. Publication finale
-      console.log(" étape 3: Mise en ligne...");
+      console.log("⏳ Étape 3: Mise en ligne...");
       await ArticleService.publish(articleId);
 
       console.log("✅ Article publié avec succès !");

@@ -24,8 +24,7 @@ import AdminRedacteurs from "@/components/dashboard/AdminRedacteur";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
 import Link from "next/link";
 
-type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings";
-
+type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings" | "admin-global-articles";
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
