@@ -1,7 +1,9 @@
+// FICHIER: components/dashboard/MyArticles.tsx - VERSION CORRIGÉE SANS DOUBLON
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Edit, Trash2, RefreshCw, Eye, Send, FileClock, CheckCircle, FileText } from 'lucide-react';
+import { Edit, Trash2, RefreshCw, Eye, Send, FileClock, CheckCircle, FileText, Loader2 } from 'lucide-react';
 import { ArticleReadDto } from '@/types/article';
 import { ArticleService } from '@/services/article';
 import { useAuth } from '@/context/AuthContext';
@@ -16,8 +18,7 @@ interface MyArticlesProps {
 
 export default function MyArticles({ onEdit }: MyArticlesProps) {
   const { user } = useAuth();
-  
-  // Onglets pour filtrer la vue (pas des statuts API directs, mais des filtres UI)
+
   const [activeTab, setActiveTab] = useState<'BROUILLONS' | 'EN_COURS' | 'PUBLIES'>('BROUILLONS');
   
   const [articles, setArticles] = useState<ArticleReadDto[]>([]);
@@ -37,32 +38,45 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
     try {
         let data: ArticleReadDto[] = [];
         
-        // Logique Swagger spécifique par Onglet
+        console.log(`📂 [MyArticles] Chargement onglet: ${activeTab}`);
+        
         if (activeTab === 'BROUILLONS') {
-                        // ✅ APPEL DE LA BONNE ROUTE
-            console.log("📂 Récupération des brouillons pour l'auteur", user.id);
+            // ✅ Appel route brouillons
             data = await ArticleService.getRedacteurBrouillons(user.id);
+            console.log("📝 Brouillons récupérés:", data.length);
 
         } else if (activeTab === 'PUBLIES') {
+            // ✅ Appel route publiés
             data = await ArticleService.getRedacteurPublies(user.id);
+            console.log("📢 Publiés récupérés:", data.length);
+
         } else {
-            // EN_COURS : On prend tout et on filtre car il n'y a pas de route "/articles/en-attente"
+            // EN_COURS : Articles en attente de validation
             const allResponse = await ArticleService.getRedacteurTousArticles(user.id, 0, 100);
             const allContent = Array.isArray(allResponse) ? allResponse : (allResponse.content || []);
-            // Filtrage Client : PENDING_REVIEW + APPROVED (Avant publication finale)
+            
+            // ✅ Filtrage Client : PENDING_REVIEW + APPROVED + REJECTED
             data = allContent.filter((a: ArticleReadDto) => 
-                a.statut === 'PENDING_REVIEW' || a.statut === 'APPROVED' || a.statut === 'REJECTED'
+                ['PENDING_REVIEW', 'APPROVED', 'REJECTED'].includes(a.statut)
             );
+            console.log("⏳ En cours récupérés:", data.length);
         }
 
-                // Sécurisation Array (Correction de l'erreur TypeScript ici)
-        const cleanList = Array.isArray(data) ? data : ((data as any).content || []);
-        
-        // On type explicitement 'a' et 'b'
-        cleanList.sort((a: ArticleReadDto, b: ArticleReadDto) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime());
-        setArticles(cleanList);
+        // ✅ Dédoublonnage par ID (au cas où l'API retourne des doublons)
+        const uniqueArticles = Array.from(
+            new Map(data.map(article => [article.id, article])).values()
+        );
+
+        // ✅ Tri par date de création décroissante
+        uniqueArticles.sort((a, b) => 
+            new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime()
+        );
+
+        console.log(`✅ Articles finaux (sans doublon): ${uniqueArticles.length}`);
+        setArticles(uniqueArticles);
+
     } catch (e) {
-        console.error("Erreur Fetch", e);
+        console.error("❌ Erreur Fetch MyArticles:", e);
     } finally {
         setLoading(false);
     }
@@ -77,8 +91,9 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
           await ArticleService.delete(id);
           // Optimistic UI Update
           setArticles(prev => prev.filter(a => a.id !== id));
-      } catch(e) { 
-          alert("Erreur: Impossible de supprimer cet article."); 
+          console.log(`🗑️ Article #${id} supprimé`);
+      } catch(e: any) { 
+          alert(`Erreur: ${e.message || "Impossible de supprimer cet article."}`); 
       } finally {
           setActionLoading(null);
       }
@@ -86,16 +101,20 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
 
   const handleSubmit = async (id: number) => {
       if (!user) return;
-      if (!confirm("Envoyer pour relecture éditoriale ?\nVous ne pourrez plus modifier l'article après cet envoi.")) return;
+      if (!confirm("📤 Envoyer pour relecture éditoriale ?\n\nVous ne pourrez plus modifier l'article après cet envoi.")) return;
       
       setActionLoading(id);
       try {
+          console.log(`📤 Soumission article #${id} par auteur #${user.id}`);
           await ArticleService.submitForReview(id, user.id);
+          
           // Après soumission, il disparaît des brouillons (passe en Pending)
           setArticles(prev => prev.filter(a => a.id !== id));
-          // Idéalement on afficherait un Toast ici
-      } catch(e) {
-          alert("Erreur lors de la soumission.");
+          alert("✅ Article soumis avec succès !");
+          
+      } catch(e: any) {
+          console.error("❌ Erreur soumission:", e);
+          alert(`Erreur lors de la soumission: ${e.message}`);
       } finally {
           setActionLoading(null);
       }
@@ -193,7 +212,9 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
                 <div className="bg-white dark:bg-zinc-800 p-4 rounded-full shadow-sm mb-3">
                     <FileText className="text-gray-300" size={24}/>
                 </div>
-                <p className="text-sm font-bold text-gray-500 dark:text-zinc-400">Aucun article dans la section {tabs.find(t => t.id === activeTab)?.label.toLowerCase()}.</p>
+                <p className="text-sm font-bold text-gray-500 dark:text-zinc-400">
+                    Aucun article dans la section {tabs.find(t => t.id === activeTab)?.label.toLowerCase()}.
+                </p>
                 {activeTab === 'BROUILLONS' && (
                     <p className="text-xs text-gray-400 mt-1">Commencez par rédiger un nouvel article.</p>
                 )}
@@ -223,7 +244,9 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
                                 {art.datePublication && (
                                     <>
                                         <span>•</span>
-                                        <span className="text-green-600 dark:text-green-400">Publié le {format(new Date(art.datePublication), 'dd/MM/yyyy')}</span>
+                                        <span className="text-green-600 dark:text-green-400">
+                                            Publié le {format(new Date(art.datePublication), 'dd/MM/yyyy')}
+                                        </span>
                                     </>
                                 )}
                             </div>
@@ -238,26 +261,28 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
                                     <button 
                                         onClick={() => handleDelete(art.id)}
                                         disabled={actionLoading === art.id}
-                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors"
+                                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors disabled:opacity-50"
                                         title="Supprimer définitivement"
                                     >
-                                        <Trash2 size={16}/>
+                                        {actionLoading === art.id ? <Loader2 className="animate-spin" size={16}/> : <Trash2 size={16}/>}
                                     </button>
                                     
                                     <button 
-                                        onClick={() => onEdit(art.id)} // Déclenche le mode Edition dans le parent Dashboard
+                                        onClick={() => onEdit(art.id)}
                                         className="h-9 px-4 rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 text-xs font-bold border border-gray-200 dark:border-zinc-700 flex items-center gap-2 transition-all"
                                     >
                                         <Edit size={14}/> Modifier
                                     </button>
-
+                                    
                                     <Button 
                                         onClick={() => handleSubmit(art.id)}
                                         disabled={actionLoading === art.id}
                                         className="w-auto h-9 px-4 bg-[#3E7B52] hover:bg-[#326342] text-xs font-bold"
                                     >
-                                        {actionLoading === art.id ? <RefreshCw className="animate-spin" size={14}/> : <Send size={14} className="mr-2"/>}
-                                        Soumettre
+                                        {actionLoading === art.id ? 
+                                            <Loader2 className="animate-spin" size={14}/> : 
+                                            <><Send size={14} className="mr-2"/>Soumettre</>
+                                        }
                                     </Button>
                                 </>
                             )}
@@ -265,7 +290,9 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
                             {/* CASE PENDING ou APPROVED -> Read Only */}
                             {(art.statut === 'PENDING_REVIEW' || art.statut === 'APPROVED') && (
                                 <>
-                                    <span className="text-xs text-orange-500 italic mr-2 bg-orange-50 px-2 py-1 rounded">Verrouillé pendant la revue</span>
+                                    <span className="text-xs text-orange-500 italic mr-2 bg-orange-50 px-2 py-1 rounded hidden sm:inline">
+                                        Verrouillé pendant la revue
+                                    </span>
                                     <button className="h-9 w-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">
                                         <Eye size={16}/>
                                     </button>
@@ -275,7 +302,7 @@ export default function MyArticles({ onEdit }: MyArticlesProps) {
                             {/* CASE PUBLISHED -> Analytics link ou Voir */}
                             {art.statut === 'PUBLISHED' && (
                                 <a 
-                                    href={`/article/${art.id}`} // Lien public vers l'article
+                                    href={`/article/${art.id}`}
                                     target="_blank"
                                     rel="noreferrer" 
                                     className="h-9 px-4 rounded-lg border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 hover:text-[#3E7B52] dark:hover:text-white flex items-center gap-2 text-xs font-bold transition-colors"

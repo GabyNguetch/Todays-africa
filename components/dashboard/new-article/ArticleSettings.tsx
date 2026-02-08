@@ -1,4 +1,4 @@
-// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - UPLOAD CORRIGÉ
+// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - VERSION CORRIGÉE
 
 "use client";
 
@@ -7,7 +7,7 @@ import Image from "next/image";
 import { 
   UploadCloud, ImageIcon, Loader2, AlertCircle, Plus, 
   ChevronDown, Check, Search, X, RefreshCw, 
-  CornerDownRight, Globe, MapPin, Sparkles, Trash2, Tag, Wand2
+  CornerDownRight, Globe, MapPin, Wand2, Trash2, Tag
 } from "lucide-react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { ArticleService } from "@/services/article";
@@ -36,10 +36,9 @@ interface ArticleSettingsProps {
   setCoverImageUrl: (v: string | null) => void;
   region: string;
   setRegion: (v: string) => void;
-    // ✅ Nouvelles Props Tags
   tags: string[];
   setTags: (t: string[]) => void;
-  onAutoTag: () => Promise<void>; // Fonction pour déclencher l'IA
+  onAutoTag: () => Promise<void>;
   isAutoTagging: boolean;
 }
 
@@ -59,21 +58,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   useEffect(() => {
     loadRubriques();
   }, []);
-
-  // --- LOGIQUE PREVIEW PAR ID (Cas Edition sans URL) ---
-  // Si on charge un article existant, on a souvent juste l'ID au début, donc on fetch l'URL via getMedia
-  useEffect(() => {
-    // On fetch uniquement si on a un ID, pas d'URL et qu'on ne vient pas d'uploader
-    if (props.coverImageId && !props.coverImageUrl && !isUploading) {
-        console.log("🔄 Récupération de l'image de couverture depuis l'ID:", props.coverImageId);
-        ArticleService.getMedia(props.coverImageId)
-            .then(media => {
-                console.log("🖼️ Media récupéré:", media);
-                props.setCoverImageUrl(media.urlAcces);
-            })
-            .catch(err => console.warn("Erreur chargement preview image", err));
-    }
-  }, [props.coverImageId]); 
 
   const loadRubriques = async () => {
     setIsRubriqueLoading(true);
@@ -118,10 +102,26 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
     }
   };
 
-  // --- 🔥 C'EST ICI QUE CA SE JOUE : UPLOAD HANDLER ---
+  // --- 🔥 UPLOAD HANDLER AMÉLIORÉ ---
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // ✅ Validation côté client
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+
+    if (!allowedTypes.includes(file.type)) {
+        setUploadError("Format non supporté. Utilisez JPG, PNG, WEBP ou GIF.");
+        e.target.value = "";
+        return;
+    }
+
+    if (file.size > maxSize) {
+        setUploadError("Fichier trop volumineux (max 10MB)");
+        e.target.value = "";
+        return;
+    }
 
     // Reset UI
     setIsUploading(true);
@@ -133,17 +133,28 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         // 1. Upload
         const media = await ArticleService.uploadMedia(file);
         
-        // 2. Set ID (si backend renvoie UUID ou int, on stocke)
+        console.log("📦 Media reçu du backend:", media);
+        
+        // 2. Set ID
         props.setCoverImageId(media.id); 
         
         // 3. Set URL de Preview immédiatement
-        // C'est vital: l'UI réagit à props.coverImageUrl, pas à l'ID
-        console.log("📸 Mise à jour UI avec URL:", media.urlAcces);
-        props.setCoverImageUrl(media.urlAcces);
+        // ✅ Utiliser le champ 'urlAcces' du MediaResponseDto formaté
+        const previewUrl = getImageUrl(media.urlAcces);
+        console.log("📸 Mise à jour UI avec URL:", previewUrl);
+        props.setCoverImageUrl(previewUrl);
 
     } catch (err: any) {
-        console.error("Erreur Component Upload:", err);
-        setUploadError("Erreur serveur lors de l'envoi.");
+        console.error("❌ Erreur Component Upload:", err);
+        
+        // Message d'erreur utilisateur-friendly
+        const errorMessage = err.message || "Erreur serveur lors de l'envoi.";
+        setUploadError(errorMessage);
+        
+        // Si c'est une erreur serveur 500, suggérer de réessayer
+        if (errorMessage.includes("500") || errorMessage.includes("stocker")) {
+            setUploadError("⚠️ Le serveur ne peut pas enregistrer le fichier actuellement. Vérifiez que le dossier d'upload existe et que vous avez les permissions nécessaires. Contactez l'administrateur si le problème persiste.");
+        }
     } finally {
         setIsUploading(false);
         e.target.value = ""; // Allow re-upload same file
@@ -154,14 +165,10 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
     e.stopPropagation();
     props.setCoverImageUrl(null);
     props.setCoverImageId(null);
+    setUploadError(null);
   };
 
-  // HELPERS
-  const filteredRubriques = flatRubriques.filter(r => 
-    (r.nom || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-    // Handler ajout tag manuel
+  // Handler ajout tag manuel
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -236,7 +243,9 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
             <p className="text-xs text-red-500 mt-1">Minimum 50 caractères requis</p>
           )}
         </div>
-              {/* ✅ SECTION TAGS & IA (NEW) */}
+      </div>
+
+      {/* === SECTION TAGS & IA === */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm space-y-4">
           
           <div className="flex items-center justify-between mb-1">
@@ -256,8 +265,8 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
 
           {/* Zone de Tags (Chips) */}
           <div className="flex flex-wrap gap-2 mb-3">
-             {props.tags.map((tag) => (
-                 <span key={tag} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
+             {props.tags.map((tag, idx) => (
+                 <span key={`${tag}-${idx}`} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-gray-300 border border-gray-200 dark:border-zinc-700">
                     #{tag}
                     <button onClick={() => removeTag(tag)} className="hover:text-red-500 ml-1"><X size={12}/></button>
                  </span>
@@ -286,8 +295,6 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
           </p>
       </div>
 
-      </div>
-
       {/* === SECTION 2: IMAGE COUVERTURE === */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
         <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3 flex justify-between">
@@ -295,8 +302,12 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
             {isUploading && <Loader2 size={12} className="animate-spin text-[#3E7B52]"/>}
         </label>
         
+        {/* Message d'erreur */}
         {uploadError && (
-          <div className="mb-2 p-2 bg-red-50 text-red-500 text-xs rounded flex items-center gap-2"><AlertCircle size={12}/>{uploadError}</div>
+          <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg flex items-start gap-2">
+              <AlertCircle size={14} className="flex-shrink-0 mt-0.5"/>
+              <span>{uploadError}</span>
+          </div>
         )}
 
         <div className={cn(
@@ -318,8 +329,17 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
               </div>
            ) : props.coverImageUrl ? (
               <>
-                 <Image src={props.coverImageUrl} alt="Cover" fill className="object-cover group-hover:opacity-50 transition-opacity" unoptimized/>
-                 <button onClick={handleRemoveCover} className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded z-30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
+                 <Image 
+                    src={props.coverImageUrl} 
+                    alt="Cover" 
+                    fill 
+                    className="object-cover group-hover:opacity-50 transition-opacity" 
+                    unoptimized
+                 />
+                 <button 
+                    onClick={handleRemoveCover} 
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded z-30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
+                 >
                      <Trash2 size={14}/>
                  </button>
                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
@@ -332,6 +352,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                <div className="text-center text-gray-400">
                    <ImageIcon size={24} className="mx-auto mb-2 opacity-50"/>
                    <span className="text-[10px] font-bold uppercase">Cliquez pour ajouter</span>
+                   <p className="text-[8px] mt-1 text-gray-400">JPG, PNG, WEBP ou GIF (max 10MB)</p>
                </div>
            )}
         </div>
@@ -394,7 +415,9 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
                 
                 {/* Liste */}
                 <div className="overflow-y-auto flex-1 p-1">
-                  {filteredRubriques.map(rub => (
+                  {flatRubriques.filter(r => 
+                    (r.nom || "").toLowerCase().includes(searchTerm.toLowerCase())
+                  ).map(rub => (
                     <button 
                       key={rub.id}
                       type="button"

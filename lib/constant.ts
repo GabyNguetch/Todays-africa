@@ -16,8 +16,8 @@ export const APP_CONFIG = {
   year: 2025,
   // ✅ CORRECTION : Utilisation du proxy local Next.js
   apiUrl: "/api/proxy",
-  backendUrl: "http://194.163.175.53:8080", 
-  mediaBaseUrl: "http://194.163.175.53:8080/api/v1/media/", 
+  backendUrl: "https://totayafrica.onrender.com/api/v1", 
+  mediaBaseUrl: "https://totayafrica.onrender.com/api/v1/media/", 
 };
 
 

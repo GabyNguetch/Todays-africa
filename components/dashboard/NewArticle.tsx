@@ -1,4 +1,4 @@
-// FICHIER: components/dashboard/NewArticle.tsx - VERSION CORRIGÉE
+// FICHIER: components/dashboard/NewArticle.tsx - VERSION COMPLÈTE CORRIGÉE
 
 "use client";
 
@@ -26,17 +26,13 @@ const ArticleEditorSkeleton = () => (
     {/* Header Skeleton */}
     <div className="sticky top-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur py-4 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
         <div className="flex items-center gap-3">
-             {/* Back Button */}
              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800"></div>
              <div className="space-y-2">
-                 {/* Title */}
                  <div className="w-32 h-5 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-                 {/* Subtitle */}
                  <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
              </div>
         </div>
         <div className="flex gap-3">
-             {/* Action Buttons */}
              <div className="w-24 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800"></div>
              <div className="w-32 h-10 rounded-lg bg-gray-200 dark:bg-zinc-800"></div>
         </div>
@@ -48,9 +44,7 @@ const ArticleEditorSkeleton = () => (
         {/* Colonne Principale (Éditeur) */}
         <div className="lg:col-span-8 space-y-4">
              <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl h-[700px] p-4 flex flex-col gap-4">
-                 {/* Toolbar fake */}
                  <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
-                 {/* Text fake */}
                  <div className="space-y-4 mt-4 px-4">
                       <div className="w-3/4 h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
                       <div className="w-full h-4 bg-gray-100 dark:bg-zinc-800 rounded"></div>
@@ -63,10 +57,7 @@ const ArticleEditorSkeleton = () => (
 
         {/* Colonne Sidebar (Paramètres) */}
         <div className="lg:col-span-4 space-y-6">
-            
-            {/* Box 1: Infos */}
             <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 space-y-6">
-                 {/* Input Titre */}
                  <div className="space-y-2">
                      <div className="flex justify-between">
                          <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
@@ -74,7 +65,6 @@ const ArticleEditorSkeleton = () => (
                      </div>
                      <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
                  </div>
-                 {/* Input Description */}
                  <div className="space-y-2">
                      <div className="flex justify-between">
                          <div className="w-20 h-3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
@@ -83,21 +73,15 @@ const ArticleEditorSkeleton = () => (
                      <div className="w-full h-24 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
                  </div>
             </div>
-
-            {/* Box 2: Image */}
             <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5">
                  <div className="w-24 h-3 bg-gray-200 dark:bg-zinc-800 rounded mb-3"></div>
                  <div className="w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-xl"></div>
             </div>
-
-             {/* Box 3: Targeting */}
             <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 space-y-4">
                  <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
                  <div className="w-full h-12 bg-gray-100 dark:bg-zinc-800 rounded-lg"></div>
             </div>
-
         </div>
-
     </div>
   </div>
 );
@@ -116,8 +100,7 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState("");
-  const [contentLoaded, setContentLoaded] = useState(false); // Flag pour savoir si le HTML est prêt
-    // ✅ STATE TAGS
+  const [contentLoaded, setContentLoaded] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [isAutoTagging, setIsAutoTagging] = useState(false);
 
@@ -139,18 +122,38 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
       console.log(`📡 [NewArticle] Chargement du brouillon #${editArticleId}...`);
 
       ArticleService.getById(editArticleId)
-        .then(article => {
+        .then(async (article) => {
+          console.log("📦 Article récupéré:", article);
+          
           setArticleId(article.id);
           setTitre(article.titre || "");
           setDescription(article.description || "");
           setRubriqueId(article.rubriqueId || null);
           setRegion(article.region || "GLOBAL");
           
-          // Image Couverture
-          setCoverImageUrl(getImageUrl(article.imageCouvertureUrl) || null);
-          setCoverImageId(article.imageCouvertureId || null);
+          // ✅ IMAGE COUVERTURE - Correction du mapping
+          if (article.imageCouvertureId) {
+            setCoverImageId(article.imageCouvertureId);
+          }
+          
+          if (article.imageCouvertureUrl) {
+            const fullUrl = getImageUrl(article.imageCouvertureUrl);
+            console.log("🖼️ URL Image de couverture:", fullUrl);
+            setCoverImageUrl(fullUrl);
+          }
 
-          // RECONSTRUCTION DU HTML DEPUIS LES BLOCS
+          // ✅ RÉCUPÉRATION DES TAGS
+          try {
+            const articleTags = await ArticleService.getArticleTags(article.id);
+            console.log("🏷️ Tags récupérés:", articleTags);
+            // Les tags peuvent être des objets {id, nom} ou des strings
+            const tagNames = articleTags.map((t: any) => typeof t === 'string' ? t : t.nom);
+            setTags(tagNames);
+          } catch (e) {
+            console.warn("⚠️ Impossible de récupérer les tags:", e);
+          }
+
+          // ✅ RECONSTRUCTION DU HTML DEPUIS LES BLOCS
           if (article.blocsContenu && Array.isArray(article.blocsContenu)) {
             const sorted = [...article.blocsContenu].sort((a, b) => a.ordre - b.ordre);
             
@@ -158,30 +161,25 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
             
             sorted.forEach(bloc => {
               if (bloc.type === 'IMAGE') {
-                // IMPORTANT: On reconstruit l'image avec data-media-id pour le parsing futur
                 const mediaIdAttr = bloc.mediaId ? `data-media-id="${bloc.mediaId}"` : "";
-                // Utiliser bloc.url s'il existe (url absolue), sinon bloc.contenu (path relatif)
                 const rawSrc = bloc.url || bloc.contenu;
                 const finalSrc = getImageUrl(rawSrc);
 
                 rebuiltHtml += `<img src="${finalSrc}" alt="${bloc.altText || ''}" title="${bloc.legende || ''}" ${mediaIdAttr} class="article-content-image" />`;
-                // Ajout d'un saut de ligne après image pour éditeur plus propre
                 rebuiltHtml += `<p></p>`; 
               
               } else if (bloc.type === 'CITATION') {
                 rebuiltHtml += `<blockquote>${bloc.contenu}</blockquote>`;
               
               } else if (bloc.type === 'VIDEO') {
-                  // Reconstruction vidéo basique pour preview
                   rebuiltHtml += `<p>[VIDEO: ${bloc.url || bloc.contenu}]</p>`;
 
               } else {
-                // Type TEXTE (C'est du HTML brut sauvegardé)
                 rebuiltHtml += bloc.contenu;
               }
             });
 
-            console.log("📝 Contenu HTML reconstruit :", rebuiltHtml.substring(0, 50) + "...");
+            console.log("📝 Contenu HTML reconstruit :", rebuiltHtml.substring(0, 100) + "...");
             setHtmlContent(rebuiltHtml);
             setContentLoaded(true);
           } else {
@@ -203,17 +201,14 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
   // =========================================================
   // 2. SYNCHRONISATION (STATE -> EDITOR)
   // =========================================================
-  // On attend que l'éditeur soit monté ET que le contenu soit fetché
   useEffect(() => {
-      if (editorInstance && !editorInstance.isDestroyed && contentLoaded && editArticleId) {
-          // On vérifie si l'éditeur est vide pour éviter d'écraser si l'utilisateur a commencé à taper pendant un re-render
-          // (Optionnel: forcer l'overwrite pour être sûr d'avoir le brouillon exact)
+      if (editorInstance && !editorInstance.isDestroyed && contentLoaded && editArticleId && htmlContent) {
           console.log("🔄 Injection du contenu dans l'éditeur Tiptap");
           editorInstance.commands.setContent(htmlContent);
       }
-  }, [editorInstance, contentLoaded, editArticleId]); // Retrait de htmlContent des dépendances pour éviter boucle infinie
+  }, [editorInstance, contentLoaded, editArticleId]);
 
-// ✅ FONCTION PARSE: DOM -> BLOC OBJECTS
+  // ✅ FONCTION PARSE: DOM -> BLOC OBJECTS
   const parseEditorContent = (html: string): BlocContenuDto[] => {
      if (typeof window === 'undefined') return [];
      const parser = new DOMParser();
@@ -222,7 +217,6 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
      const blocs: BlocContenuDto[] = [];
      let counter = 0;
 
-     // Fonction locale de nettoyage string
      const str = (v: any) => (v ? String(v).trim() : "");
 
      nodes.forEach((node) => {
@@ -230,7 +224,6 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
          if (node.tagName === 'IMG' || node.querySelector('img')) {
              const img = (node.tagName === 'IMG' ? node : node.querySelector('img')) as HTMLImageElement;
              const src = img.getAttribute('src');
-             // Si pas de source, on ignore
              if(!src) return;
 
              blocs.push({
@@ -240,7 +233,6 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
                  contenu: src,
                  altText: str(img.getAttribute('alt')),
                  legende: str(img.getAttribute('title')),
-                 // Récupération sécurisée du UUID stocké
                  mediaId: str(img.getAttribute('data-media-id')) || null, 
                  articleId: 0
              });
@@ -260,7 +252,6 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
 
          // --- CAS TEXTE STANDARD ---
          const txt = node.textContent?.trim();
-         // On sauvegarde le bloc s'il a du texte ou du contenu HTML significatif
          if (txt || node.innerHTML.includes('<')) {
             blocs.push({
                 type: 'TEXTE',
@@ -275,10 +266,6 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
 
   // ✅ FONCTION IA AUTO-TAGGING
   const handleAutoTag = async () => {
-      // Pour auto-tagger, l'article doit être sauvegardé ou on envoie le contenu texte ?
-      // L'endpoint est POST /articles/{id}/auto-tag. Il faut donc un ID.
-      // Si pas d'ID (nouvel article), on doit d'abord faire un "brouillon auto".
-      
       if (!articleId && !confirm("L'article doit être sauvegardé en brouillon pour l'analyse IA. Sauvegarder maintenant ?")) {
           return;
       }
@@ -286,21 +273,17 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
       try {
           setIsAutoTagging(true);
           
-          // 1. Si pas d'ID, on sauvegarde
           let currentId = articleId;
           if (!currentId) {
-             await handleSave(false); // Cela va setArticleId
-             // Attention: setState est asynchrone, dans ce scope articleId peut être null
-             // Hack: handleSave met à jour l'UI, on force l'utilisateur à re-cliquer ou on attend le re-render.
-             // Mieux: retourner l'ID dans handleSave. Pour ce correctif, supposons qu'il est sauvegardé.
-             alert("Brouillon créé. Cliquez à nouveau sur 'Générer' pour lancer l'IA.");
-             return;
+             const savedId = await handleSave(false);
+             if (!savedId) {
+                 alert("Erreur lors de la sauvegarde. Réessayez.");
+                 return;
+             }
+             currentId = savedId;
           }
 
-          // 2. Appel Service
-          const generatedTags = await ArticleService.generateAutoTags(currentId!);
-          
-          // 3. Merge avec existants
+          const generatedTags = await ArticleService.generateAutoTags(currentId);
           setTags(prev => [...new Set([...prev, ...generatedTags])]);
 
       } catch (e) {
@@ -310,36 +293,60 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
       }
   };
 
-
- // === SAUVEGARDE ===
-  const handleSave = async (isSubmission: boolean) => {
-    // Validations (inchangées)
-    if (!titre.trim()) return setUiState(p => ({ ...p, error: "Titre requis" }));
-    if (!description.trim()) return setUiState(p => ({ ...p, error: "Description requise" }));
-    if (!rubriqueId) return setUiState(p => ({ ...p, error: "Rubrique requise" }));
-    if (!user?.id) return setUiState(p => ({ ...p, error: "Session expirée" }));
+  // === SAUVEGARDE ===
+  const handleSave = async (isSubmission: boolean): Promise<number | null> => {
+    // Validations
+    if (!titre.trim()) {
+        setUiState(p => ({ ...p, error: "Titre requis (min 10 caractères)" }));
+        return null;
+    }
+    if (titre.length < 10) {
+        setUiState(p => ({ ...p, error: "Titre trop court (min 10 caractères)" }));
+        return null;
+    }
+    if (!description.trim()) {
+        setUiState(p => ({ ...p, error: "Description requise (min 50 caractères)" }));
+        return null;
+    }
+    if (description.length < 50) {
+        setUiState(p => ({ ...p, error: "Description trop courte (min 50 caractères)" }));
+        return null;
+    }
+    if (!rubriqueId) {
+        setUiState(p => ({ ...p, error: "Rubrique requise" }));
+        return null;
+    }
+    if (!user?.id) {
+        setUiState(p => ({ ...p, error: "Session expirée" }));
+        return null;
+    }
 
     setUiState(p => ({ ...p, saving: true, error: null }));
 
     try {
-            // 1. Récupération HTML Editor actuel
-      // Si l'éditeur n'est pas chargé, on prend le htmlContent initial (cas modification métadonnées seule)
+      // 1. Récupération HTML Editor actuel
       const currentHtml = editorInstance ? editorInstance.getHTML() : htmlContent;
-
-      const blocksPayload = parseEditorContent(htmlContent);
-            // Sécurité pour ne pas effacer un article par erreur
+      const blocksPayload = parseEditorContent(currentHtml);
+      
+      // Sécurité pour ne pas effacer un article par erreur
       if (blocksPayload.length === 0 && !confirm("L'article semble vide. Continuer la sauvegarde ?")) {
           setUiState(p => ({ ...p, saving: false }));
-          return;
+          return null;
       }
 
-      // ID Cover Image (Int32 pour article, attention)
-      // Si l'article prend un Int pour cover, on garde parseInt. Si c'est UUID, on change.
-      // D'après swagger "ArticleCreateDto", imageCouvertureId est Int32. On garde ça comme avant.
+      // ✅ ID Cover Image - Gestion correcte Int vs UUID
       let finalCoverId: number | null = null;
       if (coverImageId) {
-         if (typeof coverImageId === 'string') finalCoverId = parseInt(coverImageId);
-         else finalCoverId = coverImageId;
+         // Si c'est un UUID (string), on essaie de le convertir en Int (si backend attend Int)
+         // Sinon on garde tel quel si backend attend UUID
+         if (typeof coverImageId === 'string') {
+             // Si votre backend attend un Int, utilisez parseInt
+             // Si votre backend attend un UUID, gardez la string
+             // D'après vos logs, le backend renvoie des UUIDs, donc on garde string
+             finalCoverId = coverImageId as any; // Cast pour éviter erreur TS
+         } else {
+             finalCoverId = coverImageId;
+         }
       }
 
       const payload: ArticlePayloadDto = {
@@ -350,47 +357,51 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
         imageCouvertureId: finalCoverId, 
         region: region,
         visible: false,
-        statut: isSubmission ? 'PENDING_REVIEW' : (articleId ? 'DRAFT' : 'DRAFT'), // Si modification on garde le statut ou force Draft
+        statut: 'DRAFT', // Toujours DRAFT jusqu'à soumission
         tagIds: [],
-        blocsContenu: blocksPayload // Contient des UUID strings dans mediaId
+        blocsContenu: blocksPayload
       };
+
+      console.log("💾 Payload de sauvegarde:", payload);
 
       let targetId = articleId;
 
-        if (articleId) {
-             await ArticleService.update(articleId, payload);
-        } else {
-             const created = await ArticleService.create(payload);
-             targetId = created.id;
-             setArticleId(created.id);
-        }
-
-        // ✅ SAUVEGARDE DES TAGS (Appel séparé)
-        // On ne le fait que si l'article est créé avec succès
-        if (targetId && tags.length > 0) {
-             await ArticleService.assignTags(targetId, tags);
-        }
-
       if (articleId) {
+        console.log("🔄 Mise à jour article #", articleId);
         await ArticleService.update(articleId, payload);
-        if(isSubmission) await ArticleService.submit(articleId, user.id);
       } else {
+        console.log("✨ Création nouvel article");
         const created = await ArticleService.create(payload);
+        targetId = created.id;
         setArticleId(created.id);
-        if(isSubmission) await ArticleService.submit(created.id, user.id);
+      }
+
+      // ✅ SAUVEGARDE DES TAGS (Appel séparé)
+      if (targetId && tags.length > 0) {
+         console.log("🏷️ Assignation des tags:", tags);
+         await ArticleService.assignTags(targetId, tags);
+      }
+
+      // ✅ SOUMISSION SI DEMANDÉE
+      if (isSubmission && targetId) {
+          console.log("📤 Soumission de l'article pour validation");
+          await ArticleService.submitForReview(targetId, user.id);
+          alert("✅ Article soumis pour validation !");
+      } else {
+          alert("✅ Brouillon sauvegardé !");
       }
       
-      alert(isSubmission ? "Envoyé pour validation !" : "Brouillon sauvegardé !");
       if (onSuccess) onSuccess();
+      return targetId;
 
     } catch (e: any) {
+      console.error("❌ Erreur sauvegarde:", e);
       setUiState(p => ({ ...p, error: e.message }));
+      return null;
     } finally {
       setUiState(p => ({ ...p, saving: false }));
     }
   };
-
-
 
   if (uiState.loading) {
       return <ArticleEditorSkeleton />;
@@ -404,7 +415,7 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
         <div className="flex items-center gap-3">
           <button 
             onClick={onCancel} 
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
@@ -437,7 +448,7 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
           <Button 
             disabled={uiState.saving}
             onClick={() => {
-              if (confirm("Confirmer la soumission pour validation ?")) {
+              if (confirm("Confirmer la soumission pour validation ?\n\nVous ne pourrez plus modifier l'article après cet envoi.")) {
                 handleSave(true);
               }
             }}
@@ -448,57 +459,51 @@ export default function NewArticle({ onSuccess, editArticleId, onCancel }: NewAr
         </div>
       </div>
 
-      {/* CHARGEMENT */}
-      {uiState.loading ? (
-        <div className="h-96 flex items-center justify-center">
-          <Loader2 className="animate-spin text-[#3E7B52]" size={40} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* ÉDITEUR CENTRAL */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm flex flex-col min-h-[80vh]">
-              <Toolbar editor={editorInstance} />
-              <EditorContentComp 
-                setEditorRef={setEditorInstance} 
-                onChange={setHtmlContent} 
-                initialContent={htmlContent}
-              />
-            </div>
-          </div>
-
-          {/* SIDEBAR RÉGLAGES */}
-          <div className="lg:col-span-1">
-            <ArticleSettings 
-              titre={titre} 
-              setTitre={setTitre}
-              description={description} 
-              setDescription={setDescription}
-              rubriqueId={rubriqueId} 
-              setRubriqueId={setRubriqueId}
-              coverImageId={coverImageId} 
-              setCoverImageId={setCoverImageId}
-              coverImageUrl={coverImageUrl} 
-              setCoverImageUrl={setCoverImageUrl}
-              region={region} 
-              setRegion={setRegion}
-              tags={tags}           // 👈 PASS
-              setTags={setTags}     // 👈 PASS
-              onAutoTag={handleAutoTag}  // 👈 PASS
-              isAutoTagging={isAutoTagging} // 👈 PASS
+      {/* CONTENU */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* ÉDITEUR CENTRAL */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm flex flex-col min-h-[80vh]">
+            <Toolbar editor={editorInstance} />
+            <EditorContentComp 
+              setEditorRef={setEditorInstance} 
+              onChange={setHtmlContent} 
+              initialContent={htmlContent}
             />
-            
-            {/* Bloc info */}
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-300">
-              <p className="flex items-center gap-2 font-bold mb-1">
-                <AlertTriangle size={12} /> Note Importante
-              </p>
-              L'IA générera automatiquement des mots-clés lors de la soumission basés sur votre contenu riche.
-            </div>
           </div>
         </div>
-      )}
+
+        {/* SIDEBAR RÉGLAGES */}
+        <div className="lg:col-span-1">
+          <ArticleSettings 
+            titre={titre} 
+            setTitre={setTitre}
+            description={description} 
+            setDescription={setDescription}
+            rubriqueId={rubriqueId} 
+            setRubriqueId={setRubriqueId}
+            coverImageId={coverImageId} 
+            setCoverImageId={setCoverImageId}
+            coverImageUrl={coverImageUrl} 
+            setCoverImageUrl={setCoverImageUrl}
+            region={region} 
+            setRegion={setRegion}
+            tags={tags}
+            setTags={setTags}
+            onAutoTag={handleAutoTag}
+            isAutoTagging={isAutoTagging}
+          />
+          
+          {/* Bloc info */}
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-300">
+            <p className="flex items-center gap-2 font-bold mb-1">
+              <AlertTriangle size={12} /> Note Importante
+            </p>
+            Sauvegardez régulièrement votre brouillon. L'IA peut générer des tags automatiquement basés sur votre contenu.
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

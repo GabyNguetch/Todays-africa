@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/proxy/:path*',
         // On mappe vers ton API Backend Java
-        destination: 'http://194.163.175.53:8080/api/v1/:path*', 
+        destination: 'https://totayafrica.onrender.com/api/v1/:path*', 
       },
     ]
   },

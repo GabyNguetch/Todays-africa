@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { 
   LayoutDashboard, PenSquare, FileText, Settings as SettingsIcon, 
   LogOut, Users, UserPlus, Globe,
-  House
+  House,
+  BookOpenCheck
 } from "lucide-react";
 import { authService, User } from "@/services/auth";
 import { APP_CONFIG } from "@/lib/constant";
@@ -68,9 +69,9 @@ export default function DashboardPage() {
     switch (activeTab) {
         case "overview": return <Overview />;
         case "new-article": return <NewArticle editArticleId={editingId} onSuccess={handleEditorClose} onCancel={handleEditorClose}/>;
-        case "articles": return isAdmin ? <AdminArticles /> : <MyArticles onEdit={handleEditRequest} />;
+        case "articles": return <MyArticles onEdit={handleEditRequest} />; // PERSONNEL (Pour tous)
+        case "admin-global-articles": return <AdminArticles />; // GLOBAL (Pour admin)
         case "manage-redacteurs": return <AdminRedacteurs />;
-        case "create-redacteur": return <CreateRedacteur />; // Fallback si modal pas utilisé directement
         case "settings": return <Settings />;
         default: return <Overview />;
     }
@@ -84,10 +85,10 @@ export default function DashboardPage() {
       ];
       
       const adminItems = [
-          { id: "articles", label: "Articles", icon: FileText },
+          { id: "articles", label: "Mes Articles", icon: FileText },
+          { id: "admin-global-articles", label: "Gestion des Articles", icon: BookOpenCheck }, // Gestion globale
           { id: "manage-redacteurs", label: "Équipe", icon: Users },
       ];
-      
       const redacteurItems = [
           { id: "articles", label: "Mes Articles", icon: FileText },
       ];

@@ -5,38 +5,62 @@ import { authService } from "./auth";
 const API_BASE = APP_CONFIG.apiUrl; // Utilise /api/proxy
 
 export const AdminService = {
-  /**
+   /**
    * RÉCUPÉRER TOUS LES UTILISATEURS (Lecteurs + Staff)
-   * Backend : GET /api/v1/utilisateurs/all
    */
   getAllUsers: async (): Promise<any[]> => {
     const token = authService.getToken();
+    const url = `${API_BASE}/utilisateurs/all`;
+    
+    console.group("🔍 [API REQUEST] AdminService.getAllUsers");
+    console.log("URL:", url);
+    console.groupEnd();
+
     try {
-      const res = await fetch(`${API_BASE}/utilisateurs/all`, {
+      const res = await fetch(url, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Erreur lors de la récupération des utilisateurs");
-      return await res.json();
+      
+      if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+      
+      const data = await res.json();
+      console.group("✅ [API RESPONSE] AdminService.getAllUsers");
+      console.log("Payload:", data);
+      console.groupEnd();
+      
+      return data;
     } catch (e) {
-      console.error(e);
+      console.error("❌ [API ERROR] AdminService.getAllUsers", e);
       return [];
     }
   },
 
   /**
-   * RÉCUPÉRER L'ÉQUIPE (Uniquement rôle REDACTEUR ou ADMIN)
-   * Backend : GET /api/v1/utilisateurs/redacteurs
+   * RÉCUPÉRER L'ÉQUIPE (REDACTEUR, ADMIN)
    */
   getAllRedacteurs: async (): Promise<any[]> => {
     const token = authService.getToken();
+    const url = `${API_BASE}/utilisateurs/redacteurs`;
+
+    console.group("🔍 [API REQUEST] AdminService.getAllRedacteurs");
+    console.log("URL:", url);
+    console.groupEnd();
+
     try {
-      const res = await fetch(`${API_BASE}/utilisateurs/redacteurs`, {
+      const res = await fetch(url, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Erreur lors de la récupération des rédacteurs");
-      return await res.json();
+
+      if (!res.ok) throw new Error(`Erreur HTTP: ${res.status}`);
+
+      const data = await res.json();
+      console.group("✅ [API RESPONSE] AdminService.getAllRedacteurs");
+      console.log("Payload:", data);
+      console.groupEnd();
+
+      return data;
     } catch (e) {
-      console.error(e);
+      console.error("❌ [API ERROR] AdminService.getAllRedacteurs", e);
       return [];
     }
   },

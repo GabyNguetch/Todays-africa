@@ -19,7 +19,7 @@ export const ArticleService = {
   // MÉDIAS (UPLOAD & GET)
   // ==========================================
   
-  /**
+/**
    * 1. RECUPÉRER VIA ID
    */
   getMedia: async (id: string | number): Promise<MediaResponseDto> => {
@@ -33,7 +33,6 @@ export const ArticleService = {
         if (!res.ok) throw new Error("Média introuvable via l'API");
         const data = await res.json();
         
-        // Log important pour débogage
         console.log("📥 [ArticleService] Données média brutes:", data);
 
         return ArticleService._formatMediaResponse(data);
@@ -44,20 +43,28 @@ export const ArticleService = {
   },
 
   /**
-   * 2. UPLOAD FICHIER
+   * 2. UPLOAD FICHIER - VERSION AMÉLIORÉE
    */
   uploadMedia: async (file: File): Promise<MediaResponseDto> => {
     const token = authService.getToken();
     if (!token) throw new Error("Authentification requise");
 
-    const safeName = encodeURIComponent(file.name);
+    // ✅ Nettoyage du nom de fichier pour éviter les problèmes d'encodage
+    const cleanFileName = file.name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
+      .replace(/[^\w.-]/g, '_') // Remplacer caractères spéciaux par underscore
+      .replace(/_{2,}/g, '_'); // Éviter les underscores multiples
+    
+    const safeName = encodeURIComponent(cleanFileName);
+    
     // Utilisation des query params pour Swagger
     const endpoint = `${API_PROXY}/media/upload?altText=${safeName}&legende=${safeName}`;
     
     const fd = new FormData();
     fd.append("file", file); // Clé 'file' selon swagger
 
-    console.log(`📤 [ArticleService] Début Upload: ${file.name} (${file.size} bytes)`);
+    console.log(`📤 [ArticleService] Début Upload: ${file.name} → ${cleanFileName} (${file.size} bytes)`);
 
     const res = await fetch(endpoint, {
       method: "POST",
@@ -66,14 +73,36 @@ export const ArticleService = {
     });
 
     if (!res.ok) {
-      const errorText = await res.text();
-      console.error("❌ Echec Upload:", errorText);
-      throw new Error(`Erreur serveur (${res.status}): ${errorText}`);
+      let errorText = "";
+      let errorJson: any = null;
+      
+      try {
+        errorText = await res.text();
+        errorJson = JSON.parse(errorText);
+      } catch {
+        errorJson = { message: errorText };
+      }
+      
+      console.error("❌ Echec Upload:", errorJson);
+      
+      // Message d'erreur plus explicite pour l'utilisateur
+      const errorMsg = errorJson?.message || errorJson?.error || "Erreur inconnue";
+      
+      // Cas spécifiques
+      if (res.status === 413) {
+        throw new Error("Fichier trop volumineux (max 10MB)");
+      } else if (res.status === 415) {
+        throw new Error("Format de fichier non supporté");
+      } else if (res.status === 500 && errorMsg.includes("stocker")) {
+        throw new Error("Erreur serveur : impossible d'enregistrer le fichier. Veuillez réessayer ou contacter l'administrateur.");
+      }
+      
+      throw new Error(`Erreur serveur (${res.status}): ${errorMsg}`);
     }
     
     const data = await res.json();
     
-    // --- ✅ DEBUG CRUCIAL DEMANDÉ ---
+    // --- ✅ DEBUG CRUCIAL ---
     console.group("✅ UPLOAD REUSSI");
     console.log("📦 Réponse Backend:", data);
     const formatted = ArticleService._formatMediaResponse(data);
@@ -84,48 +113,24 @@ export const ArticleService = {
   },
 
   /**
-   * HELPER: NORMALISE LA RÉPONSE DU BACKEND
-   * Construit l'URL absolue utilisable par <Image /> et <img>
+   * HELPER CORRIGÉ : Extrait l'URL de preview du backend
    */
-  _formatMediaResponse: (data: any): MediaResponseDto => {
-    // 1. Détecter l'ID
-    let mediaId = data.id;
-    // Si c'est une string ID, on tente le parsing INT si possible, sinon on garde String
-    // Ton ArticleCreateDto veut Int32, mais MediaReadDto a UUID. C'est le point de conflit.
-    // On garde l'original 'id' brut du retour média ici.
+_formatMediaResponse: (data: any): MediaResponseDto => {
+  console.log("🛠️ Formating media data:", data);
 
-    // 2. Construction de l'URL absolue (Priorité absolue !)
-    let finalUrl = "";
+  // ✅ Le backend renvoie 'url' directement
+  const finalUrl = data.url || (data.fileName ? `${APP_CONFIG.mediaBaseUrl}${data.fileName}` : "/images/image4.jpeg");
 
-    // CAS A: Backend renvoie déjà une URL complète (ex: http://...)
-    if (data.urlAcces && data.urlAcces.startsWith('http')) {
-        finalUrl = data.urlAcces;
-    }
-    // CAS B: Backend renvoie un chemin relatif (ex: /uploads/...)
-    // => On le préfixe avec l'adresse du backend (194.163.175.53:8080)
-    else if (data.urlAcces && data.urlAcces.startsWith('/')) {
-        finalUrl = `${APP_CONFIG.backendUrl}${data.urlAcces}`;
-    }
-    // CAS C: Backend ne renvoie que le hash/filename, pas d'urlAcces
-    else if (data.fileName || data.hashSha256) {
-        // Selon swagger: GET /api/v1/media/file/{filename} ou /uploads/{filename}
-        const identifier = data.fileName || data.hashSha256;
-        finalUrl = `${APP_CONFIG.mediaBaseUrl}${identifier}`; 
-    }
-    else {
-        // Fallback: Si rien ne va
-        finalUrl = "/images/image4.jpeg";
-    }
+  console.log("🔗 URL finale extraite:", finalUrl);
 
-    return {
-      id: mediaId,
-      urlAcces: finalUrl,
-      nomOriginal: data.nomOriginal || "media-sans-nom",
-      typeMime: data.typeMime || "image/jpeg",
-      hashSha256: data.hashSha256
-    };
-  },
-
+  return {
+    id: String(data.id),
+    urlAcces: finalUrl, // ✅ On mappe 'url' backend vers 'urlAcces' frontend
+    nomOriginal: data.nom || data.nomOriginal || "Fichier",
+    typeMime: data.typeMime || "image/jpeg"
+  };
+},
+  
 
   // === CRÉATION ARTICLE ===
   create: async (payload: ArticlePayloadDto): Promise<ArticleReadDto> => {
@@ -234,6 +239,9 @@ export const ArticleService = {
   
   submit: async (articleId: number, redacteurId: number): Promise<ArticleReadDto> => {
     return ArticleService.submitForReview(articleId, redacteurId);
+    console.log(`🚀 Soumission de l'article ${articleId} pour validation par le rédacteur ${redacteurId}`);
+    console.log("🔐 Token utilisé:", authService.getToken());
+    console.log("📡 Endpoint appelé:", `${APP_CONFIG.apiUrl}/redacteur/${redacteurId}/articles/${articleId}/submit`) ;
   },
 
   submitForReview: async (articleId: number, redacteurId: number): Promise<ArticleReadDto> => {
@@ -537,5 +545,36 @@ getRedacteurBrouillons: async (redacteurId: number): Promise<ArticleReadDto[]> =
          });
          return res.ok ? await res.json() : [];
      } catch { return []; }
-  }
+  },
+    /**
+   * ✅ FAST-TRACK : Soumettre, Approuver et Publier en une seule action
+   * Réservé aux Admins ou Rédacteurs avec privilèges
+   */
+  quickPublish: async (articleId: number, authorId: number): Promise<void> => {
+    const token = authService.getToken();
+    if (!token) throw new Error("Authentification requise");
+
+    try {
+      console.group(`🚀 Fast-Track Publishing pour #${articleId}`);
+      
+      // 1. Soumission
+      console.log(" étape 1: Soumission...");
+      await ArticleService.submitForReview(articleId, authorId);
+
+      // 2. Approbation (directe car l'auteur est Admin)
+      console.log(" étape 2: Approbation...");
+      await ArticleService.approve(articleId);
+
+      // 3. Publication finale
+      console.log(" étape 3: Mise en ligne...");
+      await ArticleService.publish(articleId);
+
+      console.log("✅ Article publié avec succès !");
+      console.groupEnd();
+    } catch (error: any) {
+      console.error("❌ Échec du Fast-Track:", error);
+      console.groupEnd();
+      throw new Error(error.message || "Erreur lors du cycle de publication rapide");
+    }
+  },
 };
