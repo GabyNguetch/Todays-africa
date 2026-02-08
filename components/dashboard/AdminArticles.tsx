@@ -102,11 +102,12 @@ export default function AdminArticles() {
     } catch (e: any) { alert(`Erreur: ${e.message}`); }
   };
 
-  const initiatePublish = (id: number) => {
-    setIsPreviewOpen(false); // Fermer le preview
-    setArticleToPublish(id);
-    setIsPublishModalOpen(true);
-  };
+    // Cherche cette fonction et modifie-la comme ceci :
+    const initiatePublish = async (id: number) => { // Ajout de async
+        setIsPreviewOpen(false); 
+        setArticleToPublish(id);
+        setIsPublishModalOpen(true);
+    };
 
   const handleReject = async (id: number) => {
       const motif = prompt("Motif du rejet :", "Non conforme à la ligne éditoriale.");
@@ -208,7 +209,7 @@ export default function AdminArticles() {
             isLoading={false} 
             onApprove={handleApprove}
             onReject={handleReject}
-            onPublish={() => previewArticle && initiatePublish(previewArticle.id)}
+            onPublish={initiatePublish}
             onArchive={handleArchive}
             onRepublish={handleRepublish}
             onDelete={handleDeletePermanently}
