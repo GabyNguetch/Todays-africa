@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/Button";
 
 // --- DONNÉES STRUCTURÉES ---
 const COMPANY_INFO = {
-  name: "Consulting Cabinet ",
-  tagline: "Cabinet de Today's Africa Consulting Group",
+  name: "TA INTERCULTURAL INTELLIGENCE CONSULTING",
+  tagline: "Aider l'Afrique à mieux connaire l'Afrique",
   positions: "12 postes ouverts",
   locations: ["Yaoundé", "Moscou"],
   founded: "2020",
