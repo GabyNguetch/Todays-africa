@@ -115,7 +115,7 @@ export default function DashboardPage() {
         <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-zinc-800">
             <span className="font-extrabold uppercase tracking-wider text-lg flex items-center gap-2 text-gray-900 dark:text-white">
                <Globe className="bg-[#3E7B52] text-white w-8 h-8 p-1.5 rounded-lg shadow-sm shadow-green-900/20"/> 
-               {APP_CONFIG.name}
+               Today's Africa
             </span>
         </div>
 
