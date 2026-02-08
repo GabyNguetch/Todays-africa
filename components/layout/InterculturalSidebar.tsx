@@ -41,13 +41,13 @@ export default function InterculturelSidebar() {
                 <Brain className="text-[#3E7B52] w-5 h-5 animate-pulse" />
              </div>
              <span className="text-[10px] font-bold text-[#3E7B52] tracking-widest uppercase border border-[#13EC13]/20 px-2 py-0.5 rounded-full bg-[#13EC13]/5">
-                Editorial
+                Consulting Cabinet
              </span>
           </div>
           
           <div>
             <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white leading-tight">
-              Intelligence Interculturelle
+              Introduction à l'Intelligence Interculturelle
             </h3>
             <p className="text-xs text-gray-400 mt-2 leading-relaxed">
               Analyses expertes et théories sur les dynamiques culturelles africaines.
