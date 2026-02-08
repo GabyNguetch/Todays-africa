@@ -12,7 +12,7 @@ import {
 
 
 export const APP_CONFIG = {
-  name: "TODAY'S AFRICA",
+  name: "TODAY'S AFRICA INTERCULTURAL CONSULTING CABINET",
   year: 2025,
   // ✅ CORRECTION : Utilisation du proxy local Next.js
   apiUrl: "/api/proxy",

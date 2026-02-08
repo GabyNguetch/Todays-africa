@@ -27,40 +27,14 @@ const LEADERSHIP = [
   { name: "Ingrida KIM", role: "Directrice Générale Moscou", loc: "Moscou", avatar: "IK" }
 ];
 
-const DEPARTMENTS = [
-  { 
-    icon: Network, 
-    name: "Intelligence & Analyse", 
-    teams: ["Desk Afrique", "Recherche BRICS", "Intelligence de Marché"],
-    hiring: true
-  },
-  { 
-    icon: Sparkles, 
-    name: "Contenu & Marketing", 
-    teams: ["Éditorial", "Stratégie Digitale", "Design de Marque"],
-    hiring: true
-  },
-  { 
-    icon: ShieldCheck, 
-    name: "Juridique & Conformité", 
-    teams: ["Droit des Affaires", "Affaires Internationales"],
-    hiring: false
-  },
-  { 
-    icon: Laptop, 
-    name: "Technologie & Data", 
-    teams: ["Développement", "Data Science", "Cybersécurité"],
-    hiring: true
-  }
-];
 
 const BENEFITS = [
-  "Télétravail prioritaire",
-  "Salaire compétitif",
-  "Exposition internationale",
+  "Expertise unique en interculturalité",
+  "Projets internationaux",
   "Formation continue",
-  "Équipe multiculturelle",
-  "Projets stratégiques"
+  "Impact continental",
+  "Théorie éprouvée 30+ ans",
+  "Réseau diplomatique"
 ];
 
 
