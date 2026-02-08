@@ -155,7 +155,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         
         // ✅ CORRECTION CRITIQUE: Stocker l'ID comme STRING contenant un nombre
         // Le service article.ts le convertira en INTEGER lors de l'envoi au backend
-        const numericId = parseInt(media.id);
+        const numericId = parseInt(String(media.id));
         if (isNaN(numericId)) {
           throw new Error("Le serveur n'a pas retourné un ID valide");
         }
