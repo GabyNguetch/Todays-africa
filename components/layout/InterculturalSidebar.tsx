@@ -41,7 +41,7 @@ export default function InterculturelSidebar() {
         </div>
         
         <h3 className="text-lg font-bold leading-tight">
-          Introduction à la Théorie de l'intelligence et du Renseignement Interculturelle
+          Introduction à la Théorie de l'Intelligence Interculturelle et au Renseignement Interculturel
         </h3>
 
         <Link href="/intelligence-interculturelle">

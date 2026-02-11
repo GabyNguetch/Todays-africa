@@ -100,7 +100,7 @@ export default function ConsultingSidebar() {
       <Link href="/consulting-cabinet#apply" className="block">
         <Button className="w-full h-11 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase tracking-wider flex items-center justify-center gap-2">
           <UserPlus size={16}/>
-          Postuler
+          Nous contacter
         </Button>
       </Link>
 
