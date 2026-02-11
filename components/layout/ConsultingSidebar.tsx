@@ -1,135 +1,108 @@
-// FICHIER: components/layout/ConsultingSidebar.tsx
+// FICHIER: components/layout/ConsultingSidebar.tsx - VERSION NYT
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { 
-  Building2, MapPin, Users, Briefcase, 
-  ShieldCheck, Network, ChevronRight, UserPlus, 
-  Sparkles, Laptop, Mail, Phone, ArrowUpRight,
-  CheckCircle2, Award, Globe2, TrendingUp
+  Building2, MapPin, Users, Mail, Phone, 
+  CheckCircle2, UserPlus
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
-// --- DONNÉES STRUCTURÉES ---
 const COMPANY_INFO = {
   name: "TA INTERCULTURAL INTELLIGENCE CONSULTING",
-  tagline: "Aider l'Afrique à mieux connaire l'Afrique",
-  positions: "12 postes ouverts",
-  locations: ["Yaoundé", "Moscou"],
-  founded: "2020",
-  employees: "50+ experts"
+  tagline: "Aider l'Afrique à mieux connaître l'Afrique",
+  locations: ["Yaoundé", "Moscou"]
 };
 
 const LEADERSHIP = [
-  { name: "Cécile M. BOKALLI", role: "Directrice Générale Yaoundé", loc: "Yaoundé", avatar: "CB" },
-  { name: "Ingrida KIM", role: "Directrice Générale Moscou", loc: "Moscou", avatar: "IK" }
+  { name: "C. M. BOKALLI", role: "DG Yaoundé", avatar: "CB" },
+  { name: "Ingrida KIM", role: "DG Moscou", avatar: "IK" }
 ];
 
-
 const BENEFITS = [
-  "Expertise unique en interculturalité",
+  "Expertise interculturelle unique",
   "Projets internationaux",
   "Formation continue",
   "Impact continental",
-  "Théorie éprouvée 30+ ans",
-  "Réseau diplomatique"
 ];
 
-
 export default function ConsultingSidebar() {
-  const [expandedDept, setExpandedDept] = useState<number | null>(null);
-
   return (
-    <aside className="w-full h-full overflow-hidden flex flex-col gap-5 p-0 bg-transparent">
+    <aside className="w-full space-y-6">
         
-      {/* --- 1. EN-TÊTE ENTREPRISE --- */}
-      <div className="space-y-4">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 bg-[#3E7B52] hover:bg-[#326342] rounded-2xl flex items-center justify-center shadow-lg">
-            <Building2 size={28} className="text-white" strokeWidth={2}/>
+      {/* En-tête entreprise */}
+      <div className="border-2 border-gray-200 dark:border-zinc-800 p-6 bg-white dark:bg-zinc-900 space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="w-12 h-12 bg-[#3E7B52] flex items-center justify-center shrink-0">
+            <Building2 size={24} className="text-white"/>
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight mb-1">
               {COMPANY_INFO.name}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {COMPANY_INFO.tagline}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex ml-0 items-center gap-2 text-gray-600 dark:text-gray-400">
-            <MapPin size={14} className="text-emerald-600 dark:text-emerald-500"/>
-            <span className="text-xs">{COMPANY_INFO.locations.join(" • ")}</span>
-          </div>
+        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-zinc-800">
+          <MapPin size={12} className="text-[#3E7B52]"/>
+          <span>{COMPANY_INFO.locations.join(" • ")}</span>
         </div>
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent"/>
-
-      {/* --- 2. LEADERSHIP --- */}
+      {/* Leadership */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <Users size={14}/>
-          Direction Générale
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52] flex items-center gap-2">
+          <Users size={12}/>
+          Direction
         </h3>
         
         <div className="space-y-2">
           {LEADERSHIP.map((leader, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{leader.avatar}</span>
+            <div key={i} className="flex items-center gap-3 p-3 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#3E7B52] transition-colors">
+              <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                  {leader.avatar}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{leader.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{leader.role}</p>
+                <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                  {leader.name}
+                </p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                  {leader.role}
+                </p>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent"/>
 
-      {/* --- 4. AVANTAGES --- */}
+      {/* Avantages */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          Pourquoi Nous Rejoindre
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52]">
+          Pourquoi Nous
         </h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
           {BENEFITS.map((benefit, i) => (
-            <div key={i} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
-              <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-500 mt-0.5 shrink-0"/>
+            <div key={i} className="flex items-start gap-2 text-[10px] text-gray-600 dark:text-gray-400 leading-tight">
+              <CheckCircle2 size={10} className="text-[#3E7B52] mt-0.5 shrink-0"/>
               <span>{benefit}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* --- 5. CTA --- */}
+      {/* CTA */}
       <Link href="/consulting-cabinet#apply" className="block">
-        <Button className="w-full h-12 bg-[#3E7B52] hover:bg-[#326342] text-white rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group">
-          <UserPlus size={18} className="group-hover:scale-110 transition-transform"/>
-          <span className="font-semibold">Postuler chez Today's Africa</span>
+        <Button className="w-full h-11 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+          <UserPlus size={16}/>
+          Postuler
         </Button>
       </Link>
-
-      {/* --- 6. CONTACT --- */}
-      <div className="pt-3 border-t border-gray-200 dark:border-zinc-800">
-        <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-          <a href="mailto:careers@tacg.com" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors">
-            <Mail size={12}/>
-            <span>todays@blog.com</span>
-          </a>
-          <div className="w-px h-4 bg-gray-300 dark:bg-zinc-700"/>
-          <a href="tel:+237" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors">
-            <Phone size={12}/>
-            <span>699 888 777</span>
-          </a>
-        </div>
-      </div>
 
     </aside>
   );

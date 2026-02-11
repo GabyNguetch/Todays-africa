@@ -3,7 +3,7 @@
 import React, { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp, BarChart3, FileText, Grid3x3 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ArticleCard from "@/components/ui/ArticleCard";
@@ -14,28 +14,28 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// --- SQUELETTE DE CHARGEMENT MODERNISÉ ---
+// --- SQUELETTE DE CHARGEMENT PROFESSIONNEL ---
 const CategorySkeleton = () => (
-    <div className="group relative flex flex-col h-full bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500">
-        {/* Effet de brillance animé */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+    <div className="group relative flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Effet de chargement */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-zinc-800/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
         
-        <div className="p-5 space-y-4">
-            {/* Image Fake avec effet pulse */}
-            <div className="relative h-48 w-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-300/50 to-transparent dark:from-zinc-900/50"></div>
+        <div className="p-6 space-y-4">
+            {/* Image Fake */}
+            <div className="relative h-48 w-full bg-gray-200 dark:bg-zinc-800">
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-300/50 dark:from-zinc-900/50"></div>
             </div>
             
             {/* Contenu Fake */}
             <div className="space-y-3">
-                <div className="h-3 w-1/4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
-                <div className="h-6 w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-lg"></div>
-                <div className="h-6 w-2/3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-lg"></div>
+                <div className="h-3 w-1/4 bg-gray-200 dark:bg-zinc-800"></div>
+                <div className="h-6 w-full bg-gray-200 dark:bg-zinc-800"></div>
+                <div className="h-6 w-2/3 bg-gray-200 dark:bg-zinc-800"></div>
             </div>
             
             {/* Footer Card Fake */}
-            <div className="pt-3 border-t border-gray-200 dark:border-zinc-800 mt-auto">
-                <div className="h-3 w-1/3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
+            <div className="pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
+                <div className="h-3 w-1/3 bg-gray-100 dark:bg-zinc-800"></div>
             </div>
         </div>
     </div>
@@ -109,46 +109,64 @@ export default function CategoryPage({ params }: PageProps) {
 
       <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 flex-1">
         
-        {/* --- 1. HEADER MODERNISÉ --- */}
+        {/* --- 1. HEADER PROFESSIONNEL --- */}
         <div className="mb-16 relative">
-            {/* Effet de fond décoratif */}
-            <div className="absolute -top-8 -left-8 w-72 h-72 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-8 -right-8 w-96 h-96 bg-[#3E7B52]/3 dark:bg-[#13EC13]/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* Grille de fond subtile */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" 
+                 style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '50px 50px'}}>
+            </div>
             
-            <div className="relative bg-gradient-to-br from-white to-gray-50/50 dark:from-zinc-900 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-3xl p-8 md:p-12 shadow-lg backdrop-blur-sm">
+            <div className="relative bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-8 md:p-12 shadow-sm">
                 {loading ? (
                     // SQUELETTE DU HEADER
                     <div className="space-y-6 animate-pulse">
-                        <div className="h-4 w-40 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
-                        <div className="h-16 w-3/4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-2xl"></div>
-                        <div className="h-6 w-full max-w-2xl bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-xl"></div>
+                        <div className="h-4 w-40 bg-gray-200 dark:bg-zinc-800"></div>
+                        <div className="h-16 w-3/4 bg-gray-200 dark:bg-zinc-800"></div>
+                        <div className="h-6 w-full max-w-2xl bg-gray-200 dark:bg-zinc-800"></div>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {/* FIL D'ARIANE MODERNISÉ */}
-                        <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em]">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3E7B52]/10 to-[#3E7B52]/5 dark:from-[#13EC13]/10 dark:to-[#13EC13]/5 rounded-full border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
-                                <FolderOpen size={14} className="text-[#3E7B52] dark:text-[#13EC13]"/>
+                    <div className="space-y-8">
+                        {/* FIL D'ARIANE PROFESSIONNEL */}
+                        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em]">
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
+                                <Grid3x3 size={12} className="text-[#3E7B52] dark:text-[#13EC13]"/>
                                 <span className="text-[#3E7B52] dark:text-[#13EC13]">Rubrique</span>
                             </div>
-                            <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-700"></div>
+                            <div className="w-px h-4 bg-gray-300 dark:bg-zinc-700"></div>
                             <span className="text-gray-600 dark:text-zinc-400">{currentRubrique?.nom}</span>
                         </div>
 
-                        {/* TITRE AVEC EFFET */}
-                        <div className="space-y-4">
-                            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#111] to-[#3E7B52] dark:from-white dark:to-[#13EC13] tracking-tight uppercase leading-[0.95] animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                {currentRubrique?.nom}
-                            </h1>
-                            
-                            {/* Badge compteur d'articles */}
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3E7B52] to-[#2d5f3e] dark:from-[#13EC13] dark:to-[#0fc910] rounded-full shadow-lg shadow-[#3E7B52]/20 dark:shadow-[#13EC13]/20">
-                                    <TrendingUp size={14} className="text-white animate-bounce"/>
-                                    <span className="text-white text-xs font-bold">{articles.length} Articles</span>
+                        {/* TITRE AVEC ICÔNE */}
+                        <div className="space-y-6">
+                            <div className="flex items-start gap-6">
+                                {/* Icône de la catégorie */}
+                                <div className="flex-shrink-0 w-20 h-20 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                                    <FolderOpen size={40} className="text-white dark:text-black" strokeWidth={1.5}/>
                                 </div>
-                                <Sparkles size={20} className="text-[#3E7B52] dark:text-[#13EC13] animate-pulse"/>
+                                
+                                <div className="flex-1">
+                                    <h1 className="text-5xl md:text-7xl font-black text-[#111] dark:text-white tracking-tight uppercase leading-[0.9] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        {currentRubrique?.nom}
+                                    </h1>
+                                    
+                                    {/* Statistiques */}
+                                    <div className="flex items-center gap-4 flex-wrap">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] dark:bg-[#13EC13] text-white dark:text-black">
+                                            <BarChart3 size={16} strokeWidth={2}/>
+                                            <span className="text-sm font-bold">{articles.length} Articles</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-zinc-700">
+                                            <FileText size={16} className="text-gray-600 dark:text-zinc-400" strokeWidth={2}/>
+                                            <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">Mis à jour</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        
+                        {/* LIGNE DE SÉPARATION ANIMÉE */}
+                        <div className="relative h-px bg-gray-200 dark:bg-zinc-800 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#3E7B52] dark:via-[#13EC13] to-transparent animate-[shimmer_3s_infinite]"></div>
                         </div>
                         
                         {/* DESCRIPTION */}
@@ -160,12 +178,12 @@ export default function CategoryPage({ params }: PageProps) {
             </div>
         </div>
 
-        {/* --- 2. CONTENU DES ARTICLES MODERNISÉ --- */}
+        {/* --- 2. CONTENU DES ARTICLES PROFESSIONNEL --- */}
         {loading ? (
             // GRILLE SQUELETTES
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1,2,3,4,5,6].map(i => (
-                    <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 100}ms`}}>
+                    <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 80}ms`}}>
                         <CategorySkeleton />
                     </div>
                 ))}
@@ -173,12 +191,12 @@ export default function CategoryPage({ params }: PageProps) {
         ) : (
             // CONTENU RÉEL OU MESSAGE VIDE
             articles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {articles.map((article, index) => (
                         <div 
                             key={article.id} 
                             className="animate-in fade-in slide-in-from-bottom-4 duration-700"
-                            style={{animationDelay: `${index * 100}ms`}}
+                            style={{animationDelay: `${index * 80}ms`}}
                         >
                             <ArticleCard article={article} />
                         </div>
@@ -186,27 +204,29 @@ export default function CategoryPage({ params }: PageProps) {
                 </div>
             ) : (
                 <div className="relative animate-in fade-in zoom-in-95 duration-700">
-                    {/* Effet de fond pour l'état vide */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-transparent dark:from-zinc-900/50 dark:to-transparent rounded-3xl blur-2xl"></div>
-                    
-                    <div className="relative flex flex-col items-center justify-center py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-zinc-900 dark:via-zinc-900/80 dark:to-zinc-900 border-2 border-dashed border-gray-300 dark:border-zinc-800 rounded-3xl text-center px-6 overflow-hidden">
-                        {/* Décoration d'arrière-plan */}
-                        <div className="absolute top-0 left-1/4 w-64 h-64 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 rounded-full blur-3xl animate-pulse"></div>
-                        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#3E7B52]/3 dark:bg-[#13EC13]/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="relative flex flex-col items-center justify-center py-32 bg-white dark:bg-zinc-900 border-2 border-dashed border-gray-300 dark:border-zinc-800 text-center px-6">
+                        {/* Grille de fond */}
+                        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.01]" 
+                             style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '40px 40px'}}>
+                        </div>
                         
                         {/* Contenu */}
-                        <div className="relative z-10 space-y-6">
+                        <div className="relative z-10 space-y-8">
+                            {/* Icône centrale */}
                             <div className="relative inline-block">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#3E7B52]/20 to-[#3E7B52]/5 dark:from-[#13EC13]/20 dark:to-[#13EC13]/5 rounded-3xl blur-xl animate-pulse"></div>
-                                <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 p-6 rounded-3xl shadow-xl">
-                                    <RefreshCw size={48} className="text-gray-400 dark:text-gray-500 animate-spin" style={{animationDuration: '3s'}}/>
+                                <div className="w-24 h-24 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center">
+                                    <RefreshCw size={48} className="text-gray-400 dark:text-gray-500 animate-spin" style={{animationDuration: '4s'}} strokeWidth={1.5}/>
+                                </div>
+                                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center">
+                                    <Sparkles size={14} className="text-white dark:text-black"/>
                                 </div>
                             </div>
                             
-                            <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                                    Aucun article pour le moment
+                            <div className="space-y-4">
+                                <h3 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                    Aucun article disponible
                                 </h3>
+                                <div className="w-20 h-1 bg-[#3E7B52] dark:bg-[#13EC13] mx-auto"></div>
                                 <p className="text-gray-500 dark:text-zinc-400 text-base max-w-md mx-auto leading-relaxed">
                                     La rédaction n'a pas encore publié d'article dans la rubrique <span className="font-bold text-[#3E7B52] dark:text-[#13EC13]">{currentRubrique?.nom}</span>.
                                 </p>
@@ -214,9 +234,9 @@ export default function CategoryPage({ params }: PageProps) {
                             
                             <Link 
                                 href="/" 
-                                className="group inline-flex items-center gap-3 text-sm font-bold text-white bg-gradient-to-r from-[#3E7B52] to-[#2d5f3e] dark:from-[#13EC13] dark:to-[#0fc910] px-8 py-4 rounded-xl shadow-lg shadow-[#3E7B52]/30 dark:shadow-[#13EC13]/30 hover:shadow-xl hover:shadow-[#3E7B52]/40 dark:hover:shadow-[#13EC13]/40 hover:scale-105 transition-all duration-300"
+                                className="group inline-flex items-center gap-3 text-sm font-bold text-white dark:text-black bg-[#3E7B52] dark:bg-[#13EC13] px-8 py-4 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                             >
-                                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform duration-300"/>
+                                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform duration-300" strokeWidth={2.5}/>
                                 <span>Retour à l'accueil</span>
                             </Link>
                         </div>
@@ -229,6 +249,9 @@ export default function CategoryPage({ params }: PageProps) {
 
       <style jsx global>{`
         @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
           100% {
             transform: translateX(100%);
           }
