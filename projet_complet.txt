@@ -227,7 +227,7 @@ FICHIER: D:\Projet Business\TODY\tody-africa\app\category\[slug]\page.tsx
 import React, { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp, BarChart3, FileText, Grid3x3 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ArticleCard from "@/components/ui/ArticleCard";
@@ -238,28 +238,28 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// --- SQUELETTE DE CHARGEMENT MODERNISÉ ---
+// --- SQUELETTE DE CHARGEMENT PROFESSIONNEL ---
 const CategorySkeleton = () => (
-    <div className="group relative flex flex-col h-full bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500">
-        {/* Effet de brillance animé */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+    <div className="group relative flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Effet de chargement */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-zinc-800/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
         
-        <div className="p-5 space-y-4">
-            {/* Image Fake avec effet pulse */}
-            <div className="relative h-48 w-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-300/50 to-transparent dark:from-zinc-900/50"></div>
+        <div className="p-6 space-y-4">
+            {/* Image Fake */}
+            <div className="relative h-48 w-full bg-gray-200 dark:bg-zinc-800">
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-300/50 dark:from-zinc-900/50"></div>
             </div>
             
             {/* Contenu Fake */}
             <div className="space-y-3">
-                <div className="h-3 w-1/4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
-                <div className="h-6 w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-lg"></div>
-                <div className="h-6 w-2/3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-lg"></div>
+                <div className="h-3 w-1/4 bg-gray-200 dark:bg-zinc-800"></div>
+                <div className="h-6 w-full bg-gray-200 dark:bg-zinc-800"></div>
+                <div className="h-6 w-2/3 bg-gray-200 dark:bg-zinc-800"></div>
             </div>
             
             {/* Footer Card Fake */}
-            <div className="pt-3 border-t border-gray-200 dark:border-zinc-800 mt-auto">
-                <div className="h-3 w-1/3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
+            <div className="pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
+                <div className="h-3 w-1/3 bg-gray-100 dark:bg-zinc-800"></div>
             </div>
         </div>
     </div>
@@ -333,46 +333,64 @@ export default function CategoryPage({ params }: PageProps) {
 
       <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 flex-1">
         
-        {/* --- 1. HEADER MODERNISÉ --- */}
+        {/* --- 1. HEADER PROFESSIONNEL --- */}
         <div className="mb-16 relative">
-            {/* Effet de fond décoratif */}
-            <div className="absolute -top-8 -left-8 w-72 h-72 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-8 -right-8 w-96 h-96 bg-[#3E7B52]/3 dark:bg-[#13EC13]/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* Grille de fond subtile */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" 
+                 style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '50px 50px'}}>
+            </div>
             
-            <div className="relative bg-gradient-to-br from-white to-gray-50/50 dark:from-zinc-900 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-3xl p-8 md:p-12 shadow-lg backdrop-blur-sm">
+            <div className="relative bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-8 md:p-12 shadow-sm">
                 {loading ? (
                     // SQUELETTE DU HEADER
                     <div className="space-y-6 animate-pulse">
-                        <div className="h-4 w-40 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-full"></div>
-                        <div className="h-16 w-3/4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-2xl"></div>
-                        <div className="h-6 w-full max-w-2xl bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 rounded-xl"></div>
+                        <div className="h-4 w-40 bg-gray-200 dark:bg-zinc-800"></div>
+                        <div className="h-16 w-3/4 bg-gray-200 dark:bg-zinc-800"></div>
+                        <div className="h-6 w-full max-w-2xl bg-gray-200 dark:bg-zinc-800"></div>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {/* FIL D'ARIANE MODERNISÉ */}
-                        <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em]">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3E7B52]/10 to-[#3E7B52]/5 dark:from-[#13EC13]/10 dark:to-[#13EC13]/5 rounded-full border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
-                                <FolderOpen size={14} className="text-[#3E7B52] dark:text-[#13EC13]"/>
+                    <div className="space-y-8">
+                        {/* FIL D'ARIANE PROFESSIONNEL */}
+                        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em]">
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
+                                <Grid3x3 size={12} className="text-[#3E7B52] dark:text-[#13EC13]"/>
                                 <span className="text-[#3E7B52] dark:text-[#13EC13]">Rubrique</span>
                             </div>
-                            <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-700"></div>
+                            <div className="w-px h-4 bg-gray-300 dark:bg-zinc-700"></div>
                             <span className="text-gray-600 dark:text-zinc-400">{currentRubrique?.nom}</span>
                         </div>
 
-                        {/* TITRE AVEC EFFET */}
-                        <div className="space-y-4">
-                            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#111] to-[#3E7B52] dark:from-white dark:to-[#13EC13] tracking-tight uppercase leading-[0.95] animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                {currentRubrique?.nom}
-                            </h1>
-                            
-                            {/* Badge compteur d'articles */}
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#3E7B52] to-[#2d5f3e] dark:from-[#13EC13] dark:to-[#0fc910] rounded-full shadow-lg shadow-[#3E7B52]/20 dark:shadow-[#13EC13]/20">
-                                    <TrendingUp size={14} className="text-white animate-bounce"/>
-                                    <span className="text-white text-xs font-bold">{articles.length} Articles</span>
+                        {/* TITRE AVEC ICÔNE */}
+                        <div className="space-y-6">
+                            <div className="flex items-start gap-6">
+                                {/* Icône de la catégorie */}
+                                <div className="flex-shrink-0 w-20 h-20 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                                    <FolderOpen size={40} className="text-white dark:text-black" strokeWidth={1.5}/>
                                 </div>
-                                <Sparkles size={20} className="text-[#3E7B52] dark:text-[#13EC13] animate-pulse"/>
+                                
+                                <div className="flex-1">
+                                    <h1 className="text-5xl md:text-7xl font-black text-[#111] dark:text-white tracking-tight uppercase leading-[0.9] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        {currentRubrique?.nom}
+                                    </h1>
+                                    
+                                    {/* Statistiques */}
+                                    <div className="flex items-center gap-4 flex-wrap">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] dark:bg-[#13EC13] text-white dark:text-black">
+                                            <BarChart3 size={16} strokeWidth={2}/>
+                                            <span className="text-sm font-bold">{articles.length} Articles</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-zinc-700">
+                                            <FileText size={16} className="text-gray-600 dark:text-zinc-400" strokeWidth={2}/>
+                                            <span className="text-sm font-medium text-gray-600 dark:text-zinc-400">Mis à jour</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        
+                        {/* LIGNE DE SÉPARATION ANIMÉE */}
+                        <div className="relative h-px bg-gray-200 dark:bg-zinc-800 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#3E7B52] dark:via-[#13EC13] to-transparent animate-[shimmer_3s_infinite]"></div>
                         </div>
                         
                         {/* DESCRIPTION */}
@@ -384,12 +402,12 @@ export default function CategoryPage({ params }: PageProps) {
             </div>
         </div>
 
-        {/* --- 2. CONTENU DES ARTICLES MODERNISÉ --- */}
+        {/* --- 2. CONTENU DES ARTICLES PROFESSIONNEL --- */}
         {loading ? (
             // GRILLE SQUELETTES
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1,2,3,4,5,6].map(i => (
-                    <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 100}ms`}}>
+                    <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 80}ms`}}>
                         <CategorySkeleton />
                     </div>
                 ))}
@@ -397,12 +415,12 @@ export default function CategoryPage({ params }: PageProps) {
         ) : (
             // CONTENU RÉEL OU MESSAGE VIDE
             articles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {articles.map((article, index) => (
                         <div 
                             key={article.id} 
                             className="animate-in fade-in slide-in-from-bottom-4 duration-700"
-                            style={{animationDelay: `${index * 100}ms`}}
+                            style={{animationDelay: `${index * 80}ms`}}
                         >
                             <ArticleCard article={article} />
                         </div>
@@ -410,27 +428,29 @@ export default function CategoryPage({ params }: PageProps) {
                 </div>
             ) : (
                 <div className="relative animate-in fade-in zoom-in-95 duration-700">
-                    {/* Effet de fond pour l'état vide */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-transparent dark:from-zinc-900/50 dark:to-transparent rounded-3xl blur-2xl"></div>
-                    
-                    <div className="relative flex flex-col items-center justify-center py-32 bg-gradient-to-br from-white via-gray-50 to-white dark:from-zinc-900 dark:via-zinc-900/80 dark:to-zinc-900 border-2 border-dashed border-gray-300 dark:border-zinc-800 rounded-3xl text-center px-6 overflow-hidden">
-                        {/* Décoration d'arrière-plan */}
-                        <div className="absolute top-0 left-1/4 w-64 h-64 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 rounded-full blur-3xl animate-pulse"></div>
-                        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#3E7B52]/3 dark:bg-[#13EC13]/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                    <div className="relative flex flex-col items-center justify-center py-32 bg-white dark:bg-zinc-900 border-2 border-dashed border-gray-300 dark:border-zinc-800 text-center px-6">
+                        {/* Grille de fond */}
+                        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.01]" 
+                             style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '40px 40px'}}>
+                        </div>
                         
                         {/* Contenu */}
-                        <div className="relative z-10 space-y-6">
+                        <div className="relative z-10 space-y-8">
+                            {/* Icône centrale */}
                             <div className="relative inline-block">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#3E7B52]/20 to-[#3E7B52]/5 dark:from-[#13EC13]/20 dark:to-[#13EC13]/5 rounded-3xl blur-xl animate-pulse"></div>
-                                <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 p-6 rounded-3xl shadow-xl">
-                                    <RefreshCw size={48} className="text-gray-400 dark:text-gray-500 animate-spin" style={{animationDuration: '3s'}}/>
+                                <div className="w-24 h-24 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center">
+                                    <RefreshCw size={48} className="text-gray-400 dark:text-gray-500 animate-spin" style={{animationDuration: '4s'}} strokeWidth={1.5}/>
+                                </div>
+                                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center">
+                                    <Sparkles size={14} className="text-white dark:text-black"/>
                                 </div>
                             </div>
                             
-                            <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                                    Aucun article pour le moment
+                            <div className="space-y-4">
+                                <h3 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                    Aucun article disponible
                                 </h3>
+                                <div className="w-20 h-1 bg-[#3E7B52] dark:bg-[#13EC13] mx-auto"></div>
                                 <p className="text-gray-500 dark:text-zinc-400 text-base max-w-md mx-auto leading-relaxed">
                                     La rédaction n'a pas encore publié d'article dans la rubrique <span className="font-bold text-[#3E7B52] dark:text-[#13EC13]">{currentRubrique?.nom}</span>.
                                 </p>
@@ -438,9 +458,9 @@ export default function CategoryPage({ params }: PageProps) {
                             
                             <Link 
                                 href="/" 
-                                className="group inline-flex items-center gap-3 text-sm font-bold text-white bg-gradient-to-r from-[#3E7B52] to-[#2d5f3e] dark:from-[#13EC13] dark:to-[#0fc910] px-8 py-4 rounded-xl shadow-lg shadow-[#3E7B52]/30 dark:shadow-[#13EC13]/30 hover:shadow-xl hover:shadow-[#3E7B52]/40 dark:hover:shadow-[#13EC13]/40 hover:scale-105 transition-all duration-300"
+                                className="group inline-flex items-center gap-3 text-sm font-bold text-white dark:text-black bg-[#3E7B52] dark:bg-[#13EC13] px-8 py-4 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                             >
-                                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform duration-300"/>
+                                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform duration-300" strokeWidth={2.5}/>
                                 <span>Retour à l'accueil</span>
                             </Link>
                         </div>
@@ -453,6 +473,9 @@ export default function CategoryPage({ params }: PageProps) {
 
       <style jsx global>{`
         @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
           100% {
             transform: translateX(100%);
           }
@@ -493,8 +516,7 @@ import AdminRedacteurs from "@/components/dashboard/AdminRedacteur";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
 import Link from "next/link";
 
-type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings";
-
+type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings" | "admin-global-articles";
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -585,7 +607,7 @@ export default function DashboardPage() {
         <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-zinc-800">
             <span className="font-extrabold uppercase tracking-wider text-lg flex items-center gap-2 text-gray-900 dark:text-white">
                <Globe className="bg-[#3E7B52] text-white w-8 h-8 p-1.5 rounded-lg shadow-sm shadow-green-900/20"/> 
-               {APP_CONFIG.name}
+               Today's Africa
             </span>
         </div>
 
@@ -716,7 +738,8 @@ import { ArticleReadDto } from "@/types/article";
 import { PublicService } from "@/services/public";
 import { useAuth } from "@/context/AuthContext";
 import { 
-  Share2, Heart, Copy, Facebook, Twitter, CheckCircle
+  Share2, Heart, Copy, Facebook, Twitter, CheckCircle, 
+  Eye, TrendingUp, Clock, User, Tag, Calendar
 } from "lucide-react";
 import { format, isValid } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -748,25 +771,25 @@ const formatDate = (dateStr?: string) => {
 // SKELETON COMPONENT
 // ==========================================
 const ArticleSkeleton = () => (
-  <div className="bg-[#FDFDFD] dark:bg-black min-h-screen animate-pulse">
+  <div className="bg-white dark:bg-black min-h-screen">
     <Navbar /> 
-    <div className="max-w-[1100px] mx-auto w-full px-6 md:px-12 py-12">
-      <div className="border-b border-gray-100 dark:border-zinc-800 pb-10 mb-12">
-        <div className="h-6 w-32 bg-gray-200 dark:bg-zinc-800 rounded-full mb-8"></div>
+    <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12 py-12">
+      <div className="border-b border-gray-200 dark:border-zinc-800 pb-12 mb-12">
+        <div className="h-6 w-32 bg-gray-200 dark:bg-zinc-800 mb-8 animate-pulse"></div>
         <div className="space-y-4 mb-8">
-          <div className="h-12 w-[90%] bg-gray-300 dark:bg-zinc-800 rounded-lg"></div>
-          <div className="h-12 w-[70%] bg-gray-300 dark:bg-zinc-800 rounded-lg"></div>
+          <div className="h-12 w-[90%] bg-gray-300 dark:bg-zinc-800 animate-pulse"></div>
+          <div className="h-12 w-[70%] bg-gray-300 dark:bg-zinc-800 animate-pulse"></div>
         </div>
-        <div className="h-4 w-[85%] bg-gray-100 dark:bg-zinc-900 rounded"></div>
+        <div className="h-4 w-[85%] bg-gray-100 dark:bg-zinc-900 animate-pulse"></div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8">
-          <div className="w-full aspect-[16/10] bg-gray-200 dark:bg-zinc-800 rounded-xl mb-12"></div>
+          <div className="w-full aspect-[16/10] bg-gray-200 dark:bg-zinc-800 mb-12 animate-pulse"></div>
           <div className="space-y-6">
-            {[1, 2, 3].map(i => <div key={i} className="h-4 w-full bg-gray-100 dark:bg-zinc-900 rounded"></div>)}
+            {[1, 2, 3].map(i => <div key={i} className="h-4 w-full bg-gray-100 dark:bg-zinc-900 animate-pulse"></div>)}
           </div>
         </div>
-        <aside className="lg:col-span-4 h-64 bg-gray-50 dark:bg-zinc-900 rounded-xl"></aside>
+        <aside className="lg:col-span-4 h-64 bg-gray-50 dark:bg-zinc-900 animate-pulse"></aside>
       </div>
     </div>
   </div>
@@ -780,23 +803,35 @@ function ContentBlock({ bloc }: { bloc: any }) {
     case 'IMAGE': 
       return (
         <figure className="my-10 w-full group">
-          <div className="relative w-full aspect-[16/9] md:aspect-[2/1] rounded-lg overflow-hidden shadow-md bg-gray-100 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800">
-            <Image src={getImageUrl(bloc.url || bloc.contenu)} alt={bloc.altText || "Illustration"} fill className="object-cover" unoptimized/>
+          <div className="relative w-full aspect-[16/9] md:aspect-[2/1] overflow-hidden bg-gray-100 dark:bg-zinc-900 border-2 border-gray-100 dark:border-zinc-800 transition-all duration-500 hover:border-[#3E7B52] dark:hover:border-[#3E7B52]">
+            <Image 
+              src={getImageUrl(bloc.url || bloc.contenu)} 
+              alt={bloc.altText || "Illustration"} 
+              fill 
+              className="object-cover transition-transform duration-700 group-hover:scale-105" 
+              unoptimized
+            />
           </div>
-          {bloc.legende && <figcaption className="mt-3 text-xs text-gray-500 dark:text-zinc-500 font-mono tracking-wide text-center">▲ {bloc.legende}</figcaption>}
+          {bloc.legende && (
+            <figcaption className="mt-4 text-xs text-gray-500 dark:text-zinc-500 font-mono tracking-wide uppercase flex items-center gap-2">
+              <div className="w-8 h-px bg-[#3E7B52]"></div>
+              {bloc.legende}
+            </figcaption>
+          )}
         </figure>
       );
     case 'CITATION':
       return (
-        <div className="my-10 pl-6 border-l-4 border-[#3E7B52] py-2">
-          <blockquote className="font-serif text-2xl text-gray-800 dark:text-white italic leading-relaxed">
+        <div className="my-12 relative">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3E7B52]"></div>
+          <blockquote className="pl-8 py-4 font-serif text-2xl md:text-3xl text-gray-800 dark:text-white italic leading-relaxed">
             "{bloc.contenu}"
           </blockquote>
         </div>
       );
     case 'VIDEO':
       return (
-        <div className="my-10 w-full aspect-video bg-black rounded-lg overflow-hidden">
+        <div className="my-10 w-full aspect-video bg-black overflow-hidden border-2 border-gray-200 dark:border-zinc-800">
           <iframe src={bloc.url || bloc.contenu} className="w-full h-full border-0" allowFullScreen></iframe>
         </div>
       );
@@ -823,24 +858,30 @@ function ShareMenu({
   if (!showShare) return null;
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-zinc-900 shadow-xl border border-gray-100 dark:border-zinc-800 rounded-xl p-1 z-30 flex flex-col gap-1 animate-in fade-in zoom-in-95 origin-top-right">
-      <button onClick={onCopy} className="flex items-center gap-3 w-full px-3 py-2 hover:bg-gray-50 dark:hover:bg-zinc-800 rounded-lg text-xs font-bold transition-colors">
-        <Copy size={14} /> Copier le lien
+    <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-zinc-900 shadow-2xl border-2 border-gray-200 dark:border-zinc-800 p-2 z-30 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
+      <button 
+        onClick={onCopy} 
+        className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 text-sm font-bold transition-all duration-200 group"
+      >
+        <Copy size={16} className="transition-transform group-hover:scale-110" /> 
+        <span>Copier le lien</span>
       </button>
-      <div className="h-px bg-gray-100 dark:bg-zinc-800 my-1"/>
+      <div className="h-px bg-gray-200 dark:bg-zinc-800"/>
       <a 
         href={`https://twitter.com/intent/tweet?text=${article.titre}&url=${typeof window !== 'undefined' ? window.location.href : ''}`} 
         target="_blank" 
-        className="flex items-center gap-3 w-full px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 rounded-lg text-xs font-medium transition-colors"
+        className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 text-sm font-medium transition-all duration-200 group"
       >
-        <Twitter size={14}/> Twitter
+        <Twitter size={16} className="transition-transform group-hover:scale-110"/> 
+        <span>Partager sur Twitter</span>
       </a>
       <a 
         href={`https://www.facebook.com/sharer/sharer.php?u=${typeof window !== 'undefined' ? window.location.href : ''}`} 
         target="_blank" 
-        className="flex items-center gap-3 w-full px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-700 rounded-lg text-xs font-medium transition-colors"
+        className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 text-sm font-medium transition-all duration-200 group"
       >
-        <Facebook size={14}/> Facebook
+        <Facebook size={16} className="transition-transform group-hover:scale-110"/> 
+        <span>Partager sur Facebook</span>
       </a>
     </div>
   );
@@ -863,34 +904,45 @@ function ArticleHeader({
   onToggleShare: () => void;
 }) {
   return (
-    <header className="mb-12 border-b border-gray-200 dark:border-zinc-800 pb-10">
+    <header className="mb-12 border-b-2 border-gray-200 dark:border-zinc-800 pb-12">
       {/* Meta Info & Actions */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3E7B52] dark:text-[#13EC13] px-3 py-1 bg-[#3E7B52]/5 rounded-md border border-[#3E7B52]/10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+        <div className="flex items-center gap-4">
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white bg-[#3E7B52] dark:bg-[#3E7B52] px-4 py-2 border-2 border-[#3E7B52]">
             {article.rubriqueNom || "Actualité"}
           </span>
-          <span className="h-1 w-1 bg-gray-300 rounded-full"></span>
-          <span className="text-gray-400 dark:text-zinc-500 text-xs font-mono">
-            {formatDate(article.datePublication)}
-          </span>
+          <div className="flex items-center gap-2 text-gray-500 dark:text-zinc-500">
+            <Calendar size={14} />
+            <span className="text-xs font-mono uppercase tracking-wider">
+              {formatDate(article.datePublication)}
+            </span>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
           <button 
             onClick={onToggleLike} 
-            className={cn("p-2.5 rounded-full border transition-all duration-300 active:scale-95 group", 
-              isLiked ? "bg-red-50 border-red-200 text-red-500 shadow-inner" : "border-gray-100 hover:border-red-200 hover:bg-red-50 text-gray-400 hover:text-red-500 bg-white dark:bg-zinc-900 dark:border-zinc-800"
+            className={cn(
+              "p-3 border-2 transition-all duration-300 active:scale-95 group relative overflow-hidden",
+              isLiked 
+                ? "bg-[#3E7B52] border-[#3E7B52] text-white" 
+                : "border-gray-300 dark:border-zinc-700 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] text-gray-500 hover:text-[#3E7B52] bg-white dark:bg-zinc-900"
             )}
             title="Favori"
           >
-            <Heart size={20} className={cn("transition-transform", isLiked && "fill-current scale-110")} />
+            <Heart 
+              size={20} 
+              className={cn(
+                "transition-all duration-300",
+                isLiked && "fill-current scale-110"
+              )} 
+            />
           </button>
 
           <div className="relative">
             <button 
               onClick={onToggleShare} 
-              className="p-2.5 rounded-full border border-gray-100 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-black dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-all active:scale-95"
+              className="p-3 border-2 border-gray-300 dark:border-zinc-700 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] text-gray-500 hover:text-[#3E7B52] dark:text-zinc-400 dark:hover:text-[#3E7B52] transition-all duration-300 active:scale-95 bg-white dark:bg-zinc-900"
             >
               <Share2 size={20} />
             </button>
@@ -899,25 +951,35 @@ function ArticleHeader({
       </div>
 
       {/* Title & Description */}
-      <h1 className="text-4xl md:text-5xl lg:text-[4rem] font-[900] text-gray-900 dark:text-white leading-[1.05] tracking-tight mb-8">
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.05] tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {article.titre}
       </h1>
 
-      <p className="text-xl md:text-2xl text-gray-600 dark:text-zinc-300 leading-relaxed font-serif font-light max-w-4xl border-l-[3px] border-[#3E7B52] pl-6 md:pl-8 py-2">
-        {article.description}
-      </p>
+      <div className="relative pl-8 py-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3E7B52]"></div>
+        <p className="text-xl md:text-2xl text-gray-600 dark:text-zinc-300 leading-relaxed font-serif font-light max-w-4xl">
+          {article.description}
+        </p>
+      </div>
 
       {/* Author Info */}
-      <div className="mt-8 flex items-center gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 rounded-full flex items-center justify-center font-bold text-lg text-gray-500 overflow-hidden ring-2 ring-white dark:ring-black">
+      <div className="mt-10 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+        <div className="w-14 h-14 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center font-black text-xl text-gray-600 dark:text-zinc-400 overflow-hidden border-2 border-gray-300 dark:border-zinc-700">
           {article.auteurNom ? article.auteurNom.substring(0,1).toUpperCase() : "R"}
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            {article.auteurNom || "La Rédaction"} 
-            {article.region && <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-zinc-800 text-[10px] font-medium text-gray-500 uppercase tracking-wide border border-gray-200 dark:border-zinc-700">Bureau {article.region}</span>}
-          </span>
-          <span className="text-xs text-gray-400 mt-0.5">Journaliste TODAY'S AFRICA</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
+              <User size={14} />
+              {article.auteurNom || "La Rédaction"}
+            </span>
+            {article.region && (
+              <span className="px-3 py-1 bg-gray-100 dark:bg-zinc-800 text-[9px] font-black text-gray-600 dark:text-zinc-400 uppercase tracking-wider border border-gray-300 dark:border-zinc-700">
+                Bureau {article.region}
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-gray-500 dark:text-zinc-500 uppercase tracking-wide">Journaliste TODAY'S AFRICA</span>
         </div>
       </div>
     </header>
@@ -935,15 +997,32 @@ function SidebarStats({
   likes: number;
 }) {
   return (
-    <div className="flex gap-4 items-center justify-between px-6 py-4 bg-white dark:bg-zinc-900/50 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-      <div className="text-center">
-        <span className="block font-black text-2xl text-gray-900 dark:text-white">{compactNumber(views)}</span>
-        <span className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider">Lectures</span>
-      </div>
-      <div className="h-8 w-px bg-gray-200 dark:bg-zinc-700"></div>
-      <div className="text-center">
-        <span className="block font-black text-2xl text-[#3E7B52] dark:text-[#13EC13] transition-all">{compactNumber(likes)}</span>
-        <span className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider">Favoris</span>
+    <div className="bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-6 transition-all duration-300 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] group">
+      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
+        <TrendingUp size={14} />
+        Statistiques
+      </h3>
+      
+      <div className="space-y-4">
+        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 transition-all duration-300 group-hover:border-[#3E7B52]/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700">
+              <Eye size={18} className="text-gray-600 dark:text-zinc-400" />
+            </div>
+            <span className="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400 tracking-wider">Lectures</span>
+          </div>
+          <span className="font-black text-2xl text-gray-900 dark:text-white">{compactNumber(views)}</span>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-[#3E7B52]/5 dark:bg-[#3E7B52]/10 border border-[#3E7B52]/20 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white dark:bg-zinc-900 border border-[#3E7B52]">
+              <Heart size={18} className="text-[#3E7B52]" />
+            </div>
+            <span className="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400 tracking-wider">Favoris</span>
+          </div>
+          <span className="font-black text-2xl text-[#3E7B52]">{compactNumber(likes)}</span>
+        </div>
       </div>
     </div>
   );
@@ -1080,10 +1159,10 @@ export default function ArticlePage({ params }: PageProps) {
 
   // --- MAIN RENDER ---
   return (
-    <div className="bg-[#FDFDFD] dark:bg-black min-h-screen font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
+    <div className="bg-white dark:bg-black min-h-screen font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1100px] mx-auto w-full px-6 md:px-12 py-12 relative flex-1 animate-in fade-in duration-500">
+      <main className="max-w-[1200px] mx-auto w-full px-6 md:px-12 py-12 relative flex-1">
         
         {/* Article Header */}
         <ArticleHeader 
@@ -1112,8 +1191,8 @@ export default function ArticlePage({ params }: PageProps) {
             
             {/* Cover Image */}
             {article.imageCouvertureUrl && (
-              <figure className="mb-12 group cursor-zoom-in">
-                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-zinc-800 bg-gray-50">
+              <figure className="mb-12 group cursor-zoom-in animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="relative w-full aspect-[16/10] overflow-hidden border-2 border-gray-200 dark:border-zinc-800 bg-gray-50 transition-all duration-500 hover:border-[#3E7B52] dark:hover:border-[#3E7B52]">
                   <Image 
                     src={getImageUrl(article.imageCouvertureUrl)} 
                     alt={article.titre} 
@@ -1123,14 +1202,15 @@ export default function ArticlePage({ params }: PageProps) {
                     priority
                   />
                 </div>
-                <figcaption className="mt-3 text-[11px] text-gray-400 text-right font-mono uppercase tracking-wider flex items-center justify-end gap-2">
-                  Crédit: Tody Africa ©
+                <figcaption className="mt-4 text-[10px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
+                  <div className="w-8 h-px bg-[#3E7B52]"></div>
+                  Crédit: Today Africa ©
                 </figcaption>
               </figure>
             )}
 
             {/* Article Body */}
-            <div className="article-body font-serif text-[18px] md:text-[20px] leading-[1.8] text-[#1a1a1a] dark:text-[#d4d4d8]">
+            <div className="article-body text-justify font-serif text-[18px] md:text-[20px] leading-[1.8] text-gray-900 dark:text-zinc-100 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
               {article.blocsContenu && article.blocsContenu
                 .sort((a,b) => a.ordre - b.ordre)
                 .map((bloc, i) => (
@@ -1140,11 +1220,18 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
             
             {/* Tags */}
-            <div className="mt-16 pt-8 border-t border-dashed border-gray-200 dark:border-zinc-800">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Mots-clés</p>
-              <div className="flex flex-wrap gap-2">
-                {article.tags && article.tags.map(t => (
-                  <span key={t} className="px-4 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 text-xs font-bold rounded-full uppercase tracking-wide hover:bg-[#3E7B52] hover:text-white transition-all cursor-default">
+            <div className="mt-16 pt-8 border-t-2 border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
+                <Tag size={14} />
+                Mots-clés
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {article.tags && article.tags.map((t, idx) => (
+                  <span 
+                    key={t} 
+                    className="px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wide hover:bg-[#3E7B52] hover:text-white hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                  >
                     #{t}
                   </span>
                 ))}
@@ -1157,13 +1244,17 @@ export default function ArticlePage({ params }: PageProps) {
             <div className="sticky top-24 space-y-8">
               
               {/* Stats */}
-              <SidebarStats views={article.vues} likes={likesCount} />
+              <div className="animate-in fade-in slide-in-from-right-4 duration-700">
+                <SidebarStats views={article.vues} likes={likesCount} />
+              </div>
               
               {/* Similar Articles */}
-              <SimilarArticles currentArticleId={articleId} />
+              <div className="animate-in fade-in slide-in-from-right-4 duration-700 delay-100">
+                <SimilarArticles currentArticleId={articleId} />
+              </div>
               
               {/* Comments */}
-              <div className="min-h-[500px]">
+              <div className="min-h-[500px] animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
                 <CommentSystem articleId={articleId} />
               </div>
               
@@ -1177,16 +1268,86 @@ export default function ArticlePage({ params }: PageProps) {
       
       {/* Article Body Styles */}
       <style jsx global>{`
-        .article-body p { margin-bottom: 1.5em; }
-        .article-body h2 { font-weight: 900; margin-top: 2em; margin-bottom: 0.5em; font-size: 1.75em; line-height: 1.1; letter-spacing: -0.02em; font-family: var(--font-sans); }
-        .article-body h3 { font-weight: 800; margin-top: 1.5em; margin-bottom: 0.5em; font-size: 1.5em; font-family: var(--font-sans); }
-        .article-body a { color: #3E7B52; text-decoration: underline; text-underline-offset: 4px; font-weight: 600; }
-        .article-body ul, .article-body ol { margin-bottom: 1.5em; padding-left: 1.5em; }
-        .article-body li { margin-bottom: 0.5em; position: relative; }
-        .dark .article-body p { color: #d4d4d8; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
+        .article-body p { 
+          margin-bottom: 1.5em; 
+          animation: fadeIn 0.7s ease-in-out;
+          text-align: justify; /* Ajout ici aussi pour plus de spécificité */
+        }
+        .article-body h2 { 
+          font-weight: 900; 
+          margin-top: 2em; 
+          margin-bottom: 0.5em; 
+          font-size: 1.75em; 
+          line-height: 1.1; 
+          letter-spacing: -0.02em; 
+          font-family: var(--font-sans);
+          border-left: 4px solid #3E7B52;
+          padding-left: 1rem;
+        }
+        .article-body h3 { 
+          font-weight: 800; 
+          margin-top: 1.5em; 
+          margin-bottom: 0.5em; 
+          font-size: 1.5em; 
+          font-family: var(--font-sans);
+          border-left: 3px solid #3E7B52;
+          padding-left: 0.75rem;
+        }
+        .article-body a { 
+          color: #3E7B52; 
+          text-decoration: none;
+          font-weight: 600;
+          border-bottom: 2px solid transparent;
+          transition: border-color 0.3s ease;
+        }
+        .article-body a:hover {
+          border-bottom-color: #3E7B52;
+        }
+        .article-body ul, .article-body ol { 
+          margin-bottom: 1.5em; 
+          padding-left: 1.5em; 
+        }
+        .article-body li { 
+          margin-bottom: 0.5em; 
+          position: relative; 
+        }
+        .article-body ul li::before {
+          content: "";
+          position: absolute;
+          left: -1.5em;
+          top: 0.7em;
+          width: 6px;
+          height: 6px;
+          background: #3E7B52;
+        }
+        .dark .article-body p { 
+          color: #e4e4e7; 
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { 
+          width: 6px; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f5f5f5;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: #3E7B52;
+          transition: background 0.3s ease;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #2d5c3d;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+          background: #18181b;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: #3E7B52; 
+        }
       `}</style>
     </div>
   );
@@ -1292,64 +1453,90 @@ import {
   Briefcase,
   Radio,
   TrendingUp,
-  Megaphone
+  Megaphone,
+  Lightbulb,
+  Shield,
+  Network,
+  BookOpen,
+  GraduationCap
 } from "lucide-react";
-import Image from "next/image"; // <--- CETTE LIGNE ETAIT MANQUANTE
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-// Services adaptés à un Groupe Média/Presse & Intelligence
+// Menu complet extrait de l'image
+const menuSections = [
+  {
+    title: "DAILY BRIEFING DE PAYS",
+    items: ["Carte postale", "Peuples Et Cultures", "Politique", "Economie", "Sécurité", "Géopolitique", "Opportunités", "Risques", "Menaces", "Alerte", "Leçons-Perspectives"]
+  },
+  {
+    title: "AGENDA OFFICIEL",
+    items: ["ARCHIVES", "Intra", "Afrique-Russie", "Afrique-Chine", "Afrique-Europe", "Afrique-Asie", "Afrique-USA", "Afrique-Autres"]
+  },
+  {
+    title: "ACTIVITES",
+    items: ["", "Economiques", "Politiques", "Géostratégiques", "Interculturelles", "Post-coloniales"]
+  },
+  {
+    title: "UN PAYS A LA UNE",
+    items: ["", "Leaders Politiques", "Export", "Import", "Commerce", "Industrie", "Agriculture", "Carte postale"]
+  },
+  {
+    title: "PROFILS",
+    items: ["", "Analyses", "Politiques", "Géostratégiques", "Historiques"]
+  },
+  {
+    title: "RECHERCHE/INNOVATION",
+    items: ["", "Avions", "social", "UA", "Armée", "Sciences", "Enseignement supérieur", "Coopération"]
+  },
+  {
+    title: "Nos partenaires",
+    items: ["", "Humaines", "Politiques", "Economiques", "Recherches", "Entrepreneurs", "Fortunes", "Jeunes loups"]
+  },
+  {
+    title: "",
+    items: ["Cuisine", "Artisanat", "Traditions", "Sagesse", "Exclusivités", "Adresses", "Plages", "Forêts", "Montagnes", "Savanes", "Déserts"]
+  }
+];
+
+// Services du Cabinet - Version compacte
 const services = [
   {
-    icon: Newspaper,
-    title: "Édition & Publication",
-    description: "Production d'informations de qualité suivant les standards du journalisme britannique.",
-    features: ["Quotidien d'actualité", "Éditoriaux exclusifs", "Dossiers d'investigation"]
+    icon: Lightbulb,
+    title: "Intelligence Interculturelle",
+    description: "30+ ans de recherche sur la Théorie de l'Intelligence Interculturelle.",
+    features: ["Analyse Transculturelle", "Renseignement Interculturel"]
   },
   {
-    icon: TrendingUp,
-    title: "Intelligence Économique",
-    description: "Analyse des marchés et veille stratégique pour les décideurs du continent.",
-    features: ["Rapports sectoriels", "Analyses boursières", "Veille concurrentielle"]
+    icon: GraduationCap,
+    title: "Conseil & Formation",
+    description: "Conférences et formations stratégiques pour l'interculturalité active.",
+    features: ["Gouvernance acceptable", "Diplomatie opérationnelle"]
   },
   {
-    icon: Megaphone,
-    title: "Communication Stratégique",
-    description: "Diffusion de vos messages institutionnels auprès d'une audience qualifiée.",
-    features: ["Publireportages", "Relations presse", "Brand Content"]
+    icon: Shield,
+    title: "Sécurité & Coopération",
+    description: "Coopérations à forte valeur ajoutée et gestion des risques culturels.",
+    features: ["Coopération interculturelle", "Sécurité culturelle"]
   },
   {
-    icon: Globe,
-    title: "Public Affairs & Lobbying",
-    description: "Mise en relation et influence auprès des sphères décisionnelles.",
-    features: ["Médiation institutionnelle", "Forums d'influence", "Networking"]
+    icon: Network,
+    title: "Conseil Stratégique",
+    description: "Conseil auprès des États, gouvernements et organisations internationales.",
+    features: ["Stratégie d'État", "Organisations internationales"]
   }
 ];
 
-// L'équipe dirigeante fictive (ou placeholders) pour Today's Africa
-const team = [
-  {
-    name: "Direction de la Rédaction",
-    role: "Siège Social",
-    location: "Yaoundé, Cameroun",
-    description: "Le cœur de notre production éditoriale, garant de l'éthique et de la ligne anglo-saxonne."
-  },
-  {
-    name: "Bureau International",
-    role: "Correspondants",
-    location: "Londres, Royaume-Uni",
-    description: "Assurant le lien stratégique entre l'actualité africaine et la diaspora britannique."
-  }
-];
-
-// Zones de couverture
-const regions = [
-  "Cameroun (Siège)",
-  "Nigeria", 
-  "Ghana",
-  "Rwanda",
-  "Afrique du Sud"
+// Domaines d'expertise - Version compacte
+const expertiseDomains = [
+  { title: "Gouvernance Acceptable", icon: "🏛️" },
+  { title: "Diplomatie Opérationnelle", icon: "🤝" },
+  { title: "Coopération à Valeur Ajoutée", icon: "💼" },
+  { title: "Affaires Durables", icon: "🌱" },
+  { title: "Sécurité Interculturelle", icon: "🛡️" },
+  { title: "Innovation & Créativité", icon: "💡" }
 ];
 
 export default function TodaysAfricaPage() {
@@ -1357,140 +1544,194 @@ export default function TodaysAfricaPage() {
     <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 space-y-20">
+      <main className="max-w-[1400px] mx-auto w-full px-4 md:px-8 py-6 space-y-12">
         
         {/* ================================================================
-            1. HERO SECTION (Journal Britannique)
+            1. HERO SECTION - Compact avec tableau complet
            ================================================================ */}
-        <section className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-[#051F10] dark:to-zinc-900 p-8 md:p-16 rounded-3xl border border-green-100 dark:border-zinc-800 relative overflow-hidden">
-          {/* Décoration d'arrière-plan */}
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#13EC13]/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#3E7B52]/10 rounded-full blur-3xl pointer-events-none" />
+        <section className="relative bg-gradient-to-br from-slate-50 via-gray-100 to-emerald-50 dark:from-zinc-900 dark:via-zinc-800 dark:to-[#051F10] p-6 md:p-10 rounded-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden">
+          {/* Effet de cercle subtil */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-4 border-[#3E7B52]/20 rounded-full pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border-2 border-[#3E7B52]/10 rounded-full pointer-events-none" />
           
           <div className="relative z-10 max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-8">
-                
-                {/* Badge Haut */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-[#3E7B52] text-white p-3 rounded-xl shadow-lg shadow-green-900/10">
-                    <Newspaper size={32} />
-                  </div>
-                  <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-sm uppercase">
-                    The Voice of Authority
-                  </span>
-                </div>
-                
-                <h1 className="text-4xl sm:text-5xl lg:text-[64px] font-extrabold text-gray-900 dark:text-white leading-[1.1]">
-                  <span className="text-[#3E7B52]">TODAY'S</span>
-                  <br />AFRICA
-                </h1>
-                
-                <h2 className="text-xl font-medium text-gray-500 dark:text-gray-400 border-l-4 border-[#13EC13] pl-4 italic">
-                  "Excellence journalistique britannique, au cœur du Cameroun."
-                </h2>
-                
-                <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-md">
-                  Premier groupe média et cabinet d'intelligence basé à Yaoundé. Nous offrons une perspective anglo-saxonne sur les enjeux économiques et politiques qui façonnent le continent.
-                </p>
-
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <Button className="h-12 px-8 bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold shadow-xl shadow-[#3E7B52]/20">
-                    Découvrir nos Analyses
-                    <ArrowRight size={16} className="ml-2" />
-                  </Button>
-                  <Button variant="outline" className="h-12 px-8 border-green-200 dark:border-green-800 text-[#3E7B52] dark:text-[#13EC13] hover:bg-green-50 dark:hover:bg-zinc-800 font-bold">
-                    Abonnements Corporate
-                  </Button>
+            <div className="text-center space-y-6 mb-8">
+              
+              {/* Titre principal - Version responsive */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white leading-[1.05] tracking-tight px-4">
+                TA INTERCULTURAL<br/>
+                <span className="text-[#3E7B52] dark:text-[#13EC13]">INTELLIGENCE CONSULTING</span><br/>
+                <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-700 dark:text-gray-300">CABINET</span>
+              </h1>
+              
+              {/* Cercle décoratif centré - Version responsive */}
+              <div className="flex justify-center items-center py-4">
+                <div className="relative">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 border-3 sm:border-4 border-[#3E7B52] rounded-full" />
+                  <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-1 h-8 sm:h-12 bg-[#3E7B52]" />
                 </div>
               </div>
+              
+              {/* Triple baseline - Version responsive */}
+              <div className="space-y-1 text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-400 font-medium px-4">
+                <p className="uppercase tracking-wider">AIDER L'AFRIQUE À MIEUX CONNAÎTRE</p>
+                <p className="uppercase tracking-wider">AIDER L'AFRIQUE À MIEUX COOPÉRER</p>
+                <p className="uppercase tracking-wider">AIDER À MIEUX COOPÉRER AVEC L'AFRIQUE</p>
+              </div>
 
-              {/* Card Droit : Info Siège */}
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#3E7B52] to-[#13EC13] rounded-2xl blur opacity-20 dark:opacity-40"></div>
-                <div className="relative bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-2xl border border-gray-100 dark:border-zinc-800">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            Siège Editorial
+              {/* Bouton Langues */}
+              <div className="flex justify-end px-4">
+                <button className="text-xs text-gray-500 dark:text-gray-400 hover:text-[#3E7B52] px-3 py-1 border border-gray-300 dark:border-zinc-700 rounded">
+                  Langues
+                </button>
+              </div>
+            </div>
+
+            {/* QUI SOMMES-NOUS */}
+            <div className="mb-6 px-4">
+              <h2 className="text-sm md:text-base font-bold text-gray-700 dark:text-gray-300 mb-3">QUI SOMMES-NOUS ?</h2>
+            </div>
+
+            {/* MENU PRINCIPAL - Tableau responsive */}
+            <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-gray-300 dark:border-zinc-700 rounded-xl overflow-x-auto mb-6">
+              <div className="min-w-[600px] grid grid-cols-5 divide-x divide-gray-300 dark:divide-zinc-700">
+                <Link href="#vision" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                  NOTRE VISION
+                </Link>
+                <Link href="#organisation" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                  NOTRE ORGANISATION
+                </Link>
+                <Link href="#services" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                  NOS SERVICES
+                </Link>
+                <Link href="#magazine" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                  APPEL A PARTENAIRES
+                </Link>
+                <Link href="#contact" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                  NOUS CONTACTER
+                </Link>
+              </div>
+            </div>
+
+            {/* DESCRIPTION - 3 colonnes responsive */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 px-4">
+              <div className="bg-white/80 dark:bg-zinc-900/80 border border-gray-300 dark:border-zinc-700 rounded-lg p-4">
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Après plus de 30 ans de recherches sur la cause première de l'instabilité des actions des hommes, ayant observé les limites de la théorie du développement durable...
+                </p>
+              </div>
+              <div className="bg-white/80 dark:bg-zinc-900/80 border border-gray-300 dark:border-zinc-700 rounded-lg p-4">
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Nous sommes un Cabinet de conseil auprès des États, des gouvernements, des organisations internationales, des cabinets, des directions générales et des associations.
+                </p>
+              </div>
+              <div className="bg-white/80 dark:bg-zinc-900/80 border border-gray-300 dark:border-zinc-700 rounded-lg p-4">
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Conférences, Conseil et formation, en stratégie interculturelle par l'Intelligence Interculturelle et le Renseignement Interculturel pour...
+                </p>
+              </div>
+            </div>
+
+            {/* TABLEAU EXHAUSTIF DES RUBRIQUES - Comme dans l'image */}
+            <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border-2 border-gray-300 dark:border-zinc-700 rounded-xl overflow-x-auto">
+              <div className="min-w-[800px] grid grid-cols-8 divide-x divide-gray-300 dark:divide-zinc-700">
+                {menuSections.map((section, idx) => (
+                  <div key={idx} className="flex flex-col">
+                    {/* En-tête de colonne */}
+                    {section.title && (
+                      <div className="bg-gray-200 dark:bg-zinc-800 px-3 py-3 border-b border-gray-300 dark:border-zinc-700">
+                        <h3 className="text-xs md:text-sm font-bold text-gray-900 dark:text-white text-center leading-tight">
+                          {section.title}
                         </h3>
-                        <p className="text-sm text-gray-500">Headquarters</p>
-                    </div>
-                    <Radio className="text-[#13EC13] animate-pulse" size={24}/>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg">
-                      <div className="bg-white dark:bg-zinc-800 p-2 rounded-full border border-gray-100 dark:border-zinc-700">
-                         <MapPin className="text-[#3E7B52]" size={20} />
                       </div>
-                      <div>
-                          <p className="text-xs text-gray-500 uppercase font-bold">Localisation</p>
-                          <span className="text-gray-800 dark:text-gray-200 font-semibold">Yaoundé, Cameroun</span>
-                      </div>
-                    </div>
+                    )}
                     
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg">
-                       <div className="bg-white dark:bg-zinc-800 p-2 rounded-full border border-gray-100 dark:border-zinc-700">
-                          <Building2 className="text-[#3E7B52]" size={20} />
-                       </div>
-                       <div>
-                          <p className="text-xs text-gray-500 uppercase font-bold">Standard</p>
-                          <span className="text-gray-800 dark:text-gray-200 font-semibold">Anglo-Saxon Standard</span>
-                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg">
-                       <div className="bg-white dark:bg-zinc-800 p-2 rounded-full border border-gray-100 dark:border-zinc-700">
-                          <Target className="text-[#3E7B52]" size={20} />
-                       </div>
-                       <div>
-                          <p className="text-xs text-gray-500 uppercase font-bold">Expertise</p>
-                          <span className="text-gray-800 dark:text-gray-200 font-semibold">Politique & Économie</span>
-                       </div>
+                    {/* Items de la colonne */}
+                    <div className="flex flex-col divide-y divide-gray-200 dark:divide-zinc-800">
+                      {section.items.map((item, itemIdx) => (
+                        <Link 
+                          key={itemIdx} 
+                          href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="px-3 py-2.5 text-xs md:text-sm text-gray-800 dark:text-gray-200 hover:bg-[#3E7B52]/10 dark:hover:bg-[#3E7B52]/20 hover:text-[#3E7B52] dark:hover:text-[#13EC13] transition-colors text-center font-medium"
+                        >
+                          {item || "\u00A0"}
+                        </Link>
+                      ))}
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
         {/* ================================================================
-            2. SERVICES (Intelligence & Média)
+            2. NOTRE VISION - Version compacte
            ================================================================ */}
-        <section className="space-y-12">
-          <div className="text-center space-y-4">
+        <section id="vision" className="space-y-6">
+          <div className="text-center space-y-2">
             <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-xs uppercase bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full">
-              Nos Piliers
+              Notre Vision
             </span>
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
-              Information & Intelligence Stratégique
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
+              La Théorie de l'Intelligence Interculturelle
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-              Au-delà de l'actualité, nous fournissons les clés de lecture pour naviguer l'environnement complexe de l'Afrique Centrale.
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-lg">
+            <div className="max-w-4xl mx-auto space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                Après plus de 30 ans de recherches sur la cause première de l'instabilité des actions des hommes...
+              </p>
+              
+              <p className="text-sm">
+                Ayant observé les <strong className="text-[#3E7B52] dark:text-[#13EC13]">limites de la théorie du développement durable</strong>, nous avons constaté qu'<strong>aucune organisation ne saurait être crédible et cohérente</strong> sans un état des lieux transcendantal sur les cultures concernées.
+              </p>
+
+              <div className="bg-[#3E7B52]/10 dark:bg-[#3E7B52]/20 border-l-4 border-[#3E7B52] p-4 rounded-lg mt-6">
+                <p className="font-bold text-gray-900 dark:text-white text-base mb-1">
+                  Notre Conviction
+                </p>
+                <p className="italic text-sm">
+                  "Passer du multiculturalisme passif à l'interculturalité active pour l'émulation, l'innovation et la créativité."
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            3. NOS SERVICES - Version compacte
+           ================================================================ */}
+        <section id="services" className="space-y-6">
+          <div className="text-center space-y-2">
+            <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-xs uppercase bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full">
+              Nos Services
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">
+              Conseil Stratégique & Formation
+            </h2>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
             {services.map((service, index) => (
-              <div key={index} className="bg-white dark:bg-zinc-900 p-8 rounded-2xl border border-gray-100 dark:border-zinc-800 hover:border-[#3E7B52]/50 hover:shadow-xl hover:shadow-[#3E7B52]/5 transition-all duration-300 group">
-                <div className="flex items-start gap-6">
-                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl group-hover:bg-[#3E7B52] group-hover:text-white transition-colors duration-300">
-                    <service.icon size={28} className="text-[#3E7B52] group-hover:text-white" />
+              <div key={index} className="bg-white dark:bg-zinc-900 p-4 sm:p-5 rounded-xl border border-gray-100 dark:border-zinc-800 hover:border-[#3E7B52]/50 hover:shadow-lg transition-all duration-300 group">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="bg-green-50 dark:bg-green-900/20 p-2.5 sm:p-3 rounded-xl group-hover:bg-[#3E7B52] group-hover:text-white transition-colors shrink-0">
+                    <service.icon size={20} className="text-[#3E7B52] group-hover:text-white" />
                   </div>
-                  <div className="flex-1 space-y-4">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                       {service.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                       {service.description}
                     </p>
-                    <ul className="space-y-3 pt-2">
+                    <ul className="space-y-1.5 pt-1">
                       {service.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <CheckCircle size={16} className="text-[#13EC13]" />
-                          {feature}
+                        <li key={idx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                          <CheckCircle size={12} className="text-[#13EC13] shrink-0" />
+                          <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -1499,134 +1740,193 @@ export default function TodaysAfricaPage() {
               </div>
             ))}
           </div>
-        </section>
 
-        {/* ================================================================
-            3. ÉQUIPE & COUVERTURE
-           ================================================================ */}
-        <section className="bg-gray-50 dark:bg-zinc-900/50 rounded-3xl p-8 md:p-16 space-y-12 border border-gray-100 dark:border-zinc-800">
-          <div className="grid lg:grid-cols-2 gap-16">
-            
-            {/* Colonne Equipe */}
-            <div className="space-y-8">
-                <div>
-                    <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-xs uppercase mb-2 block">
-                    Leadership
-                    </span>
-                    <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-6">
-                    Structure Editoriale
-                    </h2>
+          {/* Domaines d'expertise - Version responsive */}
+          <div className="bg-gray-50 dark:bg-zinc-900/50 p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 mt-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 text-center">
+              Nos Domaines d'Expertise
+            </h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {expertiseDomains.map((domain, idx) => (
+                <div key={idx} className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-100 dark:border-zinc-800 flex items-center gap-3">
+                  <span className="text-xl sm:text-2xl shrink-0">{domain.icon}</span>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#3E7B52] dark:text-[#13EC13]">
+                    {domain.title}
+                  </h4>
                 </div>
-
-                <div className="space-y-6">
-                    {team.map((member, index) => (
-                    <div key={index} className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm flex gap-4 items-center">
-                        <div className="w-16 h-16 bg-[#3E7B52]/10 rounded-full flex items-center justify-center shrink-0">
-                             <Users size={24} className="text-[#3E7B52]" />
-                        </div>
-                        <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                            {member.name}
-                        </h3>
-                        <p className="text-[#3E7B52] dark:text-[#13EC13] font-bold text-sm">
-                            {member.role}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                            <MapPin size={12}/> {member.location}
-                        </p>
-                        </div>
-                    </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Colonne Couverture (Map Vibes) */}
-            <div className="bg-[#3E7B52] rounded-3xl p-8 md:p-10 text-white relative overflow-hidden flex flex-col justify-center">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                <Globe className="text-[#13EC13]/20 absolute -right-12 -bottom-12 w-64 h-64 animate-spin-slow" />
-                
-                <h3 className="text-2xl font-bold mb-6 relative z-10">Couverture Pan-Africaine</h3>
-                <p className="text-green-100 mb-8 relative z-10">
-                    Depuis Yaoundé, Today's Africa étend son influence à travers le Commonwealth et la Francophonie.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 relative z-10">
-                    {regions.map((region, idx) => (
-                        <div key={idx} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-white/20 transition-colors cursor-default">
-                             <div className="w-2 h-2 rounded-full bg-[#13EC13]"></div>
-                             {region}
-                        </div>
-                    ))}
-                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ================================================================
-            4. CONTACT (NEWSROOM)
+            4. NOTRE ORGANISATION - Version compacte
            ================================================================ */}
-        <section className="bg-gradient-to-r from-gray-900 to-black rounded-3xl p-8 md:p-16 text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-30">
-             <Image src="/images/noise.png" alt="texture" fill className="object-cover opacity-10" />
-          </div>
-          {/* Accent Line Top */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#3E7B52] to-[#13EC13]"></div>
-
+        <section id="organisation" className="bg-gradient-to-br from-[#3E7B52] to-[#2d5c3d] rounded-2xl p-6 md:p-10 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <Globe className="text-[#13EC13]/20 absolute -right-8 -bottom-8 w-32 h-32 sm:w-48 sm:h-48" />
+          
           <div className="relative z-10 max-w-5xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <h3 className="text-3xl md:text-4xl font-black text-white">
-                  Contacter la Rédaction
-                </h3>
-                <p className="text-gray-400 text-lg">
-                  Vous souhaitez soumettre une tribune, devenir annonceur ou solliciter une analyse stratégique ?
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
+              
+              <div className="space-y-4">
+                <h2 className="text-xl sm:text-2xl font-black mb-4">Notre Organisation</h2>
+                <p className="text-green-100 text-xs sm:text-sm leading-relaxed">
+                  Cabinet international basé à <strong>Yaoundé, Cameroun</strong>, avec une expertise reconnue auprès des institutions africaines.
                 </p>
                 
-                <div className="space-y-4 pt-4">
-                  <div className="flex items-center gap-4 group cursor-pointer">
-                    <div className="w-10 h-10 rounded-full bg-[#3E7B52]/20 flex items-center justify-center group-hover:bg-[#13EC13] transition-colors">
-                        <Mail size={18} className="text-[#13EC13] group-hover:text-black" />
+                <div className="space-y-3">
+                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 flex items-center gap-3">
+                    <Building2 className="text-[#13EC13] shrink-0" size={20} />
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs sm:text-sm truncate">Siège Social</p>
+                      <p className="text-xs text-green-200 truncate">Yaoundé, Cameroun</p>
                     </div>
-                    <span className="font-mono text-gray-300">newsroom@todaysafrica.com</span>
                   </div>
-                  <div className="flex items-center gap-4 group cursor-pointer">
-                    <div className="w-10 h-10 rounded-full bg-[#3E7B52]/20 flex items-center justify-center group-hover:bg-[#13EC13] transition-colors">
-                        <Phone size={18} className="text-[#13EC13] group-hover:text-black" />
+                  
+                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 flex items-center gap-3">
+                    <BookOpen className="text-[#13EC13] shrink-0" size={20} />
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs sm:text-sm truncate">30+ Années de Recherche</p>
+                      <p className="text-xs text-green-200 truncate">Théorie éprouvée</p>
                     </div>
-                    <span className="font-mono text-gray-300">+237 (Service Abonnement)</span>
                   </div>
                 </div>
               </div>
 
-              {/* Mini Form */}
-              <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl">
-                <h4 className="text-xl font-bold mb-6 text-white">Formulaire de contact</h4>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold mb-4">Zones d'Intervention</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Afrique Centrale", "Afrique de l'Ouest", "Afrique de l'Est", "Afrique Australe", "BRICS", "Organisations Int."].map((zone, idx) => (
+                    <div key={idx} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-semibold flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#13EC13] shrink-0"></div>
+                      <span className="truncate">{zone}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            5. NOTRE MAGAZINE - Version responsive
+           ================================================================ */}
+        <section id="magazine" className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 md:p-10 text-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#3E7B52] to-[#13EC13]"></div>
+          
+          <div className="relative z-10 max-w-5xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+              <div className="space-y-3 sm:space-y-4">
+                <Newspaper size={32} className="text-[#13EC13] sm:hidden" />
+                <Newspaper size={36} className="text-[#13EC13] hidden sm:block" />
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white">
+                  Notre Magazine : Today's Africa
+                </h3>
+                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                  Perspective anglo-saxonne sur les enjeux qui façonnent le continent.
+                </p>
+                
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-2 text-green-100 text-xs">
+                    <CheckCircle size={14} className="text-[#13EC13] shrink-0" />
+                    <span>Analyses géopolitiques</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-green-100 text-xs">
+                    <CheckCircle size={14} className="text-[#13EC13] shrink-0" />
+                    <span>Intelligence de marché</span>
+                  </div>
+                </div>
+
+                <Link href="/todays-africa-magazine">
+                  <Button className="h-9 sm:h-10 px-4 sm:px-6 bg-[#13EC13] hover:bg-[#0fbd0f] text-black font-bold text-xs sm:text-sm mt-4 w-full sm:w-auto">
+                    Découvrir
+                    <ArrowRight size={16} className="ml-2" />
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-md p-4 sm:p-6 rounded-xl border border-white/10">
+                <div className="aspect-[3/4] bg-gradient-to-br from-[#3E7B52] to-[#13EC13] rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2 sm:space-y-3 p-4 sm:p-6">
+                    <Newspaper size={40} className="mx-auto text-white sm:hidden" />
+                    <Newspaper size={48} className="mx-auto text-white hidden sm:block" />
+                    <p className="text-lg sm:text-xl font-black text-white">TODAY'S<br/>AFRICA</p>
+                    <p className="text-xs text-white/80">Excellence journalistique</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            6. CONTACT - Version responsive
+           ================================================================ */}
+        <section id="contact" className="bg-gradient-to-r from-gray-900 to-black rounded-2xl p-6 md:p-10 text-white relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#3E7B52] to-[#13EC13]"></div>
+
+          <div className="relative z-10 max-w-5xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center">
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white">
+                  Contactez Notre Cabinet
+                </h3>
+                <p className="text-gray-400 text-xs sm:text-sm">
+                  Pour toute demande de conseil stratégique ou formation.
+                </p>
+                
+                <div className="space-y-2 sm:space-y-3 pt-3">
+                  <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#3E7B52]/20 flex items-center justify-center group-hover:bg-[#13EC13] transition-colors shrink-0">
+                      <Mail size={14} className="text-[#13EC13] group-hover:text-black" />
+                    </div>
+                    <span className="font-mono text-gray-300 text-[10px] sm:text-xs break-all">contact@taconsulting.com</span>
+                  </div>
+                  <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#3E7B52]/20 flex items-center justify-center group-hover:bg-[#13EC13] transition-colors shrink-0">
+                      <Phone size={14} className="text-[#13EC13] group-hover:text-black" />
+                    </div>
+                    <span className="font-mono text-gray-300 text-[10px] sm:text-xs">+237 XXX XXX XXX</span>
+                  </div>
+                  <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#3E7B52]/20 flex items-center justify-center group-hover:bg-[#13EC13] transition-colors shrink-0">
+                      <MapPin size={14} className="text-[#13EC13] group-hover:text-black" />
+                    </div>
+                    <span className="font-mono text-gray-300 text-[10px] sm:text-xs">Yaoundé, Cameroun</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Formulaire de contact - Version responsive */}
+              <div className="bg-white/5 backdrop-blur-md p-4 sm:p-6 rounded-xl border border-white/10">
+                <h4 className="text-sm sm:text-base font-bold mb-3 sm:mb-4 text-white">Demande de Contact</h4>
+                <form className="space-y-2.5 sm:space-y-3">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <input 
-                        type="text" 
-                        placeholder="Prénom" 
-                        className="w-full h-11 px-4 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-sm"
+                      type="text" 
+                      placeholder="Prénom" 
+                      className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-xs"
                     />
                     <input 
-                        type="text" 
-                        placeholder="Nom" 
-                        className="w-full h-11 px-4 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-sm"
+                      type="text" 
+                      placeholder="Nom" 
+                      className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-xs"
                     />
                   </div>
                   <input 
                     type="email" 
                     placeholder="Email professionnel" 
-                    className="w-full h-11 px-4 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-sm"
+                    className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-white focus:border-[#13EC13] outline-none text-xs"
                   />
-                  <select className="w-full h-11 px-4 rounded-lg bg-black/40 border border-white/10 text-gray-400 focus:border-[#13EC13] outline-none text-sm">
-                      <option>Sujet de la demande</option>
-                      <option>Proposer un Article</option>
-                      <option>Service Commercial / Publicité</option>
-                      <option>Conseil & Intelligence</option>
+                  <select className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-gray-400 focus:border-[#13EC13] outline-none text-xs">
+                    <option>Sujet de la demande</option>
+                    <option>Conseil Stratégique</option>
+                    <option>Formation</option>
+                    <option>Partenariat</option>
                   </select>
                   
-                  <Button className="w-full h-12 bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold mt-2">
+                  <Button className="w-full h-9 bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold text-xs sm:text-sm">
                     Envoyer
                   </Button>
                 </form>
@@ -1989,50 +2289,154 @@ export default function IntelligenceInterculturelle() {
 
 
 ================================================================================
+FICHIER: D:\Projet Business\TODY\tody-africa\app\partners\page.tsx
+================================================================================
+
+// app/nos-partenaires/page.tsx
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { ExternalLink, ArrowLeft } from "lucide-react";
+import { PARTNERS_DATA } from "@/lib/constant";
+import { Button } from "@/components/ui/Button";
+
+export default function PartnersPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+      
+      {/* Header */}
+      <div className="bg-white dark:bg-black border-b-4 border-[#3E7B52]">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 text-[#3E7B52] hover:text-[#326342] font-bold uppercase tracking-wider text-sm mb-6"
+          >
+            <ArrowLeft size={16} />
+            Retour à l'accueil
+          </Link>
+          
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-black dark:text-white mb-4">
+            Nos Partenaires
+          </h1>
+          
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
+            Découvrez les partenaires qui nous accompagnent dans notre mission d'informer 
+            et de connecter l'Afrique contemporaine au monde.
+          </p>
+        </div>
+      </div>
+
+      {/* Partners Grid */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {PARTNERS_DATA.map((partner) => (
+            <div
+              key={partner.id}
+              className="bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 group"
+            >
+              {/* Logo Container */}
+              <div className="relative h-48 bg-gray-50 dark:bg-zinc-800 flex items-center justify-center p-8 border-b-2 border-gray-200 dark:border-zinc-800">
+                <div className="w-full h-full flex items-center justify-center">
+                  {/* Placeholder pour le logo - remplacer par <Image /> en production */}
+                  <div className="w-32 h-32 bg-gradient-to-br from-[#3E7B52] to-[#2a5539] rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-2xl">
+                      {partner.name.substring(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  {/* 
+                  <Image 
+                    src={partner.logo} 
+                    alt={partner.name}
+                    width={200}
+                    height={120}
+                    className="object-contain"
+                  />
+                  */}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <div className="mb-3">
+                  <h2 className="font-bold text-xl text-black dark:text-white mb-1">
+                    {partner.name}
+                  </h2>
+                  {partner.category && (
+                    <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#3E7B52] bg-[#3E7B52]/10 px-2 py-1">
+                      {partner.category}
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
+                  {partner.description}
+                </p>
+
+                <a
+                  href={partner.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-[#3E7B52] hover:text-[#326342] font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all"
+                >
+                  Visiter le site
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Call to Action */}
+        <div className="mt-16 text-center bg-white dark:bg-zinc-900 border-2 border-[#3E7B52] p-12">
+          <h2 className="font-serif text-3xl font-bold text-black dark:text-white mb-4">
+            Devenez Partenaire
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+            Vous souhaitez rejoindre notre réseau de partenaires et participer 
+            au développement de l'information en Afrique ?
+          </p>
+          <Button className="h-12 px-8 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase tracking-wider">
+            Contactez-nous
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
 FICHIER: D:\Projet Business\TODY\tody-africa\app\page.tsx
 ================================================================================
 
-// FICHIER: app/page.tsx
+// FICHIER: app/page.tsx - VERSION NYT INSPIRÉE
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FolderOpen, Loader2, Clock, ArrowLeft, ChevronLeft, Quote } from "lucide-react"; 
+import { ArrowRight, FolderOpen, Clock, ChevronLeft, ChevronRight } from "lucide-react"; 
 import { Button } from "@/components/ui/Button";
-import ArticleCard from "@/components/ui/ArticleCard";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { PublicService } from "@/services/public";
 import { ArticleReadDto, Rubrique } from "@/types/article";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
-
-// Nouveaux imports
 import InterculturelSidebar from "@/components/layout/InterculturalSidebar";
 import ConsultingSidebar from "@/components/layout/ConsultingSidebar";
 import { cn, getImageUrl } from "@/lib/utils";
 import LandingArticleCard from "@/components/ui/LandingCard";
 
-// --- COMPOSANT SKELETON CARD (Adapté à la nouvelle grille) ---
+// Skeleton pour le chargement
 const SectionSkeleton = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-pulse">
-      {/* Grand article (2 colonnes) */}
-      <div className="md:col-span-2 lg:col-span-2 flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl overflow-hidden p-4 space-y-4">
-        <div className="h-48 w-full bg-gray-200 dark:bg-zinc-800 rounded-lg"></div>
-        <div className="space-y-2">
-           <div className="h-6 w-full bg-gray-200 dark:bg-zinc-800 rounded"></div>
-           <div className="h-6 w-2/3 bg-gray-200 dark:bg-zinc-800 rounded"></div>
-        </div>
-      </div>
-      {/* Petits articles (1 colonne chacun - 4 fois) */}
+  <div className="space-y-6 animate-pulse">
+    <div className="h-8 w-64 bg-gray-200 dark:bg-zinc-800"></div>
+    <div className="flex gap-4 overflow-hidden">
       {[1, 2, 3, 4].map(i => (
-        <div key={i} className="col-span-1 flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl overflow-hidden p-4 space-y-4">
-            <div className="h-32 w-full bg-gray-200 dark:bg-zinc-800 rounded-lg"></div>
-            <div className="space-y-2">
-               <div className="h-4 w-full bg-gray-200 dark:bg-zinc-800 rounded"></div>
-            </div>
-        </div>
+        <div key={i} className="min-w-[280px] h-72 bg-gray-200 dark:bg-zinc-800 shrink-0"></div>
       ))}
+    </div>
   </div>
 );
 
@@ -2043,20 +2447,18 @@ type SectionData = {
 
 export default function Home() {
   const [heroArticles, setHeroArticles] = useState<ArticleReadDto[]>([]);
-  const [latestArticles, setLatestArticles] = useState<ArticleReadDto[]>([]);
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // --- STATES CARROUSEL ---
+  // Carrousel state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [direction, setDirection] = useState<'left' | 'right'>('left');
 
   useEffect(() => {
     const initData = async () => {
       setLoading(true);
       try {
-        console.log("📥 [HOME] Chargement données API Public...");
+        console.log("📥 [HOME] Chargement données...");
 
         const [trendingData, feedData, allRubriques] = await Promise.all([
           PublicService.getTrendingArticles(),
@@ -2064,20 +2466,11 @@ export default function Home() {
           PublicService.getRubriques()
         ]);
 
-        console.log("✅ [HOME] Données Trending:", trendingData);
-        console.log("✅ [HOME] Données Feed:", feedData);
-
-        // On prend les 5 premiers pour le carrousel
         const carouselSource = trendingData.length > 0 ? trendingData : feedData.content || [];
         const heroData = carouselSource.slice(0, 5);
         
         setHeroArticles(heroData);
-        console.log("🎠 [CAROUSEL] Articles chargés:", heroData.length, "articles");
-        heroData.forEach((art, idx) => {
-          console.log(`   [${idx}] ID: ${art.id}, Titre: ${art.titre}, Image: ${art.imageCouvertureUrl}`);
-        });
-        
-        setLatestArticles(feedData.content || []);
+        console.log("🎠 [CAROUSEL] Articles:", heroData.length);
 
         const rootCategories = allRubriques.filter(r => r.parentId === null);
         
@@ -2085,7 +2478,7 @@ export default function Home() {
           const arts = await PublicService.getArticlesByRubrique(rub.id);
           return { 
             rubrique: rub, 
-            articles: arts ? arts.slice(0, 5) : [] 
+            articles: arts ? arts.slice(0, 8) : [] 
           };
         });
 
@@ -2093,7 +2486,7 @@ export default function Home() {
         setSections(loadedSections);
 
       } catch(e) {
-        console.error("❌ [HOME] Erreur chargement:", e);
+        console.error("❌ [HOME] Erreur:", e);
       } finally {
         setLoading(false);
       }
@@ -2101,23 +2494,19 @@ export default function Home() {
     initData();
   }, []);
 
-  // 2. Logique du Timer (5 secondes) - Auto-play
+  // Auto-play carrousel
   useEffect(() => {
     if (heroArticles.length <= 1) return;
 
     const timer = setInterval(() => {
-      console.log("⏰ [CAROUSEL] Timer déclenché - Passage automatique");
       goToNextSlide();
-    }, 5000);
+    }, 6000);
 
     return () => clearInterval(timer);
   }, [heroArticles.length, currentSlide]);
 
-  // Fonctions de navigation avec transition
   const goToNextSlide = () => {
     if (isTransitioning) return;
-    console.log(`➡️ [CAROUSEL] Navigation: ${currentSlide} → ${(currentSlide + 1) % heroArticles.length}`);
-    setDirection('left');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentSlide((prev) => (prev + 1) % heroArticles.length);
@@ -2127,8 +2516,6 @@ export default function Home() {
 
   const goToPrevSlide = () => {
     if (isTransitioning) return;
-    console.log(`⬅️ [CAROUSEL] Navigation: ${currentSlide} → ${(currentSlide - 1 + heroArticles.length) % heroArticles.length}`);
-    setDirection('right');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentSlide((prev) => (prev - 1 + heroArticles.length) % heroArticles.length);
@@ -2136,297 +2523,291 @@ export default function Home() {
     }, 300);
   };
 
-  const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentSlide) return;
-    console.log(`🎯 [CAROUSEL] Navigation directe: ${currentSlide} → ${index}`);
-    setDirection(index > currentSlide ? 'left' : 'right');
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentSlide(index);
-      setIsTransitioning(false);
-    }, 300);
-  };
-
-  // Article affiché actuellement
   const activeArticle = heroArticles[currentSlide];
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col relative">
+    <div className="min-h-screen bg-white dark:bg-black font-serif">
       <Navbar />
 
-      {/* --- GRID LAYOUT 3 COLONNES --- */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-16 gap-8 items-start relative">
-            
-            {/* --- SIDEBAR GAUCHE : INTERCULTUREL --- */}
-            <div className="hidden lg:block lg:col-span-4 sticky top-28 h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar">
-                <InterculturelSidebar />
+      {/* HERO SECTION - Pleine largeur */}
+      <section className="w-full bg-gray-50 dark:bg-zinc-950 border-t-4 border-[#3E7B52]">
+        {loading ? (
+          <div className="w-full h-[500px] bg-gray-200 dark:bg-zinc-900 animate-pulse" />
+        ) : activeArticle ? (
+          <div className="relative w-full h-[500px] group">
+            {/* Images carousel */}
+            <div className="relative w-full h-full overflow-hidden">
+              {heroArticles.map((article, idx) => (
+                <div
+                  key={article.id}
+                  className={cn(
+                    "absolute inset-0 transition-all duration-10000 ease-in-out",
+                    idx === currentSlide 
+                      ? "opacity-100 z-10" 
+                      : "opacity-0 z-0"
+                  )}
+                >
+                  <Image 
+                    src={getImageUrl(article.imageCouvertureUrl)} 
+                    alt={article.titre}
+                    fill
+                    priority={idx === 0}
+                    className="object-cover"
+                    unoptimized={true}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                </div>
+              ))}
             </div>
 
-            {/* --- COLONNE CENTRALE : CONTENU --- */}
-            <div className="col-span-1 lg:col-span-9 space-y-12">
-                <main className="w-full space-y-5">
-                    
-                {/* === HERO CAROUSEL MODERNISÉ === */}
-                <section className="relative w-full rounded-3xl overflow-hidden group">
-                  {loading ? (
-                    <div className="w-full aspect-[21/9] bg-gray-200 dark:bg-zinc-800 rounded-2xl animate-pulse" />
-                  ) : activeArticle ? (
-                    <div className="flex flex-col gap-0 w-full">
-                      
-                      {/* --- PARTIE IMAGE & TITRE (CARD) --- */}
-                      <div className="relative w-full aspect-[21/9] md:aspect-[21/9] rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-zinc-800">
-                        
-                        {/* Conteneur des slides avec animation */}
-                        <div className="relative w-full h-full">
-                          {heroArticles.map((article, idx) => (
-                            <div
-                              key={article.id}
-                              className={cn(
-                                "absolute inset-0 transition-all duration-500 ease-in-out",
-                                idx === currentSlide 
-                                  ? "opacity-100 translate-x-0 z-10" 
-                                  : idx < currentSlide
-                                  ? "opacity-0 -translate-x-full z-0"
-                                  : "opacity-0 translate-x-full z-0"
-                              )}
-                            >
-                              <Link href={`/article/${article.id}`}>
-                                <Image 
-                                  src={getImageUrl(article.imageCouvertureUrl)} 
-                                  alt={article.titre}
-                                  fill
-                                  priority={idx === 0}
-                                  className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                                  unoptimized={true}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90" />
-                                
-                                {/* Overlay Titre */}
-                                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full z-20">
-                                  <div className="flex flex-col items-start gap-3">
-                                    {/* Badge animé */}
-                                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3E7B52] text-white text-[10px] font-black uppercase tracking-wider shadow-lg">
-                                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div> 
-                                      À la une
-                                    </span>
-                                    
-                                    {/* Titre */}
-                                    <h1 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-white leading-[1.1] tracking-tight drop-shadow-lg line-clamp-3">
-                                      {article.titre}
-                                    </h1>
+            {/* Contenu overlay */}
+            <div className="absolute inset-0 flex items-end">
+              <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 pb-12">
+                <div className="max-w-3xl space-y-4">
+                  <span className="inline-block px-3 py-1 bg-[#3E7B52] text-white text-xs font-bold uppercase tracking-widest">
+                    À la une
+                  </span>
+                  
+                  <Link href={`/article/${activeArticle.id}`}>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight hover:text-[#3E7B52] transition-colors cursor-pointer">
+                      {activeArticle.titre}
+                    </h1>
+                  </Link>
 
-                                    {/* Metadata */}
-                                    <div className="flex items-center gap-4 text-xs font-medium text-gray-300">
-                                      <span className="flex items-center gap-1.5">
-                                        <FolderOpen size={14} className="text-[#3E7B52]"/> 
-                                        <span className="uppercase tracking-wide">{article.rubriqueNom || "Actualité"}</span>
-                                      </span>
-                                    </div>
+                  <p className="text-lg text-gray-200 leading-relaxed max-w-2xl">
+                    {activeArticle.description}
+                  </p>
+
+                  <div className="flex items-center gap-6 text-sm text-gray-300 pt-2">
+                    <span className="flex items-center gap-2">
+                      <FolderOpen size={16} className="text-[#3E7B52]"/> 
+                      {activeArticle.rubriqueNom || "Actualité"}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <Clock size={16}/> 
+                      {new Date(activeArticle.datePublication || activeArticle.dateCreation).toLocaleDateString('fr-FR')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+              <button 
+                onClick={goToPrevSlide}
+                disabled={isTransitioning}
+                className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
+              >
+                <ChevronLeft size={24}/>
+              </button>
+              <button 
+                onClick={goToNextSlide}
+                disabled={isTransitioning}
+                className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
+              >
+                <ChevronRight size={24}/>
+              </button>
+            </div>
+
+            {/* Indicateurs */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {heroArticles.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if (!isTransitioning && idx !== currentSlide) {
+                      setIsTransitioning(true);
+                      setTimeout(() => {
+                        setCurrentSlide(idx);
+                        setIsTransitioning(false);
+                      }, 300);
+                    }
+                  }}
+                  disabled={isTransitioning}
+                  className={cn(
+                    "h-1 transition-all duration-500",
+                    idx === currentSlide 
+                      ? "w-12 bg-[#3E7B52]" 
+                      : "w-3 bg-white/50 hover:bg-white/75"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      {/* GRID LAYOUT 3 COLONNES */}
+      <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+            
+          {/* SIDEBAR GAUCHE - 15% */}
+          <div className="hidden lg:block lg:col-span-2 sticky top-24 h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+            <InterculturelSidebar />
+          </div>
+
+          {/* CONTENU CENTRAL - 70% */}
+          <div className="col-span-1 lg:col-span-6 space-y-16">
+            
+            {loading ? (
+              <div className="space-y-16">
+                {[1, 2].map((k) => <SectionSkeleton key={k}/>)}
+              </div>
+            ) : (
+              sections.map((section) => {
+                if (section.articles.length === 0) return null;
+                
+                // Duplication pour boucle infinie
+                const marqueeContent = section.articles.length < 4 
+                  ? [...section.articles, ...section.articles, ...section.articles] 
+                  : [...section.articles, ...section.articles];
+
+                return (
+                  <section 
+                    key={section.rubrique.id} 
+                    className="border-t-2 border-gray-200 dark:border-zinc-800 pt-8 space-y-6"
+                  >
+                    
+                    {/* Header section */}
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white uppercase tracking-tight flex items-center gap-3">
+                        <span className="w-2 h-8 bg-[#3E7B52]"></span>
+                        {section.rubrique.nom}
+                      </h2>
+                      <Link href={`/category/${section.rubrique.id}`}>
+                        <button className="text-xs font-bold text-gray-600 hover:text-[#3E7B52] flex items-center gap-1 transition-colors uppercase tracking-wider">
+                          Tout voir <ArrowRight size={14}/>
+                        </button>
+                      </Link>
+                    </div>
+
+                    {/* Zone marquee scrolling infini */}
+                    <div className="relative overflow-hidden">
+                      <div 
+                        className="flex gap-6 animate-scroll-continuous hover:[animation-play-state:paused]"
+                        style={{ 
+                          animationDuration: `${marqueeContent.length * 8}s` 
+                        }}
+                      >
+                        {marqueeContent.map((art, idx) => (
+                          <div 
+                            key={`${art.id}-${idx}`} 
+                            className="w-[280px] shrink-0 group"
+                          >
+                            <Link href={`/article/${art.id}`} className="block">
+                              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] transition-all duration-300 overflow-hidden">
+                                {/* Image */}
+                                <div className="relative h-48 overflow-hidden">
+                                  <Image 
+                                    src={getImageUrl(art.imageCouvertureUrl)} 
+                                    alt={art.titre}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                </div>
+                                
+                                {/* Contenu */}
+                                <div className="p-4 space-y-3">
+                                  <span className="text-xs font-bold text-[#3E7B52] uppercase tracking-widest">
+                                    {art.rubriqueNom}
+                                  </span>
+                                  <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-tight line-clamp-3 group-hover:text-[#3E7B52] transition-colors">
+                                    {art.titre}
+                                  </h3>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                    {art.description}
+                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-gray-400 pt-2 border-t border-gray-100 dark:border-zinc-800">
+                                    <Clock size={12}/>
+                                    {new Date(art.datePublication || art.dateCreation).toLocaleDateString('fr-FR', { 
+                                      day: 'numeric', 
+                                      month: 'short' 
+                                    })}
                                   </div>
                                 </div>
-                              </Link>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Navigation Arrows Overlay */}
-                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
-                          <button 
-                            onClick={goToPrevSlide}
-                            disabled={isTransitioning}
-                            className="p-3 bg-black/40 backdrop-blur hover:bg-[#3E7B52] text-white rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <ArrowLeft size={20}/>
-                          </button>
-                          <button 
-                            onClick={goToNextSlide}
-                            disabled={isTransitioning}
-                            className="p-3 bg-black/40 backdrop-blur hover:bg-[#3E7B52] text-white rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <ArrowRight size={20}/>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* --- PARTIE DESCRIPTION SÉPARÉE --- */}
-                      <div className="pt-4 px-2 min-h-[90px]">
-                        <div className="flex gap-4 items-start">
-                          <Quote size={20} className="text-[#3E7B52]/50 rotate-180 shrink-0 mt-1" />
-                          
-                          <div className="flex-1 space-y-2">
-                            <p 
-                              key={`desc-${currentSlide}`}
-                              className="text-sm italic font-serif text-gray-600 dark:text-zinc-400 leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-500"
-                            >
-                              "{activeArticle.description || "L'Afrique centrale amorce une transformation décisive. Découvrez les détails de cette analyse exclusive réservée à nos abonnés..."}"
-                            </p>
-                            
-                            {/* Indicateurs (Dots) */}
-                            <div className="flex gap-1.5 pt-2">
-                              {heroArticles.map((_, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => goToSlide(idx)}
-                                  disabled={isTransitioning}
-                                  className={cn(
-                                    "h-1 rounded-full transition-all duration-500 cursor-pointer disabled:cursor-not-allowed",
-                                    idx === currentSlide 
-                                      ? "w-8 bg-[#3E7B52]" 
-                                      : "w-2 bg-gray-300 dark:bg-zinc-700 hover:bg-[#3E7B52]/50"
-                                  )}
-                                />
-                              ))}
-                            </div>
+                              </div>
+                            </Link>
                           </div>
-                        </div>
+                        ))}
                       </div>
-
                     </div>
-                  ) : null}
-                </section>
-                
-                {/* ================================================================
-                        2. SECTIONS DYNAMIQUES (MARQUEE INFINI)
-                    ================================================================ */}
-                    {loading ? (
-                      <div className="space-y-16">
-                          {[1, 2].map((k) => (
-                            <div key={k}>
-                                <div className="h-8 w-48 bg-gray-200 dark:bg-zinc-800 rounded mb-6 animate-pulse"/>
-                                {/* Skeleton Horizontal */}
-                                <div className="flex gap-4 overflow-hidden mask-fade-sides">
-                                     {[1,2,3,4].map(i => <div key={i} className="min-w-[280px] h-64 bg-gray-200 dark:bg-zinc-800 rounded-xl shrink-0"></div>)}
-                                </div>
-                            </div>
-                          ))}
-                      </div>
-                    ) : (
-                        sections.map((section) => {
-                          if (section.articles.length === 0) return null;
-                          
-                          // On duplique les articles pour l'effet de boucle infinie (Seamless loop)
-                          // Si moins de 4 articles, on duplique plusieurs fois pour remplir la largeur
-                          const marqueeContent = section.articles.length < 5 
-                              ? [...section.articles, ...section.articles, ...section.articles, ...section.articles] 
-                              : [...section.articles, ...section.articles];
+                  </section>
+                );
+              })
+            )}
 
-                          return (
-                            <section key={section.rubrique.id} className="pt-8 border-t border-dashed border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden">
-                                
-                                {/* --- Header de Section --- */}
-                                <div className="flex flex-row items-center justify-between gap-4 mb-6 px-1">
-                                    <h2 className="text-xl md:text-2xl font-black text-[#111] dark:text-white uppercase flex items-center gap-2">
-                                        <span className="w-1.5 h-6 bg-[#3E7B52] rounded-full"></span>
-                                        {section.rubrique.nom}
-                                    </h2>
-                                    <Link href={`/category/${section.rubrique.id}`}>
-                                        <button className="text-xs font-bold text-gray-500 hover:text-[#3E7B52] flex items-center gap-1 transition-colors px-3 py-1 rounded-full border border-transparent hover:border-gray-200 dark:hover:border-zinc-800">
-                                            Tout voir <ArrowRight size={12}/>
-                                        </button>
-                                    </Link>
-                                </div>
+            {/* CTA Newsletter */}
+            <section className="border-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-900 p-8 md:p-12 text-center">
+              <div className="max-w-lg mx-auto space-y-6">
+                <h3 className="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  Restez Informés
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                  Recevez chaque semaine notre sélection d'analyses et d'actualités sur l'Afrique.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="email" 
+                    placeholder="Votre adresse email" 
+                    className="flex-1 h-12 px-4 border-2 border-gray-300 dark:border-zinc-700 bg-white dark:bg-black text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#3E7B52]"
+                  />
+                  <Button className="h-12 px-8 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase tracking-wider">
+                    S'abonner
+                  </Button>
+                </div>
+              </div>
+            </section>
 
-                                {/* --- ZONE MARQUEE AUTOMATIQUE --- */}
-                                {/* Mask CSS pour fondre les bords (optionnel pour l'élégance) */}
-                                <div className="relative w-full [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-                                    
-                                    <div 
-                                        className="flex gap-5 py-4 w-max animate-scroll hover:[animation-play-state:paused]"
-                                        style={{ 
-                                            // La vitesse s'ajuste selon le nombre d'éléments pour garder un rythme constant
-                                            animationDuration: `${marqueeContent.length * 6}s` 
-                                        }}
-                                    >
-                                        {marqueeContent.map((art, idx) => (
-                                            <div 
-                                                // La clé idx est nécessaire ici car on a dupliqué les articles (mêmes IDs)
-                                                key={`${art.id}-${idx}`} 
-                                                className="w-[280px] md:w-[300px] shrink-0" 
-                                            >
-                                                <LandingArticleCard 
-                                                    article={art} 
-                                                    // Tous la même taille compacte
-                                                    imageHeight="h-40" 
-                                                    className="h-full bg-white dark:bg-zinc-900 shadow-sm hover:shadow-lg hover:scale-[1.02] border border-gray-100 dark:border-zinc-800"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+          </div>
 
-                                </div>
-                            </section>
-                          );
-                        })
-                    )}
-
-                    {/* Styles Globaux injectés pour l'animation scroll */}
-                    <style jsx global>{`
-                        @keyframes scroll {
-                            0% { transform: translateX(0); }
-                            100% { transform: translateX(-50%); }
-                        }
-                        .animate-scroll {
-                            animation: scroll 40s linear infinite;
-                        }
-                        /* Ajout d'une pause au survol pour permettre le clic facile */
-                        .animate-scroll:hover {
-                            animation-play-state: paused;
-                        }
-                    `}</style>
-
-                    {/* ================================================================
-                        3. CTA FOOTER
-                    ================================================================ */}
-                    <section className="bg-[#111] dark:bg-zinc-900 rounded-[2rem] p-8 md:p-12 text-center relative overflow-hidden shadow-2xl">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-yellow-500"></div>
-                    
-                    <div className="relative z-10 max-w-lg mx-auto space-y-6">
-                        <h3 className="text-2xl md:text-3xl font-black text-white">
-                        L'Afrique change, nos récits aussi.
-                        </h3>
-                        <p className="text-gray-400 text-sm md:text-base">
-                        Rejoignez notre newsletter pour recevoir l'essentiel de l'économie et de la politique continentale.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                        <input 
-                            type="email" 
-                            placeholder="Email professionnel" 
-                            className="h-11 px-6 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-gray-500 outline-none focus:border-[#13EC13] focus:bg-white/20 w-full text-sm transition-all"
-                        />
-                        <Button className="h-11 px-8 rounded-full bg-[#13EC13] hover:bg-[#0fd60f] text-black font-bold text-sm">
-                            S'inscrire
-                        </Button>
-                        </div>
-                    </div>
-                    </section>
-                </main>
-            </div>
-
-            {/* --- SIDEBAR DROITE : CONSULTING --- */}
-            <div className="hidden lg:block lg:col-span-3 sticky top-28 h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar">
-                <ConsultingSidebar />
-            </div>
+          {/* SIDEBAR DROITE - 15% */}
+          <div className="hidden lg:block lg:col-span-2 sticky top-24 h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+            <ConsultingSidebar />
+          </div>
 
         </div>
-
-        {/* --- MOBILE ONLY FOOTER LINKS --- */}
-        <div className="lg:hidden mt-16 pt-8 border-t border-gray-200 dark:border-zinc-800 grid grid-cols-2 gap-4">
-             <Link href="/intelligence-interculturelle" className="p-4 bg-green-50 dark:bg-green-900/10 rounded-xl text-center">
-                 <h4 className="font-bold text-[#3E7B52] text-sm mb-1">Analyse</h4>
-                 <p className="text-[10px] text-gray-500">Intelligence Interculturelle</p>
-             </Link>
-             <Link href="/consulting-cabinet" className="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl text-center">
-                 <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm mb-1">Cabinet</h4>
-                 <p className="text-[10px] text-gray-500">Services & Conseil</p>
-             </Link>
-        </div>
-
       </div>
       
       <Footer />
       <OnboardingTour /> 
+
+      {/* Styles animation scroll */}
+      <style jsx global>{`
+        @keyframes scroll-continuous {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-scroll-continuous {
+          animation: scroll-continuous linear infinite;
+        }
+        
+        /* Smooth scrollbar */
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+        
+        /* Hide scrollbar on mobile */
+        @media (max-width: 1024px) {
+          .scrollbar-thin {
+            scrollbar-width: none;
+          }
+          .scrollbar-thin::-webkit-scrollbar {
+            display: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -3121,96 +3502,118 @@ export default function LandingArticleCard({
 FICHIER: D:\Projet Business\TODY\tody-africa\components\layout\Footer.tsx
 ================================================================================
 
+// FICHIER: components/layout/Footer.tsx - VERSION NYT
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import { ChevronDown, Globe } from "lucide-react";
+import { Globe } from "lucide-react";
 import { APP_CONFIG, HOME_DATA } from "@/lib/constant";
 
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-gray-100 dark:border-zinc-800 bg-[#FBFBFB] dark:bg-black py-16 px-6 md:px-12 w-full">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+    <footer className="border-t-4 border-[#3E7B52] bg-gray-50 dark:bg-zinc-950 py-16 px-6 md:px-12">
+      <div className="max-w-[1600px] mx-auto">
         
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-             <Globe className="w-5 h-5 text-[#3E7B52] dark:text-[#13EC13]" />
-             <h4 className="font-black text-sm uppercase tracking-wider text-black dark:text-white">
-                {APP_CONFIG.name}
-             </h4>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed max-w-xs">
-            {HOME_DATA.footer.description}
-          </p>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           
-          {/* Devise de l'application */}
-          <div className="mt-4 space-y-2">
-            <div className="text-[10px] font-bold text-[#3E7B52] dark:text-[#13EC13] uppercase tracking-wider">
-              Notre Mission
+          {/* À propos */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="bg-black dark:bg-white text-white dark:text-black p-1.5">
+                <Globe className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif font-bold text-base uppercase tracking-tight text-black dark:text-white">
+                {APP_CONFIG.name}
+              </h4>
             </div>
-            <div className="space-y-1 text-[10px] text-gray-600 dark:text-zinc-400 leading-relaxed">
-              <div>AIDER L'AFRIQUE À MIEUX CONNAÎTRE</div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-xs">
+              {HOME_DATA.footer.description}
+            </p>
+            
+            <div className="pt-4 space-y-1.5 text-[10px] text-[#3E7B52] font-bold uppercase tracking-wider leading-relaxed">
               <div>AIDER L'AFRIQUE À MIEUX SE CONNAÎTRE</div>
               <div>AIDER À MIEUX CONNAÎTRE L'AFRIQUE</div>
             </div>
           </div>
-        </div>
 
-        {/* Colonne Sections Dynamique via le navLinks principal */}
-        <div className="flex flex-col gap-4">
-          <h4 className="font-bold text-xs uppercase tracking-wider text-black dark:text-white">
-            Sections
-          </h4>
-          <ul className="space-y-2.5">
-            {HOME_DATA.navLinks.slice(0, 5).map((item) => (
-              <li key={item.slug}>
-                <Link href={`/category/${item.slug}`} className="text-xs text-gray-500 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Sections */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-widest text-black dark:text-white border-b-2 border-[#3E7B52] pb-2">
+              Sections
+            </h4>
+            <ul className="space-y-2">
+              {HOME_DATA.navLinks.slice(0, 5).map((item) => (
+                <li key={item.slug}>
+                  <Link 
+                    href={`/category/${item.slug}`} 
+                    className="text-xs text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white transition-colors font-medium"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex flex-col gap-4">
-          <h4 className="font-bold text-xs uppercase tracking-wider text-black dark:text-white">
-            À propos
-          </h4>
-          <ul className="space-y-2.5">
-            {HOME_DATA.footer.about.map((item) => (
-              <li key={item}>
-                <Link href="#" className="text-xs text-gray-500 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors">
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* À propos */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-widest text-black dark:text-white border-b-2 border-[#3E7B52] pb-2">
+              Informations
+            </h4>
+            <ul className="space-y-2">
+              {HOME_DATA.footer.about.map((item) => (
+                <li key={item}>
+                  <Link 
+                    href="#" 
+                    className="text-xs text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white transition-colors font-medium"
+                  >
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex flex-col gap-4">
-          <h4 className="font-bold text-xs uppercase tracking-wider text-black dark:text-white">
-            Langue
-          </h4>
-          <div className="relative max-w-[180px]">
-            <select className="w-full appearance-none bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 text-xs font-medium py-2.5 px-4 rounded hover:border-gray-400 focus:outline-none cursor-pointer">
-              <option>Français</option>
-              <option>English</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+          {/* Newsletter */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-widest text-black dark:text-white border-b-2 border-[#3E7B52] pb-2">
+              Newsletter
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+              Recevez notre sélection hebdomadaire d'analyses.
+            </p>
+            <div className="space-y-2">
+              <input 
+                type="email" 
+                placeholder="Votre email" 
+                className="w-full h-10 px-3 border-2 border-gray-300 dark:border-zinc-700 bg-white dark:bg-black text-xs text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#3E7B52]"
+              />
+              <button className="w-full h-10 bg-[#3E7B52] hover:bg-[#326342] text-white text-xs font-bold uppercase tracking-wider transition-colors">
+                S'inscrire
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-gray-100 dark:border-zinc-800 flex justify-between items-center">
-          <p className="text-[10px] text-gray-400 dark:text-zinc-600">
-              © {APP_CONFIG.year} {APP_CONFIG.name}. Tous droits réservés.
+        {/* Bottom bar */}
+        <div className="pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] text-gray-500 dark:text-gray-600 uppercase tracking-wider">
+            © {APP_CONFIG.year} {APP_CONFIG.name}. Tous droits réservés.
           </p>
-          <div className="flex gap-4">
-             <Link href="#" className="text-[10px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">À propos</Link>
-             <Link href="#" className="text-[10px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">Contact</Link>
-             <Link href="#" className="text-[10px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">Politique de confidentialité</Link>
+          <div className="flex gap-6">
+            <Link href="#" className="text-[10px] text-gray-500 hover:text-[#3E7B52] dark:hover:text-white uppercase tracking-wider">
+              Politique de confidentialité
+            </Link>
+            <Link href="#" className="text-[10px] text-gray-500 hover:text-[#3E7B52] dark:hover:text-white uppercase tracking-wider">
+              Conditions d'utilisation
+            </Link>
+            <Link href="#" className="text-[10px] text-gray-500 hover:text-[#3E7B52] dark:hover:text-white uppercase tracking-wider">
+              Contact
+            </Link>
           </div>
+        </div>
       </div>
     </footer>
   );
@@ -3221,12 +3624,12 @@ export default function Footer() {
 FICHIER: D:\Projet Business\TODY\tody-africa\components\layout\Navbar.tsx
 ================================================================================
 
-// FICHIER: components/layout/Navbar.tsx
+// components/layout/Navbar.tsx - VERSION REDESIGN
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Globe, LayoutGrid, Menu, UserIcon, X } from "lucide-react";
+import { ChevronDown, Globe, Menu, UserIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { APP_CONFIG } from "@/lib/constant";
 import { PublicService } from "@/services/public";
@@ -3234,226 +3637,275 @@ import { Rubrique } from "@/types/article";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
+type Language = "fr" | "en" | "es" | "pt" | "ar";
+
+const LANGUAGES: { code: Language; name: string; flag: string }[] = [
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "en", name: "English", flag: "🇬🇧" },
+  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "pt", name: "Português", flag: "🇵🇹" },
+  { code: "ar", name: "العربية", flag: "🇸🇦" },
+];
+
 export default function Navbar() {
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth(); // Utilisation du contexte Auth
+  const [currentLanguage, setCurrentLanguage] = useState<Language>("fr");
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const { user } = useAuth();
   const router = useRouter();
   
-  // Hook de fetch simple au montage
   useEffect(() => {
     const fetchMenu = async () => {
-        try {
-            console.log("🧩 Chargement du Menu...");
-            const all = await PublicService.getRubriques();
-            
-            // On filtre pour n'afficher que les parents (Niveau 1)
-            // On peut aussi trier par 'ordre' si votre backend le gère
-            const roots = all.filter(r => r.parentId === null); // .sort((a,b) => a.ordre - b.ordre)
-            
-            // Sécurité : On ne prend que les 7 premiers pour éviter de casser le design
-            // Les autres pourraient aller dans un "Plus..."
-            setRubriques(roots); // slice(0, 7) si besoin
-        } catch (e) {
-            console.error("Erreur chargement menu Navbar", e);
-        }
+      try {
+        const all = await PublicService.getRubriques();
+        const roots = all.filter(r => r.parentId === null);
+        setRubriques(roots);
+      } catch (e) {
+        console.error("Erreur menu:", e);
+      }
     };
     fetchMenu();
   }, []);
 
-  // --- 🔥 LOGIQUE DE REDIRECTION INTELLIGENTE ---
   const handleActionClick = () => {
-      if (user) {
-          // Si Staff (Rédacteur/Admin) -> Dashboard
-          if (['REDACTEUR', 'ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
-              router.push("/dashboard");
-          } else {
-              // Si Utilisateur lambda -> Page Profil Lecteur
-              router.push("/profil");
-          }
+    if (user) {
+      if (['REDACTEUR', 'ADMIN', 'SUPER_ADMIN'].includes(user.role)) {
+        router.push("/dashboard");
       } else {
-          // Si non connecté -> Login/Register
-          router.push("/login");
+        router.push("/profil");
       }
+    } else {
+      router.push("/login");
+    }
   };
 
-    // 🔢 Séparation pour l'affichage (5 max + Dropdown)
-  const VISIBLE_COUNT = 5;
-  const visibleRubriques = rubriques.slice(0, VISIBLE_COUNT);
-  const hiddenRubriques = rubriques.slice(VISIBLE_COUNT);
-  const hasMore = hiddenRubriques.length > 0;
+  const handleLanguageChange = (lang: Language) => {
+    setCurrentLanguage(lang);
+    setLanguageMenuOpen(false);
+    // TODO: Implémenter la logique de traduction réelle
+    console.log("Langue changée:", lang);
+  };
 
   return (
     <>
-    <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 py-3 px-6 md:px-12 flex items-center justify-between transition-all duration-300">
-      
-      {/* 1. LOGO */}
-      <Link href="/" className="flex items-center gap-3 group mr-8 shrink-0">
-        <div className="bg-[#111] dark:bg-white text-white dark:text-black p-1.5 rounded-lg shadow-lg group-hover:rotate-12 transition-transform duration-300">
-          <Globe size={22} strokeWidth={2.5} />
-        </div>
-        <span className="font-black text-xl tracking-tighter text-black dark:text-white uppercase hidden sm:block">
-            {APP_CONFIG.name}
-        </span>
-      </Link>
-      {/* 3. LIENS RUBRIQUES (Desktop) */}
-      <div id="nav-categories" className="hidden lg:flex items-center gap-6 ml-8">
-        {rubriques.length === 0 ? (
-            <div className="flex gap-4 animate-pulse">
-                {[1,2,3,4].map(i => <div key={i} className="h-2 w-16 bg-gray-200 dark:bg-zinc-800 rounded"></div>)}
-            </div>
-        ) : (
-            <>
-                {/* Rubriques visibles directes */}
-                {visibleRubriques.map((rub) => (
-                    <Link 
-                        key={rub.id} 
-                        href={`/category/${rub.id}`}
-                        className="text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white relative group py-2"
-                    >
-                        {rub.nom}
-                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#3E7B52] dark:bg-white transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-                ))}
-
-                {/* Dropdown "Voir plus" */}
-                {hasMore && (
-                    <div className="relative group py-2">
-                        <button className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white">
-                            Plus <ChevronDown size={14} />
-                        </button>
-                        
-                        {/* Menu déroulant */}
-                        <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 p-2 grid gap-1">
-                            {/* Titre optionnel */}
-                            <div className="px-3 py-2 text-[10px] font-black uppercase text-gray-300 dark:text-zinc-600 tracking-wider">
-                                Autres Rubriques
-                            </div>
-                            
-                            {/* Liste Cachée */}
-                            {hiddenRubriques.map((rub) => (
-                                <Link 
-                                    key={rub.id} 
-                                    href={`/category/${rub.id}`}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800 hover:text-[#3E7B52] dark:hover:text-[#13EC13] rounded-lg transition-colors"
-                                >
-                                    <LayoutGrid size={14} />
-                                    {rub.nom}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </>
-        )}
-      </div>
-
-
- {/* 4. ACTIONS */}
-      <div className="flex items-center gap-3 md:gap-4 shrink-0">
+      <nav className="sticky top-0 z-50 w-full bg-white dark:bg-black border-b-4 border-[#3E7B52]">
         
-        {/* Affichage conditionnel Bouton Connexion */}
-        {!user && (
-            <Link href="/login" className="hidden sm:block">
-                <Button variant="outline" className="h-9 px-5 text-xs font-bold border-gray-200 dark:border-zinc-700">
-                    CONNEXION
-                </Button>
-            </Link>
-        )}
-        
-        {/* Bouton Intelligent : Profil ou Abonnement */}
-        <Button 
-          id={user ? "btn-action-profile" : "cta-subscribe"} // ✅ ID dynamique
-          onClick={handleActionClick}
-          className="h-9 px-5 bg-[#3E7B52] hover:bg-[#326342] text-white rounded-lg text-xs font-bold uppercase shadow-lg shadow-green-900/20 flex items-center gap-2"
-        >
-          {user ? (
-            <>
-                <UserIcon size={14} /> 
-                <span className="max-w-[100px] truncate">Mon Profil</span>
-            </>
-          ) : (
-            "S'abonner"
-          )}
-        </Button>
-        
-        {/* Menu Mobile Toggle */}
-        <button className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded" onClick={() => setMobileMenuOpen(true)}>
-          <Menu size={24} />
-        </button>
-      </div>
-    </nav>
-
-    {/* 4. MENU MOBILE FULLSCREEN OVERLAY */}
-    {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] bg-white dark:bg-black animate-in slide-in-from-right duration-300 flex flex-col">
+        {/* LIGNE 1: Top bar - Date | Langues (centre) | Nos Partenaires */}
+        <div className="border-b border-gray-200 dark:border-zinc-800 py-2 px-6 md:px-12">
+          <div className="flex items-center justify-between text-xs">
             
-            {/* Header Mobile */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-zinc-900">
-                <span className="font-black text-xl tracking-tighter uppercase">{APP_CONFIG.name}</span>
-                <button 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 bg-gray-100 dark:bg-zinc-900 rounded-full"
-                >
-                    <X size={24}/>
-                </button>
+            {/* Gauche: Date */}
+            <div className="flex-1">
+              <span className="font-bold text-gray-500">
+                {new Date().toLocaleDateString('fr-FR', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </span>
             </div>
 
-            {/* Links Mobile */}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-                {/* Nouveaux boutons principaux en mobile */}
-                <Link 
-                    href="/intelligence-interculturelle"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-bold uppercase text-blue-600 dark:text-blue-400 flex items-center justify-between border-b border-blue-100 dark:border-blue-900 pb-4"
+            {/* Centre: Sélecteur de langue */}
+            <div className="flex-1 flex justify-center">
+              <div className="relative">
+                <button
+                  onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                  className="flex items-center gap-2 px-4 py-1.5 border border-gray-300 dark:border-zinc-700 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-colors"
                 >
-                    Intelligence Interculturelle
-                    <ArrowRight size={20} className="-rotate-45 text-blue-300"/>
-                </Link>
-                
-                <Link 
-                    href="/"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-bold uppercase text-green-600 dark:text-green-400 flex items-center justify-between border-b border-green-100 dark:border-green-900 pb-4"
-                >
-                    Écran Principal (Actualité)
-                    <ArrowRight size={20} className="-rotate-45 text-green-300"/>
-                </Link>
-                
-                <Link 
-                    href="/consulting-cabinet"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-lg font-bold uppercase text-purple-600 dark:text-purple-400 flex items-center justify-between border-b border-purple-100 dark:border-purple-900 pb-4"
-                >
-                    Consulting Cabinet
-                    <ArrowRight size={20} className="-rotate-45 text-purple-300"/>
-                </Link>
-                
-                {/* Séparateur */}
-                <div className="border-t border-gray-200 dark:border-zinc-800 my-4"></div>
-                
-                {/* Rubriques existantes */}
-                {rubriques.map(rub => (
-                    <Link 
-                        key={rub.id} 
-                        href={`/category/${rub.id}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="text-xl font-bold uppercase text-gray-800 dark:text-white flex items-center justify-between border-b border-gray-50 dark:border-zinc-900 pb-4"
-                    >
-                        {rub.nom}
-                        <ArrowRight size={20} className="-rotate-45 text-gray-300"/>
-                    </Link>
-                ))}
-                
-                <div className="mt-8 flex flex-col gap-4">
-                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="outline" className="h-12 text-sm font-bold w-full justify-center">Espace Rédacteur</Button>
-                    </Link>
-                    <Button className="h-12 text-sm font-bold w-full justify-center bg-[#3E7B52]">S'abonner au Premium</Button>
-                </div>
+                  <Globe size={14} />
+                  <span className="font-bold uppercase">
+                    {LANGUAGES.find(l => l.code === currentLanguage)?.flag} {currentLanguage}
+                  </span>
+                  <ChevronDown size={12} className={`transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown langues */}
+                {languageMenuOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 shadow-lg z-10">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => handleLanguageChange(lang.code)}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-zinc-800 flex items-center gap-2 ${
+                          currentLanguage === lang.code ? 'bg-[#3E7B52]/10 text-[#3E7B52] font-bold' : 'text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        <span className="text-lg">{lang.flag}</span>
+                        <span>{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Droite: Nos Partenaires + Actions */}
+            <div className="flex-1 flex items-center justify-end gap-4">
+              <Link 
+                href="/nos-partenaires" 
+                className="text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white font-bold uppercase tracking-wider"
+              >
+                Nos Partenaires
+              </Link>
+              
+              {!user && (
+                <Link href="/login" className="text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white font-bold uppercase tracking-wider">
+                  Connexion
+                </Link>
+              )}
+              
+              <Button 
+                onClick={handleActionClick}
+                className="h-8 px-4 bg-[#3E7B52] hover:bg-[#326342] text-white text-xs font-bold uppercase tracking-wider"
+              >
+                {user ? (
+                  <>
+                    <UserIcon size={12} className="mr-1"/> 
+                    Profil
+                  </>
+                ) : (
+                  "S'abonner"
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
-    )}
+
+        {/* LIGNE 2: Logo centré */}
+        <div className="py-6 px-6 md:px-12 border-b border-gray-200 dark:border-zinc-800">
+          <div className="flex items-center justify-center">
+            <Link href="/" className="flex flex-col items-center gap-2 group">
+              <div className="flex items-center gap-3">
+                <div className="bg-black dark:bg-white text-white dark:text-black p-2">
+                  <Globe size={32} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <span className="font-serif text-3xl md:text-4xl font-bold text-black dark:text-white tracking-tight">
+                    {APP_CONFIG.name}
+                  </span>
+                </div>
+              </div>
+              <div className="text-[10px] text-gray-500 uppercase tracking-widest">
+                L'Afrique Contemporaine
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* LIGNE 3: Toutes les rubriques */}
+        <div className="hidden lg:block py-3 px-6 md:px-12">
+          <div className="flex items-center justify-center gap-8">
+            {rubriques.length === 0 ? (
+              <div className="flex gap-4 animate-pulse">
+                {[1,2,3,4,5,6].map(i => (
+                  <div key={i} className="h-2 w-20 bg-gray-200 dark:bg-zinc-800"></div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {rubriques.map((rub) => (
+                  <Link 
+                    key={rub.id} 
+                    href={`/category/${rub.id}`}
+                    className="text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white transition-colors py-2 border-b-2 border-transparent hover:border-[#3E7B52]"
+                  >
+                    {rub.nom}
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Menu Mobile Button */}
+        <div className="lg:hidden py-3 px-6 flex justify-center border-t border-gray-200 dark:border-zinc-800">
+          <button 
+            className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] text-white font-bold uppercase text-xs"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu size={16} />
+            Menu
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] bg-white dark:bg-black">
+          
+          <div className="flex justify-between items-center p-6 border-b-2 border-[#3E7B52]">
+            <span className="font-serif text-xl font-bold uppercase tracking-tight">
+              {APP_CONFIG.name}
+            </span>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 bg-gray-100 dark:bg-zinc-900"
+            >
+              <X size={24}/>
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4 overflow-y-auto h-[calc(100vh-80px)]">
+            
+            {/* Sélecteur de langue mobile */}
+            <div className="pb-4 border-b-2 border-gray-200 dark:border-zinc-800">
+              <p className="text-xs font-bold uppercase text-gray-500 mb-3">Langue</p>
+              <div className="grid grid-cols-2 gap-2">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className={`px-3 py-2 text-sm font-bold border-2 transition-all ${
+                      currentLanguage === lang.code 
+                        ? 'border-[#3E7B52] bg-[#3E7B52]/10 text-[#3E7B52]' 
+                        : 'border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    {lang.flag} {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Lien Nos Partenaires */}
+            <Link 
+              href="/nos-partenaires"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-lg font-bold uppercase text-[#3E7B52] border-b-2 border-[#3E7B52] pb-3"
+            >
+              Nos Partenaires
+            </Link>
+            
+            <div className="h-px bg-gray-200 dark:border-zinc-800"></div>
+            
+            {/* Rubriques */}
+            {rubriques.map(rub => (
+              <Link 
+                key={rub.id} 
+                href={`/category/${rub.id}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-bold uppercase text-gray-800 dark:text-white border-b border-gray-100 dark:border-zinc-900 pb-3"
+              >
+                {rub.nom}
+              </Link>
+            ))}
+            
+            <div className="mt-8 space-y-3">
+              <Button 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleActionClick();
+                }}
+                className="w-full h-12 bg-[#3E7B52] text-white font-bold uppercase"
+              >
+                {user ? "Mon Profil" : "S'abonner"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -3463,17 +3915,17 @@ export default function Navbar() {
 FICHIER: D:\Projet Business\TODY\tody-africa\components\layout\InterculturalSidebar.tsx
 ================================================================================
 
-// FICHIER: components/home/InterculturelSidebar.tsx
+// FICHIER: components/layout/InterculturelSidebar.tsx - VERSION NYT
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Brain, ArrowRight, BookOpen, Sparkles, TrendingUp } from "lucide-react";
+import { Brain, ArrowRight, TrendingUp } from "lucide-react";
 import { PublicService } from "@/services/public";
 import { ArticleReadDto } from "@/types/article";
 import { PageResponse } from "@/types/dashboard";
-import { cn, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
 
 export default function InterculturelSidebar() {
   const [articles, setArticles] = useState<ArticleReadDto[]>([]);
@@ -3494,93 +3946,55 @@ export default function InterculturelSidebar() {
   }, []);
 
   return (
-    <aside className="w-full h-full flex flex-col gap-6 animate-in fade-in slide-in-from-left-4 duration-700">
+    <aside className="w-full space-y-6">
       
-      {/* --- En-tête de section --- */}
-      <div className="bg-gray-100 text-gray-900 dark:bg-zinc-900 p-6 rounded-2xl relative overflow-hidden group shadow-lg">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-[#13EC13]/10 transition-colors duration-500"></div>
-        
-        <div className="relative z-10 space-y-4">
-          <div className="flex items-center gap-3">
-             <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-xl shadow-inner border border-white/5">
-                <Brain className="text-[#3E7B52] w-5 h-5 animate-pulse" />
-             </div>
-             <span className="text-[10px] font-bold text-[#3E7B52] tracking-widest uppercase border border-[#13EC13]/20 px-2 py-0.5 rounded-full bg-[#13EC13]/5">
-                Editorial
-             </span>
-          </div>
-          
-          <div>
-            <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white leading-tight">
-              Intelligence Interculturelle
-            </h3>
-            <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-              Analyses expertes et théories sur les dynamiques culturelles africaines.
-            </p>
-          </div>
-
-          <Link href="/intelligence-interculturelle">
-            <button className="text-xs font-bold text-gray-600 dark:text-white flex items-center gap-2 group-hover:gap-3 transition-all hover:text-[#13EC13]">
-              Découvrir la théorie <ArrowRight size={14} />
-            </button>
-          </Link>
+      {/* En-tête */}
+      <div className="bg-[#3E7B52] text-white p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <Brain className="w-6 h-6" />
+          <span className="text-xs font-bold uppercase tracking-widest">
+            TODAY'S AFRICA
+          </span>
         </div>
+        
+        <h3 className="text-lg font-bold leading-tight">
+          Introduction à la Théorie de l'Intelligence Interculturelle et du Renseignement Interculturel
+        </h3>
+
+        <Link href="/intelligence-interculturelle">
+          <button className="text-xs font-bold text-white flex items-center gap-2 hover:gap-3 transition-all border-b border-white/30 hover:border-white pb-1">
+            En savoir plus <ArrowRight size={12} />
+          </button>
+        </Link>
       </div>
 
-      {/* --- Liste des Articles --- */}
-      <div className="flex flex-col gap-4">
-        <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 px-1">
-            <TrendingUp size={14} className="text-[#3E7B52]" /> Dernières Analyses
+      {/* Liste articles */}
+      <div className="space-y-4">
+        <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52]">
+          <TrendingUp size={14}/> Découvrir la théorie
         </h4>
 
         {loading ? (
-           Array.from({ length: 3 }).map((_, i) => (
-             <div key={i} className="flex gap-3 items-center animate-pulse">
-                <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-zinc-800 shrink-0"></div>
-                <div className="space-y-2 flex-1">
-                   <div className="h-3 bg-gray-200 dark:bg-zinc-800 rounded w-full"></div>
-                   <div className="h-2 bg-gray-200 dark:bg-zinc-800 rounded w-2/3"></div>
-                </div>
-             </div>
-           ))
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="space-y-2 animate-pulse">
+              <div className="h-3 bg-gray-200 dark:bg-zinc-800"></div>
+              <div className="h-2 bg-gray-200 dark:bg-zinc-800 w-2/3"></div>
+            </div>
+          ))
         ) : (
-           articles.map((article, idx) => (
-             <Link href={`/article/${article.id}`} key={article.id} className="group">
-                <div className="p-3 bg-white dark:bg-transparent border border-gray-100 dark:border-transparent rounded-xl hover:border-[#3E7B52]/30 dark:hover:border-[#3E7B52]/50 hover:shadow-md transition-all duration-300 flex gap-3 items-start">
-                    
-                    {/* Miniature */}
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-100 dark:border-zinc-700">
-                        <Image 
-                           src={getImageUrl(article.imageCouvertureUrl)} 
-                           alt={article.titre}
-                           fill
-                           className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                    </div>
-                    
-                    {/* Texte */}
-                    <div className="flex-1 min-w-0">
-                        <h5 className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1 leading-snug line-clamp-3 group-hover:text-[#3E7B52] transition-colors">
-                            {article.titre}
-                        </h5>
-                    </div>
-                </div>
-             </Link>
-           ))
+          articles.map((article) => (
+            <Link href={`/article/${article.id}`} key={article.id} className="group block">
+              <div className="border-b border-gray-200 dark:border-zinc-800 pb-3 hover:border-[#3E7B52] transition-colors">
+                <h5 className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-snug line-clamp-2 group-hover:text-[#3E7B52] transition-colors mb-2">
+                  {article.titre}
+                </h5>
+                <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+                  {article.rubriqueNom}
+                </span>
+              </div>
+            </Link>
+          ))
         )}
-      </div>
-
-      {/* --- Widget Newsletter rapide --- */}
-      <div className="mt-auto bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 p-4 rounded-xl">
-         <div className="flex items-start gap-3">
-             <Sparkles size={16} className="text-yellow-600 dark:text-yellow-500 mt-1"/>
-             <div>
-                 <h4 className="text-xs font-bold text-yellow-800 dark:text-yellow-400 uppercase">Newsletter Expert</h4>
-                 <p className="text-[10px] text-yellow-700 dark:text-yellow-500/80 mt-1">
-                    Recevez chaque semaine le condensé de l'intelligence interculturelle.
-                 </p>
-             </div>
-         </div>
       </div>
 
     </aside>
@@ -3592,164 +4006,115 @@ export default function InterculturelSidebar() {
 FICHIER: D:\Projet Business\TODY\tody-africa\components\layout\ConsultingSidebar.tsx
 ================================================================================
 
-// FICHIER: components/layout/ConsultingSidebar.tsx
+// FICHIER: components/layout/ConsultingSidebar.tsx - VERSION NYT
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { 
-  Building2, MapPin, Users, Briefcase, 
-  ShieldCheck, Network, ChevronRight, UserPlus, 
-  Sparkles, Laptop, Mail, Phone, ArrowUpRight,
-  CheckCircle2, Award, Globe2, TrendingUp
+  Building2, MapPin, Users, Mail, Phone, 
+  CheckCircle2, UserPlus
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
-// --- DONNÉES STRUCTURÉES ---
 const COMPANY_INFO = {
-  name: "Consulting Cabinet ",
-  tagline: "Cabinet de Today's Africa Consulting Group",
-  positions: "12 postes ouverts",
-  locations: ["Yaoundé", "Moscou"],
-  founded: "2020",
-  employees: "50+ experts"
+  name: '"TA" INTERCULTURAL INTELLIGENCE CONSULTING CABINET',
+  tagline: "Aider l'Afrique à mieux connaitre, Aider l'Afrique à mieux coopérer, Aider à mieux coopérer avec l'Afrique et le monde.",
+  locations: ["Yaoundé", "Moscou"]
 };
 
 const LEADERSHIP = [
-  { name: "Cécile M. BOKALLI", role: "Directrice Générale Yaoundé", loc: "Yaoundé", avatar: "CB" },
-  { name: "Ingrida KIM", role: "Directrice Générale Moscou", loc: "Moscou", avatar: "IK" }
-];
-
-const DEPARTMENTS = [
-  { 
-    icon: Network, 
-    name: "Intelligence & Analyse", 
-    teams: ["Desk Afrique", "Recherche BRICS", "Intelligence de Marché"],
-    hiring: true
-  },
-  { 
-    icon: Sparkles, 
-    name: "Contenu & Marketing", 
-    teams: ["Éditorial", "Stratégie Digitale", "Design de Marque"],
-    hiring: true
-  },
-  { 
-    icon: ShieldCheck, 
-    name: "Juridique & Conformité", 
-    teams: ["Droit des Affaires", "Affaires Internationales"],
-    hiring: false
-  },
-  { 
-    icon: Laptop, 
-    name: "Technologie & Data", 
-    teams: ["Développement", "Data Science", "Cybersécurité"],
-    hiring: true
-  }
+  { name: "C. M. BOKALLI", role: "DG Yaoundé", avatar: "CB" },
+  { name: "Ingrida KIM", role: "DG Moscou", avatar: "IK" }
 ];
 
 const BENEFITS = [
-  "Télétravail prioritaire",
-  "Salaire compétitif",
-  "Exposition internationale",
+  "Expertise interculturelle unique",
+  "Projets internationaux",
   "Formation continue",
-  "Équipe multiculturelle",
-  "Projets stratégiques"
+  "Impact continental",
 ];
 
-
 export default function ConsultingSidebar() {
-  const [expandedDept, setExpandedDept] = useState<number | null>(null);
-
   return (
-    <aside className="w-full h-full overflow-hidden flex flex-col gap-5 p-0 bg-transparent">
+    <aside className="w-full space-y-6">
         
-      {/* --- 1. EN-TÊTE ENTREPRISE --- */}
-      <div className="space-y-4">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 bg-[#3E7B52] hover:bg-[#326342] rounded-2xl flex items-center justify-center shadow-lg">
-            <Building2 size={28} className="text-white" strokeWidth={2}/>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-              {COMPANY_INFO.name}
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {COMPANY_INFO.tagline}
-            </p>
-          </div>
-        </div>
+      {/* En-tête entreprise */}
 
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex ml-0 items-center gap-2 text-gray-600 dark:text-gray-400">
-            <MapPin size={14} className="text-emerald-600 dark:text-emerald-500"/>
-            <span className="text-xs">{COMPANY_INFO.locations.join(" • ")}</span>
+      <div className="border-2 border-gray-200 dark:border-zinc-800 p-6 bg-white dark:bg-zinc-900 space-y-4">
+        <Link href='/consulting-cabinet' >
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 bg-[#3E7B52] flex items-center justify-center shrink-0">
+              <Building2 size={24} className="text-white"/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight mb-1">
+                {COMPANY_INFO.name}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {COMPANY_INFO.tagline}
+              </p>
+            </div>
           </div>
-        </div>
+
+          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-zinc-800">
+            <MapPin size={12} className="text-[#3E7B52]"/>
+            <span>{COMPANY_INFO.locations.join(" • ")}</span>
+          </div>
+        </Link>
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent"/>
 
-      {/* --- 2. LEADERSHIP --- */}
+      {/* Leadership */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <Users size={14}/>
-          Direction Générale
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52] flex items-center gap-2">
+          <Users size={12}/>
+          Direction
         </h3>
         
         <div className="space-y-2">
           {LEADERSHIP.map((leader, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-700 dark:to-zinc-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{leader.avatar}</span>
+            <div key={i} className="flex items-center gap-3 p-3 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#3E7B52] transition-colors">
+              <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-700 flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                  {leader.avatar}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{leader.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{leader.role}</p>
+                <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                  {leader.name}
+                </p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                  {leader.role}
+                </p>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-zinc-800 to-transparent"/>
 
-      {/* --- 4. AVANTAGES --- */}
+      {/* Avantages */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          Pourquoi Nous Rejoindre
+        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52]">
+          Pourquoi Nous
         </h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
           {BENEFITS.map((benefit, i) => (
-            <div key={i} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
-              <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-500 mt-0.5 shrink-0"/>
+            <div key={i} className="flex items-start gap-2 text-[10px] text-gray-600 dark:text-gray-400 leading-tight">
+              <CheckCircle2 size={10} className="text-[#3E7B52] mt-0.5 shrink-0"/>
               <span>{benefit}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* --- 5. CTA --- */}
+      {/* CTA */}
       <Link href="/consulting-cabinet#apply" className="block">
-        <Button className="w-full h-12 bg-[#3E7B52] hover:bg-[#326342] text-white rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group">
-          <UserPlus size={18} className="group-hover:scale-110 transition-transform"/>
-          <span className="font-semibold">Postuler chez Today's Africa</span>
+        <Button className="w-full h-11 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+          <UserPlus size={16}/>
+          Nous contacter
         </Button>
       </Link>
-
-      {/* --- 6. CONTACT --- */}
-      <div className="pt-3 border-t border-gray-200 dark:border-zinc-800">
-        <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-          <a href="mailto:careers@tacg.com" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors">
-            <Mail size={12}/>
-            <span>todays@blog.com</span>
-          </a>
-          <div className="w-px h-4 bg-gray-300 dark:bg-zinc-700"/>
-          <a href="tel:+237" className="flex items-center gap-1.5 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors">
-            <Phone size={12}/>
-            <span>699 888 777</span>
-          </a>
-        </div>
-      </div>
 
     </aside>
   );
@@ -3848,7 +4213,7 @@ export default function EditorContentComp({ setEditorRef, onChange, initialConte
 FICHIER: D:\Projet Business\TODY\tody-africa\components\dashboard\new-article\ArticleSettings.tsx
 ================================================================================
 
-// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - VERSION CORRIGÉE PREVIEW LOCAL
+// FICHIER: components/dashboard/new-article/ArticleSettings.tsx - VERSION CORRIGÉE
 
 "use client";
 
@@ -3961,7 +4326,7 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
   };
 
   /**
-   * ✅ CORRECTION: Upload avec preview local immédiat
+   * ✅ CORRECTION: Upload avec preview local immédiat ET stockage de l'ID numérique
    */
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -4000,11 +4365,24 @@ export default function ArticleSettings(props: ArticleSettingsProps) {
         const media = await ArticleService.uploadMedia(file);
         
         console.log("✅ Média reçu:", media);
-        console.log("🆔 UUID:", media.id);
-        console.log("🔗 URL:", media.urlAcces);
+        console.log("🆔 ID numérique:", media.id);
+        console.log("🔗 URL serveur:", media.urlAcces);
         
-        props.setCoverImageId(media.id);
+        // ✅ CORRECTION CRITIQUE: Stocker l'ID comme STRING contenant un nombre
+        // Le service article.ts le convertira en INTEGER lors de l'envoi au backend
+        const numericId = parseInt(String(media.id));
+        if (isNaN(numericId)) {
+          throw new Error("Le serveur n'a pas retourné un ID valide");
+        }
+        
+        props.setCoverImageId(media.id); // String représentant un nombre (ex: "123")
         props.setCoverImageUrl(media.urlAcces);
+        
+        // Remplacer le preview local par l'URL serveur
+        if (localPreviewUrl) {
+          URL.revokeObjectURL(localPreviewUrl);
+        }
+        setLocalPreviewUrl(null);
         
         console.log("✅ État mis à jour:");
         console.log("   - coverImageId:", media.id);
@@ -5690,11 +6068,12 @@ export default function AdminArticles() {
     } catch (e: any) { alert(`Erreur: ${e.message}`); }
   };
 
-  const initiatePublish = (id: number) => {
-    setIsPreviewOpen(false); // Fermer le preview
-    setArticleToPublish(id);
-    setIsPublishModalOpen(true);
-  };
+    // Cherche cette fonction et modifie-la comme ceci :
+    const initiatePublish = async (id: number) => { // Ajout de async
+        setIsPreviewOpen(false); 
+        setArticleToPublish(id);
+        setIsPublishModalOpen(true);
+    };
 
   const handleReject = async (id: number) => {
       const motif = prompt("Motif du rejet :", "Non conforme à la ligne éditoriale.");
@@ -5796,7 +6175,7 @@ export default function AdminArticles() {
             isLoading={false} 
             onApprove={handleApprove}
             onReject={handleReject}
-            onPublish={() => previewArticle && initiatePublish(previewArticle.id)}
+            onPublish={initiatePublish}
             onArchive={handleArchive}
             onRepublish={handleRepublish}
             onDelete={handleDeletePermanently}
@@ -8048,14 +8427,83 @@ import {
 
 
 export const APP_CONFIG = {
-  name: "TODAY'S AFRICA",
+  name: "TODAY'S AFRICA INTERCULTURAL CONSULTING GROUP",
   year: 2025,
   // ✅ CORRECTION : Utilisation du proxy local Next.js
-  apiUrl: "/api/proxy",
+  
+  apiUrl: "https://totayafrica.onrender.com/api/v1",
   backendUrl: "https://totayafrica.onrender.com/api/v1", 
   mediaBaseUrl: "https://totayafrica.onrender.com/api/v1/media/", 
 };
 
+ù// types/partner.ts
+export interface Partner {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  website: string;
+  category?: string;
+}
+
+export const PARTNERS_DATA: Partner[] = [
+  {
+    id: "scdp",
+    name: "SCDP",
+    logo: "/partners/scdp-logo.png",
+    description: "Société Camerounaise de Distribution et de Production - Leader dans la distribution et la logistique en Afrique Centrale.",
+    website: "https://www.scdp.cm",
+    category: "Distribution & Logistique"
+  },
+  {
+    id: "prestige-hotel",
+    name: "Prestige Hotel Yaoundé",
+    logo: "/partners/prestige-hotel-logo.png",
+    description: "Hôtel de luxe situé au cœur de Yaoundé, offrant des services haut de gamme et un cadre exceptionnel pour vos séjours d'affaires et de loisirs.",
+    website: "https://www.prestigehotel-yaounde.com",
+    category: "Hôtellerie"
+  },
+  {
+    id: "afriland-firstbank",
+    name: "Afriland First Bank",
+    logo: "/partners/afriland-logo.png",
+    description: "Première banque panafricaine, Afriland First Bank accompagne le développement économique du continent avec des solutions financières innovantes.",
+    website: "https://www.afrilandfirstbank.com",
+    category: "Finance & Banque"
+  },
+  {
+    id: "orange-cameroun",
+    name: "Orange Cameroun",
+    logo: "/partners/orange-logo.png",
+    description: "Opérateur de télécommunications leader au Cameroun, Orange propose des services mobiles, internet et digitaux de qualité.",
+    website: "https://www.orange.cm",
+    category: "Télécommunications"
+  },
+  {
+    id: "camtel",
+    name: "CAMTEL",
+    logo: "/partners/camtel-logo.png",
+    description: "Cameroon Telecommunications - Opérateur historique des télécommunications au Cameroun, CAMTEL déploie des infrastructures modernes à travers le pays.",
+    website: "https://www.camtel.cm",
+    category: "Télécommunications"
+  },
+  {
+    id: "total-energies",
+    name: "TotalEnergies Cameroun",
+    logo: "/partners/total-logo.png",
+    description: "Acteur majeur de l'énergie au Cameroun, TotalEnergies fournit des produits pétroliers et développe des solutions énergétiques durables.",
+    website: "https://www.totalenergies.cm",
+    category: "Énergie"
+  },
+  {
+    id: "douala-port",
+    name: "Port Autonome de Douala",
+    logo: "/partners/pad-logo.png",
+    description: "Principal port maritime du Cameroun et de la sous-région CEMAC, le PAD est une plateforme logistique stratégique pour le commerce international.",
+    website: "https://www.pad-douala.org",
+    category: "Transport & Logistique"
+  }
+];
 
 export const COLORS = {
   primaryLight: "#13EC13",

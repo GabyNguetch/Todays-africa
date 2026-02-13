@@ -41,7 +41,7 @@ export default function InterculturelSidebar() {
         </div>
         
         <h3 className="text-lg font-bold leading-tight">
-          Introduction à la Théorie de l'Intelligence Interculturelle et au Renseignement Interculturel
+          Introduction à la Théorie de l'Intelligence Interculturelle et du Renseignement Interculturel
         </h3>
 
         <Link href="/intelligence-interculturelle">
@@ -54,7 +54,7 @@ export default function InterculturelSidebar() {
       {/* Liste articles */}
       <div className="space-y-4">
         <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 px-2 border-l-2 border-[#3E7B52]">
-          <TrendingUp size={14}/> Tendances
+          <TrendingUp size={14}/> Découvrir la théorie
         </h4>
 
         {loading ? (
@@ -78,16 +78,6 @@ export default function InterculturelSidebar() {
             </Link>
           ))
         )}
-      </div>
-
-      {/* Widget Newsletter */}
-      <div className="border-2 border-gray-200 dark:border-zinc-800 p-4 bg-gray-50 dark:bg-zinc-900">
-        <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase mb-2">
-          Newsletter Expert
-        </h4>
-        <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-relaxed">
-          Le condensé hebdomadaire de l'intelligence interculturelle.
-        </p>
       </div>
 
     </aside>

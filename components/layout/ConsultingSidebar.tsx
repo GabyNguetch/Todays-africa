@@ -10,8 +10,8 @@ import {
 import { Button } from "@/components/ui/Button";
 
 const COMPANY_INFO = {
-  name: "TA INTERCULTURAL INTELLIGENCE CONSULTING",
-  tagline: "Aider l'Afrique à mieux connaître l'Afrique",
+  name: '"TA" INTERCULTURAL INTELLIGENCE CONSULTING CABINET',
+  tagline: "Aider l'Afrique à mieux connaitre, Aider l'Afrique à mieux coopérer, Aider à mieux coopérer avec l'Afrique et le monde.",
   locations: ["Yaoundé", "Moscou"]
 };
 

@@ -12,15 +12,83 @@ import {
 
 
 export const APP_CONFIG = {
-  name: "TODAY'S AFRICA INTERCULTURAL CONSULTING CABINET",
+  name: "TODAY'S AFRICA INTERCULTURAL CONSULTING GROUP",
   year: 2025,
   // ✅ CORRECTION : Utilisation du proxy local Next.js
   
-  apiUrl: "/api/proxy",
+  apiUrl: "api/proxy",
   backendUrl: "https://totayafrica.onrender.com/api/v1", 
   mediaBaseUrl: "https://totayafrica.onrender.com/api/v1/media/", 
 };
 
+// types/partner.ts
+export interface Partner {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  website: string;
+  category?: string;
+}
+
+export const PARTNERS_DATA: Partner[] = [
+  {
+    id: "scdp",
+    name: "SCDP",
+    logo: "/partners/scdp-logo.png",
+    description: "Société Camerounaise de Distribution et de Production - Leader dans la distribution et la logistique en Afrique Centrale.",
+    website: "https://www.scdp.cm",
+    category: "Distribution & Logistique"
+  },
+  {
+    id: "prestige-hotel",
+    name: "Prestige Hotel Yaoundé",
+    logo: "/partners/prestige-hotel-logo.png",
+    description: "Hôtel de luxe situé au cœur de Yaoundé, offrant des services haut de gamme et un cadre exceptionnel pour vos séjours d'affaires et de loisirs.",
+    website: "https://www.prestigehotel-yaounde.com",
+    category: "Hôtellerie"
+  },
+  {
+    id: "afriland-firstbank",
+    name: "Afriland First Bank",
+    logo: "/partners/afriland-logo.png",
+    description: "Première banque panafricaine, Afriland First Bank accompagne le développement économique du continent avec des solutions financières innovantes.",
+    website: "https://www.afrilandfirstbank.com",
+    category: "Finance & Banque"
+  },
+  {
+    id: "orange-cameroun",
+    name: "Orange Cameroun",
+    logo: "/partners/orange-logo.png",
+    description: "Opérateur de télécommunications leader au Cameroun, Orange propose des services mobiles, internet et digitaux de qualité.",
+    website: "https://www.orange.cm",
+    category: "Télécommunications"
+  },
+  {
+    id: "camtel",
+    name: "CAMTEL",
+    logo: "/partners/camtel-logo.png",
+    description: "Cameroon Telecommunications - Opérateur historique des télécommunications au Cameroun, CAMTEL déploie des infrastructures modernes à travers le pays.",
+    website: "https://www.camtel.cm",
+    category: "Télécommunications"
+  },
+  {
+    id: "total-energies",
+    name: "TotalEnergies Cameroun",
+    logo: "/partners/total-logo.png",
+    description: "Acteur majeur de l'énergie au Cameroun, TotalEnergies fournit des produits pétroliers et développe des solutions énergétiques durables.",
+    website: "https://www.totalenergies.cm",
+    category: "Énergie"
+  },
+  {
+    id: "douala-port",
+    name: "Port Autonome de Douala",
+    logo: "/partners/pad-logo.png",
+    description: "Principal port maritime du Cameroun et de la sous-région CEMAC, le PAD est une plateforme logistique stratégique pour le commerce international.",
+    website: "https://www.pad-douala.org",
+    category: "Transport & Logistique"
+  }
+];
 
 export const COLORS = {
   primaryLight: "#13EC13",
@@ -320,3 +388,97 @@ export const CATEGORY_MAP = {
   "politique-nationale": { label: "Politique Nationale", icon: Scale },
   "politique-internationale": { label: "Politique Internationale", icon: Globe },
 };
+
+// lib/african-countries.ts
+export interface AfricanCountry {
+  code: string;
+  name: string;
+  nameEn: string;
+  flag: string;
+  region: 'North' | 'West' | 'East' | 'Central' | 'South';
+}
+
+export const AFRICAN_COUNTRIES: AfricanCountry[] = [
+  // Afrique du Nord (5)
+  { code: 'DZ', name: 'Algérie', nameEn: 'Algeria', flag: '🇩🇿', region: 'North' },
+  { code: 'EG', name: 'Égypte', nameEn: 'Egypt', flag: '🇪🇬', region: 'North' },
+  { code: 'LY', name: 'Libye', nameEn: 'Libya', flag: '🇱🇾', region: 'North' },
+  { code: 'MA', name: 'Maroc', nameEn: 'Morocco', flag: '🇲🇦', region: 'North' },
+  { code: 'TN', name: 'Tunisie', nameEn: 'Tunisia', flag: '🇹🇳', region: 'North' },
+
+  // Afrique de l'Ouest (16)
+  { code: 'BJ', name: 'Bénin', nameEn: 'Benin', flag: '🇧🇯', region: 'West' },
+  { code: 'BF', name: 'Burkina Faso', nameEn: 'Burkina Faso', flag: '🇧🇫', region: 'West' },
+  { code: 'CV', name: 'Cap-Vert', nameEn: 'Cape Verde', flag: '🇨🇻', region: 'West' },
+  { code: 'CI', name: "Côte d'Ivoire", nameEn: "Côte d'Ivoire", flag: '🇨🇮', region: 'West' },
+  { code: 'GM', name: 'Gambie', nameEn: 'Gambia', flag: '🇬🇲', region: 'West' },
+  { code: 'GH', name: 'Ghana', nameEn: 'Ghana', flag: '🇬🇭', region: 'West' },
+  { code: 'GN', name: 'Guinée', nameEn: 'Guinea', flag: '🇬🇳', region: 'West' },
+  { code: 'GW', name: 'Guinée-Bissau', nameEn: 'Guinea-Bissau', flag: '🇬🇼', region: 'West' },
+  { code: 'LR', name: 'Libéria', nameEn: 'Liberia', flag: '🇱🇷', region: 'West' },
+  { code: 'ML', name: 'Mali', nameEn: 'Mali', flag: '🇲🇱', region: 'West' },
+  { code: 'MR', name: 'Mauritanie', nameEn: 'Mauritania', flag: '🇲🇷', region: 'West' },
+  { code: 'NE', name: 'Niger', nameEn: 'Niger', flag: '🇳🇪', region: 'West' },
+  { code: 'NG', name: 'Nigéria', nameEn: 'Nigeria', flag: '🇳🇬', region: 'West' },
+  { code: 'SN', name: 'Sénégal', nameEn: 'Senegal', flag: '🇸🇳', region: 'West' },
+  { code: 'SL', name: 'Sierra Leone', nameEn: 'Sierra Leone', flag: '🇸🇱', region: 'West' },
+  { code: 'TG', name: 'Togo', nameEn: 'Togo', flag: '🇹🇬', region: 'West' },
+
+  // Afrique Centrale (9)
+  { code: 'AO', name: 'Angola', nameEn: 'Angola', flag: '🇦🇴', region: 'Central' },
+  { code: 'CM', name: 'Cameroun', nameEn: 'Cameroon', flag: '🇨🇲', region: 'Central' },
+  { code: 'CF', name: 'République Centrafricaine', nameEn: 'Central African Republic', flag: '🇨🇫', region: 'Central' },
+  { code: 'TD', name: 'Tchad', nameEn: 'Chad', flag: '🇹🇩', region: 'Central' },
+  { code: 'CG', name: 'Congo', nameEn: 'Congo', flag: '🇨🇬', region: 'Central' },
+  { code: 'CD', name: 'RD Congo', nameEn: 'DR Congo', flag: '🇨🇩', region: 'Central' },
+  { code: 'GQ', name: 'Guinée Équatoriale', nameEn: 'Equatorial Guinea', flag: '🇬🇶', region: 'Central' },
+  { code: 'GA', name: 'Gabon', nameEn: 'Gabon', flag: '🇬🇦', region: 'Central' },
+  { code: 'ST', name: 'Sao Tomé-et-Principe', nameEn: 'Sao Tome and Principe', flag: '🇸🇹', region: 'Central' },
+
+  // Afrique de l'Est (14)
+  { code: 'BI', name: 'Burundi', nameEn: 'Burundi', flag: '🇧🇮', region: 'East' },
+  { code: 'KM', name: 'Comores', nameEn: 'Comoros', flag: '🇰🇲', region: 'East' },
+  { code: 'DJ', name: 'Djibouti', nameEn: 'Djibouti', flag: '🇩🇯', region: 'East' },
+  { code: 'ER', name: 'Érythrée', nameEn: 'Eritrea', flag: '🇪🇷', region: 'East' },
+  { code: 'ET', name: 'Éthiopie', nameEn: 'Ethiopia', flag: '🇪🇹', region: 'East' },
+  { code: 'KE', name: 'Kenya', nameEn: 'Kenya', flag: '🇰🇪', region: 'East' },
+  { code: 'MG', name: 'Madagascar', nameEn: 'Madagascar', flag: '🇲🇬', region: 'East' },
+  { code: 'MW', name: 'Malawi', nameEn: 'Malawi', flag: '🇲🇼', region: 'East' },
+  { code: 'MU', name: 'Maurice', nameEn: 'Mauritius', flag: '🇲🇺', region: 'East' },
+  { code: 'MZ', name: 'Mozambique', nameEn: 'Mozambique', flag: '🇲🇿', region: 'East' },
+  { code: 'RW', name: 'Rwanda', nameEn: 'Rwanda', flag: '🇷🇼', region: 'East' },
+  { code: 'SC', name: 'Seychelles', nameEn: 'Seychelles', flag: '🇸🇨', region: 'East' },
+  { code: 'SO', name: 'Somalie', nameEn: 'Somalia', flag: '🇸🇴', region: 'East' },
+  { code: 'SS', name: 'Soudan du Sud', nameEn: 'South Sudan', flag: '🇸🇸', region: 'East' },
+  { code: 'SD', name: 'Soudan', nameEn: 'Sudan', flag: '🇸🇩', region: 'East' },
+  { code: 'TZ', name: 'Tanzanie', nameEn: 'Tanzania', flag: '🇹🇿', region: 'East' },
+  { code: 'UG', name: 'Ouganda', nameEn: 'Uganda', flag: '🇺🇬', region: 'East' },
+  { code: 'ZM', name: 'Zambie', nameEn: 'Zambia', flag: '🇿🇲', region: 'East' },
+
+  // Afrique Australe (10)
+  { code: 'BW', name: 'Botswana', nameEn: 'Botswana', flag: '🇧🇼', region: 'South' },
+  { code: 'LS', name: 'Lesotho', nameEn: 'Lesotho', flag: '🇱🇸', region: 'South' },
+  { code: 'NA', name: 'Namibie', nameEn: 'Namibia', flag: '🇳🇦', region: 'South' },
+  { code: 'ZA', name: 'Afrique du Sud', nameEn: 'South Africa', flag: '🇿🇦', region: 'South' },
+  { code: 'SZ', name: 'Eswatini', nameEn: 'Eswatini', flag: '🇸🇿', region: 'South' },
+  { code: 'ZW', name: 'Zimbabwe', nameEn: 'Zimbabwe', flag: '🇿🇼', region: 'South' },
+];
+
+export const AFRICAN_REGIONS = {
+  North: 'Afrique du Nord',
+  West: 'Afrique de l\'Ouest',
+  Central: 'Afrique Centrale',
+  East: 'Afrique de l\'Est',
+  South: 'Afrique Australe',
+} as const;
+
+export const getCountriesByRegion = (region: AfricanCountry['region']) => {
+  return AFRICAN_COUNTRIES.filter(country => country.region === region);
+};
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-// FICHIER: app/page.tsx - VERSION NYT INSPIRÉE
+// app/page.tsx - VERSION AVEC PARTENAIRES DÉFILANTS
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -13,8 +13,8 @@ import { ArticleReadDto, Rubrique } from "@/types/article";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
 import InterculturelSidebar from "@/components/layout/InterculturalSidebar";
 import ConsultingSidebar from "@/components/layout/ConsultingSidebar";
+import PartnerScrollBar from "@/components/layout/PartnersScrollbar";
 import { cn, getImageUrl } from "@/lib/utils";
-import LandingArticleCard from "@/components/ui/LandingCard";
 
 // Skeleton pour le chargement
 const SectionSkeleton = () => (
@@ -117,113 +117,134 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-black font-serif">
       <Navbar />
 
-      {/* HERO SECTION - Pleine largeur */}
+      {/* HERO SECTION - Avec sidebars partenaires */}
       <section className="w-full bg-gray-50 dark:bg-zinc-950 border-t-4 border-[#3E7B52]">
-        {loading ? (
-          <div className="w-full h-[500px] bg-gray-200 dark:bg-zinc-900 animate-pulse" />
-        ) : activeArticle ? (
-          <div className="relative w-full h-[500px] group">
-            {/* Images carousel */}
-            <div className="relative w-full h-full overflow-hidden">
-              {heroArticles.map((article, idx) => (
-                <div
-                  key={article.id}
-                  className={cn(
-                    "absolute inset-0 transition-all duration-10000 ease-in-out",
-                    idx === currentSlide 
-                      ? "opacity-100 z-10" 
-                      : "opacity-0 z-0"
-                  )}
-                >
-                  <Image 
-                    src={getImageUrl(article.imageCouvertureUrl)} 
-                    alt={article.titre}
-                    fill
-                    priority={idx === 0}
-                    className="object-cover"
-                    unoptimized={true}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                </div>
-              ))}
-            </div>
-
-            {/* Contenu overlay */}
-            <div className="absolute inset-0 flex items-end">
-              <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 pb-12">
-                <div className="max-w-3xl space-y-4">
-                  <span className="inline-block px-3 py-1 bg-[#3E7B52] text-white text-xs font-bold uppercase tracking-widest">
-                    À la une
-                  </span>
-                  
-                  <Link href={`/article/${activeArticle.id}`}>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight hover:text-[#3E7B52] transition-colors cursor-pointer">
-                      {activeArticle.titre}
-                    </h1>
-                  </Link>
-
-                  <p className="text-lg text-gray-200 leading-relaxed max-w-2xl">
-                    {activeArticle.description}
-                  </p>
-
-                  <div className="flex items-center gap-6 text-sm text-gray-300 pt-2">
-                    <span className="flex items-center gap-2">
-                      <FolderOpen size={16} className="text-[#3E7B52]"/> 
-                      {activeArticle.rubriqueNom || "Actualité"}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Clock size={16}/> 
-                      {new Date(activeArticle.datePublication || activeArticle.dateCreation).toLocaleDateString('fr-FR')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-              <button 
-                onClick={goToPrevSlide}
-                disabled={isTransitioning}
-                className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
-              >
-                <ChevronLeft size={24}/>
-              </button>
-              <button 
-                onClick={goToNextSlide}
-                disabled={isTransitioning}
-                className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
-              >
-                <ChevronRight size={24}/>
-              </button>
-            </div>
-
-            {/* Indicateurs */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-              {heroArticles.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    if (!isTransitioning && idx !== currentSlide) {
-                      setIsTransitioning(true);
-                      setTimeout(() => {
-                        setCurrentSlide(idx);
-                        setIsTransitioning(false);
-                      }, 300);
-                    }
-                  }}
-                  disabled={isTransitioning}
-                  className={cn(
-                    "h-1 transition-all duration-500",
-                    idx === currentSlide 
-                      ? "w-12 bg-[#3E7B52]" 
-                      : "w-3 bg-white/50 hover:bg-white/75"
-                  )}
-                />
-              ))}
+        <div className="flex">
+          
+          {/* SIDEBAR GAUCHE - Partenaires défilants */}
+          <div className="hidden xl:block w-32 flex-shrink-0">
+            <div className="sticky top-20 h-[500px]">
+              <PartnerScrollBar position="left" />
             </div>
           </div>
-        ) : null}
+
+          {/* HERO CENTRAL */}
+          <div className="flex-1">
+            {loading ? (
+              <div className="w-full h-[500px] bg-gray-200 dark:bg-zinc-900 animate-pulse" />
+            ) : activeArticle ? (
+              <div className="relative w-full h-[500px] group">
+                {/* Images carousel */}
+                <div className="relative w-full h-full overflow-hidden">
+                  {heroArticles.map((article, idx) => (
+                    <div
+                      key={article.id}
+                      className={cn(
+                        "absolute inset-0 transition-all duration-1000 ease-in-out",
+                        idx === currentSlide 
+                          ? "opacity-100 z-10" 
+                          : "opacity-0 z-0"
+                      )}
+                    >
+                      <Image 
+                        src={getImageUrl(article.imageCouvertureUrl)} 
+                        alt={article.titre}
+                        fill
+                        priority={idx === 0}
+                        className="object-cover"
+                        unoptimized={true}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Contenu overlay */}
+                <div className="absolute inset-0 flex items-end">
+                  <div className="w-full max-w-[1200px] mx-auto px-6 md:px-12 pb-12">
+                    <div className="max-w-3xl space-y-4">
+                      <span className="inline-block px-3 py-1 bg-[#3E7B52] text-white text-xs font-bold uppercase tracking-widest">
+                        À la une
+                      </span>
+                      
+                      <Link href={`/article/${activeArticle.id}`}>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight hover:text-[#3E7B52] transition-colors cursor-pointer">
+                          {activeArticle.titre}
+                        </h1>
+                      </Link>
+
+                      <p className="text-lg text-gray-200 leading-relaxed max-w-2xl">
+                        {activeArticle.description}
+                      </p>
+
+                      <div className="flex items-center gap-6 text-sm text-gray-300 pt-2">
+                        <span className="flex items-center gap-2">
+                          <FolderOpen size={16} className="text-[#3E7B52]"/> 
+                          {activeArticle.rubriqueNom || "Actualité"}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <Clock size={16}/> 
+                          {new Date(activeArticle.datePublication || activeArticle.dateCreation).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                  <button 
+                    onClick={goToPrevSlide}
+                    disabled={isTransitioning}
+                    className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
+                  >
+                    <ChevronLeft size={24}/>
+                  </button>
+                  <button 
+                    onClick={goToNextSlide}
+                    disabled={isTransitioning}
+                    className="p-3 bg-white/10 backdrop-blur-md hover:bg-[#3E7B52] text-white transition-all disabled:opacity-50"
+                  >
+                    <ChevronRight size={24}/>
+                  </button>
+                </div>
+
+                {/* Indicateurs */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                  {heroArticles.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (!isTransitioning && idx !== currentSlide) {
+                          setIsTransitioning(true);
+                          setTimeout(() => {
+                            setCurrentSlide(idx);
+                            setIsTransitioning(false);
+                          }, 300);
+                        }
+                      }}
+                      disabled={isTransitioning}
+                      className={cn(
+                        "h-1 transition-all duration-500",
+                        idx === currentSlide 
+                          ? "w-12 bg-[#3E7B52]" 
+                          : "w-3 bg-white/50 hover:bg-white/75"
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* SIDEBAR DROITE - Partenaires défilants */}
+          <div className="hidden xl:block w-32 flex-shrink-0">
+            <div className="sticky top-20 h-[500px]">
+              <PartnerScrollBar position="right" />
+            </div>
+          </div>
+
+        </div>
       </section>
 
       {/* GRID LAYOUT 3 COLONNES */}
@@ -330,7 +351,7 @@ export default function Home() {
             <section className="border-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-900 p-8 md:p-12 text-center">
               <div className="max-w-lg mx-auto space-y-6">
                 <h3 className="text-2xl md:text-3xl font-bold text-black dark:text-white">
-                  Restez Informé
+                  Restez Informés
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                   Recevez chaque semaine notre sélection d'analyses et d'actualités sur l'Afrique.
@@ -367,8 +388,27 @@ export default function Home() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        
+        @keyframes scroll-vertical-up {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-50%); }
+        }
+        
+        @keyframes scroll-vertical-down {
+          0% { transform: translateY(-50%); }
+          100% { transform: translateY(0); }
+        }
+        
         .animate-scroll-continuous {
           animation: scroll-continuous linear infinite;
+        }
+        
+        .animate-scroll-vertical-up {
+          animation: scroll-vertical-up linear infinite;
+        }
+        
+        .animate-scroll-vertical-down {
+          animation: scroll-vertical-down linear infinite;
         }
         
         /* Smooth scrollbar */
