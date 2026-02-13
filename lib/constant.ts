@@ -35,7 +35,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "scdp",
     name: "SCDP",
-    logo: "/partners/scdp-logo.png",
+    logo: "/images/scdp.png",
     description: "Société Camerounaise de Distribution et de Production - Leader dans la distribution et la logistique en Afrique Centrale.",
     website: "https://www.scdp.cm",
     category: "Distribution & Logistique"
@@ -43,7 +43,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "prestige-hotel",
     name: "Prestige Hotel Yaoundé",
-    logo: "/partners/prestige-hotel-logo.png",
+    logo: "/images/prestige.jpg",
     description: "Hôtel de luxe situé au cœur de Yaoundé, offrant des services haut de gamme et un cadre exceptionnel pour vos séjours d'affaires et de loisirs.",
     website: "https://www.prestigehotel-yaounde.com",
     category: "Hôtellerie"
@@ -51,7 +51,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "afriland-firstbank",
     name: "Afriland First Bank",
-    logo: "/partners/afriland-logo.png",
+    logo: "/images/afriland.png",
     description: "Première banque panafricaine, Afriland First Bank accompagne le développement économique du continent avec des solutions financières innovantes.",
     website: "https://www.afrilandfirstbank.com",
     category: "Finance & Banque"
@@ -59,7 +59,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "orange-cameroun",
     name: "Orange Cameroun",
-    logo: "/partners/orange-logo.png",
+    logo: "/images/orange.png",
     description: "Opérateur de télécommunications leader au Cameroun, Orange propose des services mobiles, internet et digitaux de qualité.",
     website: "https://www.orange.cm",
     category: "Télécommunications"
@@ -67,7 +67,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "camtel",
     name: "CAMTEL",
-    logo: "/partners/camtel-logo.png",
+    logo: "/images/camtel.png",
     description: "Cameroon Telecommunications - Opérateur historique des télécommunications au Cameroun, CAMTEL déploie des infrastructures modernes à travers le pays.",
     website: "https://www.camtel.cm",
     category: "Télécommunications"
@@ -75,7 +75,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "total-energies",
     name: "TotalEnergies Cameroun",
-    logo: "/partners/total-logo.png",
+    logo: "/images/total.jpg",
     description: "Acteur majeur de l'énergie au Cameroun, TotalEnergies fournit des produits pétroliers et développe des solutions énergétiques durables.",
     website: "https://www.totalenergies.cm",
     category: "Énergie"
@@ -83,7 +83,7 @@ export const PARTNERS_DATA: Partner[] = [
   {
     id: "douala-port",
     name: "Port Autonome de Douala",
-    logo: "/partners/pad-logo.png",
+    logo: "/images/pad.png",
     description: "Principal port maritime du Cameroun et de la sous-région CEMAC, le PAD est une plateforme logistique stratégique pour le commerce international.",
     website: "https://www.pad-douala.org",
     category: "Transport & Logistique"
