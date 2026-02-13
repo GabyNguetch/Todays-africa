@@ -398,6 +398,74 @@ export interface AfricanCountry {
   region: 'North' | 'West' | 'East' | 'Central' | 'South';
 }
 
+// lib/languages.ts
+export type LanguageCode = "fr" | "en" | "ru" | "zh" | "ar" | "es";
+
+export interface Language {
+  code: LanguageCode;
+  name: string;
+  nativeName: string;
+  flag: string;
+  direction: "ltr" | "rtl";
+}
+
+export const LANGUAGES: Language[] = [
+  { 
+    code: "fr", 
+    name: "French", 
+    nativeName: "Français", 
+    flag: "🇫🇷",
+    direction: "ltr"
+  },
+  { 
+    code: "en", 
+    name: "English", 
+    nativeName: "English", 
+    flag: "🇬🇧",
+    direction: "ltr"
+  },
+  { 
+    code: "ru", 
+    name: "Russian", 
+    nativeName: "Русский", 
+    flag: "🇷🇺",
+    direction: "ltr"
+  },
+  { 
+    code: "zh", 
+    name: "Chinese", 
+    nativeName: "中文", 
+    flag: "🇨🇳",
+    direction: "ltr"
+  },
+  { 
+    code: "ar", 
+    name: "Arabic", 
+    nativeName: "العربية", 
+    flag: "🇸🇦",
+    direction: "rtl"
+  },
+  { 
+    code: "es", 
+    name: "Spanish", 
+    nativeName: "Español", 
+    flag: "🇪🇸",
+    direction: "ltr"
+  },
+];
+
+export const DEFAULT_LANGUAGE: LanguageCode = "fr";
+
+// Mapping des codes langue pour Google Translate
+export const GOOGLE_TRANSLATE_CODES: Record<LanguageCode, string> = {
+  fr: "fr",
+  en: "en",
+  ru: "ru",
+  zh: "zh-CN", // Chinois simplifié
+  ar: "ar",
+  es: "es",
+};
+
 export const AFRICAN_COUNTRIES: AfricanCountry[] = [
   // Afrique du Nord (5)
   { code: 'DZ', name: 'Algérie', nameEn: 'Algeria', flag: '🇩🇿', region: 'North' },

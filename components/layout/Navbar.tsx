@@ -267,28 +267,9 @@ export default function Navbar() {
             ))}
 
             {/* Séparateur */}
-            <div className="h-4 w-px bg-gray-300 dark:bg-zinc-700"></div>
-
-            {/* Rubriques dynamiques du backend */}
-            {rubriques.length === 0 ? (
-              <div className="flex gap-4 animate-pulse">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="h-2 w-20 bg-gray-200 dark:bg-zinc-800"></div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {rubriques.map((rub) => (
-                  <Link 
-                    key={rub.id} 
-                    href={`/category/${rub.id}`}
-                    className="text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-white transition-colors py-2 border-b-2 border-transparent hover:border-[#3E7B52]"
-                  >
-                    {rub.nom}
-                  </Link>
-                ))}
-              </>
-            )}
+            <Button className="w-full mt-4" variant="default" size="sm">
+              VERBATIM
+            </Button>
           </div>
         </div>
 

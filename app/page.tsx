@@ -122,7 +122,7 @@ export default function Home() {
         <div className="flex">
           
           {/* SIDEBAR GAUCHE - Partenaires défilants */}
-          <div className="hidden xl:block w-32 flex-shrink-0">
+          <div className="hidden xl:block w-48 flex-shrink-0">
             <div className="sticky top-20 h-[500px]">
               <PartnerScrollBar position="left" />
             </div>
