@@ -267,7 +267,7 @@ export default function Navbar() {
             ))}
 
             {/* Séparateur */}
-            <Button className="w-full mt-4" variant="default" size="sm">
+            <Button className="w-full mt-4" variant="outline" size="sm">
               VERBATIM
             </Button>
           </div>
