@@ -32,26 +32,30 @@ export default function ConsultingSidebar() {
     <aside className="w-full space-y-6">
         
       {/* En-tête entreprise */}
-      <div className="border-2 border-gray-200 dark:border-zinc-800 p-6 bg-white dark:bg-zinc-900 space-y-4">
-        <div className="flex items-start gap-3">
-          <div className="w-12 h-12 bg-[#3E7B52] flex items-center justify-center shrink-0">
-            <Building2 size={24} className="text-white"/>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight mb-1">
-              {COMPANY_INFO.name}
-            </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {COMPANY_INFO.tagline}
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-zinc-800">
-          <MapPin size={12} className="text-[#3E7B52]"/>
-          <span>{COMPANY_INFO.locations.join(" • ")}</span>
-        </div>
+      <div className="border-2 border-gray-200 dark:border-zinc-800 p-6 bg-white dark:bg-zinc-900 space-y-4">
+        <Link href='/consulting-cabinet' >
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 bg-[#3E7B52] flex items-center justify-center shrink-0">
+              <Building2 size={24} className="text-white"/>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight mb-1">
+                {COMPANY_INFO.name}
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {COMPANY_INFO.tagline}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-zinc-800">
+            <MapPin size={12} className="text-[#3E7B52]"/>
+            <span>{COMPANY_INFO.locations.join(" • ")}</span>
+          </div>
+        </Link>
       </div>
+
 
       {/* Leadership */}
       <div className="space-y-3">

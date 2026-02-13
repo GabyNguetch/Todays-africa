@@ -480,7 +480,7 @@ export default function ArticlePage({ params }: PageProps) {
             )}
 
             {/* Article Body */}
-            <div className="article-body font-serif text-[18px] md:text-[20px] leading-[1.8] text-gray-900 dark:text-zinc-100 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+            <div className="article-body text-justify font-serif text-[18px] md:text-[20px] leading-[1.8] text-gray-900 dark:text-zinc-100 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
               {article.blocsContenu && article.blocsContenu
                 .sort((a,b) => a.ordre - b.ordre)
                 .map((bloc, i) => (
@@ -541,6 +541,7 @@ export default function ArticlePage({ params }: PageProps) {
         .article-body p { 
           margin-bottom: 1.5em; 
           animation: fadeIn 0.7s ease-in-out;
+          text-align: justify; /* Ajout ici aussi pour plus de spécificité */
         }
         .article-body h2 { 
           font-weight: 900; 
