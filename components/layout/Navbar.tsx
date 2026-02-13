@@ -210,7 +210,7 @@ export default function Navbar() {
         </div>
 
         {/* LIGNE 3: Rubriques statiques + dynamiques */}
-        <div className="hidden lg:block py-3 px-6 md:px-12">
+        <div className="hidden lg:block py-2 px-6 md:px-12">
           <div className="flex items-center justify-center gap-6 flex-wrap">
             {/* Rubriques statiques */}
             {STATIC_RUBRIQUES.map((rub) => (
@@ -267,7 +267,7 @@ export default function Navbar() {
             ))}
 
             {/* Séparateur */}
-            <Button className="w-full mt-4" variant="primary" size="sm">
+            <Button className="w-full mt-0" variant="primary" size="sm">
               VERBATIM
             </Button>
           </div>
