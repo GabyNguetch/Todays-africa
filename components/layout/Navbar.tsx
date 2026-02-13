@@ -13,13 +13,13 @@ import { useAuth } from "@/context/AuthContext";
 import { AFRICAN_COUNTRIES, AFRICAN_REGIONS, getCountriesByRegion } from "@/lib/constant";
 import Image from "next/image";
 
-type Language = "fr" | "en" | "es" | "pt" | "ar";
+type Language = "fr" | "en" | "es" | "ru" | "ar";
 
 const LANGUAGES: { code: Language; name: string; flag: string }[] = [
   { code: "fr", name: "Français", flag: "🇫🇷" },
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "pt", name: "Português", flag: "🇵🇹" },
+  { code: "ru", name: "Russe", flag: "RU" },
   { code: "ar", name: "العربية", flag: "🇸🇦" },
 ];
 
