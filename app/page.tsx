@@ -19,7 +19,7 @@ import { cn, getImageUrl } from "@/lib/utils";
 const CAROUSEL_IMAGES = [
   "/images/carroussel.jpeg",
   "/images/caroussel.jpeg",
-  "/images/caroussel.jpg",
+  "/images/carroussel.jpg",
   "/images/carroussel2.jpeg",
   "/images/carroussel3.jpg",
 ];
