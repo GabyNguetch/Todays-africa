@@ -268,7 +268,7 @@ export default function Navbar() {
 
               {/* Rubriques dynamiques du backend */}
               {isLoadingRubriques ? (
-                <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex items-center gap-10 text-gray-500">
                   <Loader2 size={12} className="animate-spin" />
                   <span className="text-[9px]">Chargement...</span>
                 </div>
