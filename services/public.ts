@@ -1,9 +1,10 @@
-// FICHIER: services/public.ts
+// FICHIER: services/public.ts - VERSION CORRIGÉE AVEC NETTOYAGE URLs
 import { APP_CONFIG } from "@/lib/constant";
 import { ArticleReadDto, CommentaireDto, Rubrique } from "@/types/article";
 import { PageResponse } from "@/types/dashboard";
 import { authService } from "./auth";
 import { CreateCommentairePayload } from "@/types/article";
+import { cleanArticleUrls, cleanArticlesArray, cleanUrl } from "@/lib/urlCleaner";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
 
@@ -15,8 +16,6 @@ export const PublicService = {
    */
   getRubriques: async (): Promise<Rubrique[]> => {
     try {
-      // On utilise l'endpoint root pour éviter d'avoir tout l'arbre si on veut juste les parents
-      // Sinon /rubriques renvoie tout l'arbre. Le frontend filtre.
       const res = await fetch(`${API_PROXY}/rubriques`);
       if (!res.ok) throw new Error("Erreur fetch rubriques");
       return await res.json();
@@ -28,8 +27,7 @@ export const PublicService = {
 
   /**
    * FLUX ACTUALITÉS (Landing Page & Listes)
-   * Route: GET /api/v1/public/articles
-   * Note: Retourne uniquement les articles PUBLISHED
+   * ✅ CORRECTION: Nettoie les URLs localhost
    */
   getAllArticles: async (page = 0, size = 6): Promise<PageResponse<ArticleReadDto>> => {
     try {
@@ -37,7 +35,15 @@ export const PublicService = {
         cache: 'no-store' 
       });
       if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
-      return await res.json();
+      
+      const data = await res.json();
+      
+      // ✅ Nettoyer les URLs
+      if (data.content && Array.isArray(data.content)) {
+        data.content = cleanArticlesArray(data.content);
+      }
+      
+      return data;
     } catch (e) {
       console.error("❌ Erreur Flux Public:", e);
       return { content: [], totalElements: 0, totalPages: 0 };
@@ -46,36 +52,42 @@ export const PublicService = {
 
   /**
    * ARTICLES PAR CATÉGORIE
-   * Route: GET /api/v1/rubriques/{id}/articles
-   * (Plus précis que le filtrage client)
+   * ✅ CORRECTION: Nettoie les URLs localhost
    */
   getArticlesByRubrique: async (id: number): Promise<ArticleReadDto[]> => {
     try {
         const res = await fetch(`${API_PROXY}/rubriques/${id}/articles`); 
         if (!res.ok) return [];
-        return await res.json();
+        
+        const articles = await res.json();
+        
+        // ✅ Nettoyer les URLs
+        return cleanArticlesArray(articles);
     } catch(e) { return []; }
   },
+
   /**
    * Récupère un article complet avec ses blocs
+   * ✅ CORRECTION: Nettoie les URLs localhost
    */
   getArticleById: async (id: number): Promise<ArticleReadDto | null> => {
     try {
-      // Endpoint public. Note : S'assurer que le backend renvoie bien les "blocsContenu" sur ce endpoint public.
-      // Sinon, on pourrait avoir besoin d'un endpoint spécifique sans auth.
       const res = await fetch(`${API_PROXY}/public/articles/${id}`, { cache: 'no-store' });
       if (!res.ok) return null;
-      return await res.json();
+      
+      const article = await res.json();
+      
+      // ✅ Nettoyer les URLs
+      return cleanArticleUrls(article);
     } catch (e) { 
         console.error("❌ Erreur Article Detail:", e);
         return null; 
     }
   },
-  // 1. Incrémenter la vue (Route /api/v1/public/articles/{id}/vue)
+
+  // Incrémenter la vue
   incrementView: async (id: number): Promise<void> => {
     try {
-        // Envoi simple d'une vue (duree 0, scroll 0 pour marquer le "hit")
-        // La méthode POST attend des query params selon votre Swagger
         await fetch(`${API_PROXY}/public/articles/${id}/vue?dureeVue=1&scrollDepth=10`, {
             method: 'POST'
         });
@@ -84,26 +96,31 @@ export const PublicService = {
     }
   },
 
+  /**
+   * Articles tendance
+   * ✅ CORRECTION: Nettoie les URLs localhost
+   */
   getTrendingArticles: async (): Promise<ArticleReadDto[]> => {
     try {
-      // Utilisation d'un endpoint featureditems ou fallback
       const res = await fetch(`${API_PROXY}/featureditems?page=0&size=3`);
       if (!res.ok) {
-         // Fallback sur public/articles si endpoint spécifique indispo
          const latest = await PublicService.getAllArticles(0, 3);
          return latest.content;
       }
       const data = await res.json();
-      return Array.isArray(data) ? data : data.content || [];
+      const articles = Array.isArray(data) ? data : data.content || [];
+      
+      // ✅ Nettoyer les URLs
+      return cleanArticlesArray(articles);
     } catch (e) {
       return []; 
     }
   },
-    /**
+
+  /**
    * Tracking Analytics (Vue + Scroll)
    */
   trackView: async (id: number, duration: number, scrollDepth: number) => {
-      // Mode "fire and forget" pour ne pas bloquer l'UI
       try {
           fetch(`${API_PROXY}/public/articles/${id}/vue?dureeVue=${duration}&scrollDepth=${scrollDepth}`, { 
               method: 'POST',
@@ -111,7 +128,8 @@ export const PublicService = {
           }).catch(err => console.warn("Analytics fail silently", err));
       } catch {}
   },
-    /**
+
+  /**
    * Gestion Favoris (Like/Bookmark) - Nécessite Auth
    */
   toggleFavori: async (userId: number, articleId: number, isCurrentlyFavori: boolean) => {
@@ -128,15 +146,14 @@ export const PublicService = {
       return !isCurrentlyFavori;
   },
 
-    // 2. Gestion des Commentaires
+  /**
+   * Gestion des Commentaires
+   */
   getComments: async (articleId: number): Promise<CommentaireDto[]> => {
     try {
-        // On récupère tout et on filtre (le backend Java standard)
-        // Idéalement : le backend devrait avoir /commentaires/article/{id}
         const res = await fetch(`${API_PROXY}/commentaires/all`);
         if (!res.ok) return [];
         const all: CommentaireDto[] = await res.json();
-        // Filtrage client faute d'endpoint dédié visible dans le swagger pour le filtrage
         return all.filter(c => c.articleId === articleId && c.status === 'APPROVED'); 
     } catch {
         return [];
@@ -159,20 +176,20 @@ export const PublicService = {
       } catch { return false; }
   },
 
-    // 3. Gestion des Likes / Favoris
+  /**
+   * Gestion des Likes / Favoris
+   */
   toggleLike: async (articleId: number, isCurrentlyLiked: boolean): Promise<void> => {
       const user = authService.getUserFromStorage();
       if (!user) throw new Error("Connectez-vous pour liker");
       const token = authService.getToken();
 
       if (!isCurrentlyLiked) {
-          // Ajouter aux favoris
           await fetch(`${API_PROXY}/user/${user.id}/favoris/${articleId}`, {
               method: 'POST',
               headers: { "Authorization": `Bearer ${token}` }
           });
       } else {
-          // Retirer
           await fetch(`${API_PROXY}/user/${user.id}/favoris/${articleId}`, {
               method: 'DELETE',
               headers: { "Authorization": `Bearer ${token}` }
@@ -191,16 +208,16 @@ export const PublicService = {
           });
           if (!res.ok) return false;
           const favoris: any[] = await res.json();
-          // Vérifie si l'article est dans la liste
           return favoris.some((f: any) => f.id === articleId);
       } catch {
           return false;
       }
   },
-    // ==========================================
-  // LECTURE ARTICLE
-  // ==========================================
-  
+
+  /**
+   * LECTURE ARTICLE
+   * ✅ CORRECTION: Nettoie les URLs localhost
+   */
   getById: async (id: number): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     const headers: HeadersInit = token ? { "Authorization": `Bearer ${token}` } : {};
@@ -211,10 +228,16 @@ export const PublicService = {
       throw new Error(`Article ${id} introuvable`);
     }
     
-    return await res.json();
+    const article = await res.json();
+    
+    // ✅ Nettoyer les URLs
+    return cleanArticleUrls(article);
   },
 
-  // === ARTICLES ADMIN ===
+  /**
+   * ARTICLES ADMIN
+   * ✅ CORRECTION: Nettoie les URLs localhost
+   */
   getAdminArticles: async (page = 0, size = 10): Promise<PageResponse<ArticleReadDto>> => {
     try {
       const res = await fetch(`${API_PROXY}/articles/by-admin?page=${page}&size=${size}&sort=datePublication,desc`, { cache: 'no-store' });
@@ -225,10 +248,15 @@ export const PublicService = {
       // Si l'API renvoie un tableau simple
       if (Array.isArray(data)) {
          return {
-            content: data.slice(0, size),
+            content: cleanArticlesArray(data.slice(0, size)),
             totalElements: data.length,
             totalPages: Math.ceil(data.length / size)
          };
+      }
+      
+      // ✅ Nettoyer les URLs
+      if (data.content && Array.isArray(data.content)) {
+        data.content = cleanArticlesArray(data.content);
       }
       
       return data;
@@ -238,9 +266,8 @@ export const PublicService = {
     }
   },
 
-    /**
+  /**
    * ✅ TRACKING VUE SOPHISTIQUÉ
-   * Enregistre durée + scroll + user
    */
   recordView: async (articleId: number, metrics: { dureeVue: number; scrollDepth: number; userId?: number }) => {
     try {
@@ -251,7 +278,6 @@ export const PublicService = {
       
       if (metrics.userId) queryParams.append("userId", metrics.userId.toString());
 
-      // Fire and forget (on n'attend pas forcément le résultat pour ne pas bloquer l'UI)
       fetch(`${API_PROXY}/articles/${articleId}/view?${queryParams.toString()}`, {
         method: 'POST'
       }).catch(e => console.warn("Analytics Error", e));
@@ -268,22 +294,18 @@ export const PublicService = {
       const res = await fetch(`${API_PROXY}/commentaires/article/${articleId}`);
       if (!res.ok) return [];
       const comments = await res.json();
-      // On ne retourne que les approuvés pour le public, sauf logique contraire
       return Array.isArray(comments) ? comments.filter((c: any) => c.status === 'APPROVED') : [];
     } catch { return []; }
   },
-   /**
+
+  /**
    * ✅ Récupère UNIQUEMENT les commentaires approuvés pour l'article
-   * GET /api/v1/commentaires/article/{id}/approved
    */
   getApprovedComments: async (articleId: number): Promise<CommentaireDto[]> => {
     try {
-      // Si la route "approved" n'existe pas encore, on peut filtrer côté client temporairement
-      // mais le document spécifie /approved, donc on l'utilise :
       const res = await fetch(`${API_PROXY}/commentaires/article/${articleId}/approved`);
       
       if (!res.ok) {
-         // Fallback sur tous les commentaires si endpoint spécifique manque
          const fallbackRes = await fetch(`${API_PROXY}/commentaires/article/${articleId}`);
          if(!fallbackRes.ok) return [];
          const all: CommentaireDto[] = await fallbackRes.json();
@@ -299,12 +321,9 @@ export const PublicService = {
 
   /**
    * ✅ Poste un commentaire (crée en statut PENDING)
-   * POST /api/v1/commentaires
    */
   postComment: async (payload: CreateCommentairePayload): Promise<CommentaireDto> => {
     const token = authService.getToken();
-    // Note: Bien que le backend demande auteurId dans le body, 
-    // passer le token est crucial pour que le backend valide l'identité.
     
     const res = await fetch(`${API_PROXY}/commentaires`, {
       method: "POST",
@@ -322,16 +341,20 @@ export const PublicService = {
 
     return await res.json();
   },
-    /**
-   * ✅ ARTICLES SIMILAIRES (NEW)
-   * GET /api/v1/articles/{id}/similar
+
+  /**
+   * ✅ ARTICLES SIMILAIRES
+   * ✅ CORRECTION: Nettoie les URLs localhost
    */
   getSimilarArticles: async (articleId: number, limit = 4): Promise<ArticleReadDto[]> => {
     try {
       const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${articleId}/similar?limit=${limit}`);
       if (!res.ok) return [];
       const data = await res.json();
-      return Array.isArray(data) ? data : [];
+      const articles = Array.isArray(data) ? data : [];
+      
+      // ✅ Nettoyer les URLs
+      return cleanArticlesArray(articles);
     } catch (e) {
       console.error("Similar fetch error", e);
       return [];

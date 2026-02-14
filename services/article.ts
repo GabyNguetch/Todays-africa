@@ -42,7 +42,7 @@ export const ArticleService = {
     }
   },
 
-  /**
+ /**
    * ✅ CORRECTION: Upload média avec retour de l'ID numérique
    */
   uploadMedia: async (file: File): Promise<MediaResponseDto> => {
@@ -111,12 +111,22 @@ export const ArticleService = {
   /**
    * ✅ CORRECTION MAJEURE: Formatage de la réponse média
    * Le backend doit retourner un ID NUMÉRIQUE, pas un UUID
+   * Remplace automatiquement localhost par l'URL de production
    */
   _formatMediaResponse: (data: any): MediaResponseDto => {
     console.log("🛠️ [_formatMediaResponse] Formatting:", data);
 
     // Le backend renvoie l'URL complète dans le champ 'url'
-    const finalUrl = data.url || "/images/placeholder.jpg";
+    let finalUrl = data.url || "/images/placeholder.jpg";
+
+    // ✅ CORRECTION: Remplacer localhost par l'URL de production
+    if (finalUrl.includes('localhost:8080') || finalUrl.includes('localhost:8081')) {
+      finalUrl = finalUrl
+        .replace('http://localhost:8080', 'https://totayafrica.onrender.com')
+        .replace('http://localhost:8081', 'https://totayafrica.onrender.com');
+      
+      console.log("🔄 URL localhost remplacée par production");
+    }
 
     console.log("🔗 URL finale:", finalUrl);
 
@@ -136,6 +146,36 @@ export const ArticleService = {
       typeMime: data.typeMime || "image/jpeg"
     };
   },
+
+   /**
+   * ✅ NOUVELLE FONCTION: Nettoyer les URLs dans les articles récupérés
+   * Utilisée pour corriger les URLs des images dans les articles existants
+   */
+  cleanArticleUrls: (article: ArticleReadDto): ArticleReadDto => {
+    const cleanUrl = (url: string | null | undefined): string | null => {
+      if (!url) return null;
+      
+      if (url.includes('localhost:8080') || url.includes('localhost:8081')) {
+        return url
+          .replace('http://localhost:8080', 'https://totayafrica.onrender.com')
+          .replace('http://localhost:8081', 'https://totayafrica.onrender.com');
+      }
+      
+      return url;
+    };
+
+    return {
+      ...article,
+      imageCouvertureUrl: cleanUrl(article.imageCouvertureUrl),
+      blocsContenu: article.blocsContenu?.map(bloc => ({
+        ...bloc,
+        contenu: bloc.type === 'IMAGE' ? cleanUrl(bloc.contenu) || bloc.contenu : bloc.contenu,
+        url: cleanUrl(bloc.url),
+        mediaUrl: cleanUrl(bloc.mediaUrl)
+      }))
+    };
+  },
+
 
   // ==========================================
   // CRÉATION ARTICLE - CORRECTION CRITIQUE
@@ -251,7 +291,7 @@ export const ArticleService = {
     return result;
   },
 
-  /**
+/**
    * ✅ CORRECTION: Modification d'article avec gestion correcte des médias
    */
   update: async (id: number, payload: ArticlePayloadDto): Promise<ArticleReadDto> => {
@@ -315,15 +355,24 @@ export const ArticleService = {
       body: JSON.stringify(cleanPayload)
     });
 
-    if (res.status === 204) return ArticleService.getById(id);
+    if (res.status === 204) {
+      const article = await ArticleService.getById(id);
+      return ArticleService.cleanArticleUrls(article);
+    }
+    
     if (!res.ok) {
       const txt = await res.text();
       console.error("❌ Erreur modification:", txt);
       throw new Error("Erreur modification");
     }
-    return await res.json();
+    
+    const result = await res.json();
+    return ArticleService.cleanArticleUrls(result);
   },
 
+ /**
+   * ✅ CORRECTION: Récupération d'article avec nettoyage des URLs
+   */
   getById: async (id: number): Promise<ArticleReadDto> => {
     const token = authService.getToken();
     const headers: HeadersInit = token ? { "Authorization": `Bearer ${token}` } : {};
@@ -334,7 +383,10 @@ export const ArticleService = {
       throw new Error(`Article ${id} introuvable`);
     }
     
-    return await res.json();
+    const article = await res.json();
+    
+    // ✅ Nettoyer les URLs avant de retourner
+    return ArticleService.cleanArticleUrls(article);
   },
 
   // ==========================================

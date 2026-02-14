@@ -1,18 +1,14 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp, BarChart3, FileText, Grid3x3 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ArticleCard from "@/components/ui/ArticleCard";
 import { PublicService } from "@/services/public";
 import { ArticleReadDto, Rubrique } from "@/types/article";
-
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
 
 // --- SQUELETTE DE CHARGEMENT PROFESSIONNEL ---
 const CategorySkeleton = () => (
@@ -41,24 +37,34 @@ const CategorySkeleton = () => (
     </div>
 );
 
-export default function CategoryPage({ params }: PageProps) {
-  const { slug } = use(params);
+export default function CategoryPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
 
   // États
   const [currentRubrique, setCurrentRubrique] = useState<Rubrique | null>(null);
   const [articles, setArticles] = useState<ArticleReadDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (!slug) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
         console.group(`🔍 [CATEGORY PAGE] Recherche Rubrique : "${slug}"`);
         setLoading(true);
+        setError(false);
 
         try {
             const allRubriques = await PublicService.getRubriques();
             console.log("📥 Rubriques reçues du backend :", allRubriques);
 
             const decodedSlug = decodeURIComponent(slug).toLowerCase().trim();
+            console.log("🔎 Slug décodé:", decodedSlug);
 
             const matched = allRubriques.find(r => {
                 const rId = String(r.id);
@@ -74,7 +80,8 @@ export default function CategoryPage({ params }: PageProps) {
 
             if (!matched) {
                 console.warn("⚠️ Aucune rubrique trouvée pour ce slug/id.");
-                console.log("Liste dispo:", allRubriques.map(r => `${r.id} - ${r.nom}`));
+                console.log("Liste disponible:", allRubriques.map(r => `${r.id} - ${r.nom} - ${r.slug}`));
+                setError(true);
                 setLoading(false);
                 return;
             }
@@ -90,6 +97,7 @@ export default function CategoryPage({ params }: PageProps) {
 
         } catch(error) {
             console.error("❌ CRASH Fetch :", error);
+            setError(true);
         } finally {
             setLoading(false);
             console.groupEnd();
@@ -99,7 +107,7 @@ export default function CategoryPage({ params }: PageProps) {
     fetchData();
   }, [slug]);
 
-  if (!loading && !currentRubrique) {
+  if (error && !loading) {
       return notFound();
   }
 
