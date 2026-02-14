@@ -252,7 +252,7 @@ export default function Home() {
 
       {/* GRID LAYOUT 3 COLONNES */}
       <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-18 gap-8">
             
           {/* SIDEBAR GAUCHE - 2 colonnes - FIXE SANS SCROLLBAR */}
           <aside className="hidden lg:block lg:col-span-4">
@@ -262,7 +262,7 @@ export default function Home() {
           </aside>
 
           {/* CONTENU CENTRAL - 8 colonnes */}
-          <main className="col-span-1 lg:col-span-12 space-y-16">
+          <main className="col-span-1 lg:col-span-10 space-y-16">
             
             {loading ? (
               <div className="space-y-16">
