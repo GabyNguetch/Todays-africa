@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, use, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArticleReadDto } from "@/types/article";
 import { PublicService } from "@/services/public";
 import { useAuth } from "@/context/AuthContext";
 import { 
-  Share2, Heart, Copy, Facebook, Twitter, CheckCircle, 
+  Share2, Heart, Copy, Facebook, Twitter,
   Eye, TrendingUp, Clock, User, Tag, Calendar
 } from "lucide-react";
 import { format, isValid } from "date-fns";
@@ -138,18 +138,16 @@ function ShareMenu({
       </button>
       <div className="h-px bg-gray-200 dark:bg-zinc-800"/>
       <a 
-        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.titre)}&url=${typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : ''}`} 
+        href={`https://twitter.com/intent/tweet?text=${article.titre}&url=${typeof window !== 'undefined' ? window.location.href : ''}`} 
         target="_blank" 
-        rel="noopener noreferrer"
         className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 text-sm font-medium transition-all duration-200 group"
       >
         <Twitter size={16} className="transition-transform group-hover:scale-110"/> 
         <span>Partager sur Twitter</span>
       </a>
       <a 
-        href={`https://www.facebook.com/sharer/sharer.php?u=${typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : ''}`} 
+        href={`https://www.facebook.com/sharer/sharer.php?u=${typeof window !== 'undefined' ? window.location.href : ''}`} 
         target="_blank" 
-        rel="noopener noreferrer"
         className="flex items-center gap-3 w-full px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 text-sm font-medium transition-all duration-200 group"
       >
         <Facebook size={16} className="transition-transform group-hover:scale-110"/> 
@@ -303,9 +301,12 @@ function SidebarStats({
 // ==========================================
 // MAIN PAGE COMPONENT
 // ==========================================
-export default function ArticlePage() {
-  const params = useParams();
-  const id = params?.id as string;
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function ArticlePage({ params }: PageProps) {
+  const { id } = use(params);
   const articleId = parseInt(id);
   const router = useRouter();
   const { user } = useAuth();
@@ -324,7 +325,8 @@ export default function ArticlePage() {
 
   // --- DATA LOADING ---
   useEffect(() => {
-    if (!id || isNaN(articleId)) {
+    if (isNaN(articleId)) {
+      console.error("❌ ID article invalide");
       setNotFound(true);
       setLoading(false);
       return;
@@ -333,25 +335,26 @@ export default function ArticlePage() {
     const initPage = async () => {
       setLoading(true);
       try {
-        console.log(`🔍 Chargement article ID: ${articleId}`);
+        console.group(`🔍 [ArticlePage] Chargement article ${articleId}`);
         
         const [fetchedArticle, fetchedLikeStatus] = await Promise.all([
           PublicService.getById(articleId),
           user ? PublicService.checkIfLiked(articleId) : Promise.resolve(false)
         ]);
 
-        console.log("📦 Article reçu:", fetchedArticle);
-
         if (!fetchedArticle) {
           console.warn("⚠️ Article non trouvé");
           setNotFound(true);
         } else {
+          console.log("✅ Article chargé:", fetchedArticle.titre);
           setArticle(fetchedArticle);
           setIsLiked(fetchedLikeStatus);
           setLikesCount(fetchedArticle.partages || 0);
         }
+        
+        console.groupEnd();
       } catch (err) {
-        console.error("❌ Erreur chargement article:", err);
+        console.error("❌ Erreur chargement:", err);
         setNotFound(true);
       } finally {
         setLoading(false);
@@ -359,7 +362,7 @@ export default function ArticlePage() {
     };
 
     initPage();
-  }, [articleId, user, id]);
+  }, [articleId, user]);
 
   // --- ANALYTICS TRACKING ---
   useEffect(() => {
@@ -410,11 +413,9 @@ export default function ArticlePage() {
   };
 
   const copyToClipboard = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
-      setShowShare(false);
-      alert("Lien copié !");
-    }
+    navigator.clipboard.writeText(window.location.href);
+    setShowShare(false);
+    alert("Lien copié !");
   };
 
   // --- RENDER STATES ---
@@ -422,21 +423,13 @@ export default function ArticlePage() {
   
   if (notFound || !article) {
     return (
-      <div className="min-h-screen bg-white dark:bg-black flex flex-col">
+      <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center">
         <Navbar/>
-        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 px-6">
-          <div className="w-24 h-24 bg-gray-100 dark:bg-zinc-900 border-2 border-gray-300 dark:border-zinc-800 flex items-center justify-center">
-            <span className="text-4xl font-black text-gray-400">404</span>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase">Article introuvable</h1>
-            <p className="text-gray-600 dark:text-zinc-400">L'article demandé n'existe pas ou a été supprimé.</p>
-          </div>
-          <Button onClick={() => router.push('/')} className="w-auto px-8">
-            Retour à l'accueil
-          </Button>
+        <div className="text-center space-y-4 mt-20">
+          <h1 className="text-4xl font-black">404</h1>
+          <p>Article introuvable.</p>
+          <Button onClick={() => router.push('/')} className="w-auto px-6">Retour accueil</Button>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -504,25 +497,23 @@ export default function ArticlePage() {
             </div>
             
             {/* Tags */}
-            {article.tags && article.tags.length > 0 && (
-              <div className="mt-16 pt-8 border-t-2 border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
-                  <Tag size={14} />
-                  Mots-clés
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {article.tags.map((t, idx) => (
-                    <span 
-                      key={t} 
-                      className="px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wide hover:bg-[#3E7B52] hover:text-white hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                    >
-                      #{t}
-                    </span>
-                  ))}
-                </div>
+            <div className="mt-16 pt-8 border-t-2 border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
+                <Tag size={14} />
+                Mots-clés
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {article.tags && article.tags.map((t, idx) => (
+                  <span 
+                    key={t} 
+                    className="px-4 py-2 bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wide hover:bg-[#3E7B52] hover:text-white hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                  >
+                    #{t}
+                  </span>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -613,26 +604,6 @@ export default function ArticlePage() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { 
-          width: 6px; 
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f5f5f5;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: #3E7B52;
-          transition: background 0.3s ease;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #2d5c3d;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-track {
-          background: #18181b;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: #3E7B52; 
         }
       `}</style>
     </div>

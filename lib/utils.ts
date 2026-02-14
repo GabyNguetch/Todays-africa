@@ -3,6 +3,8 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { APP_CONFIG } from "@/lib/constant";
 
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -23,42 +25,31 @@ export function parseJwt(token: string) {
   }
 }
 
+// Ajoutez ou remplacez cette fonction dans votre fichier lib/utils.ts existant
+
+import { cleanUrl } from './urlCleaner';
+
 /**
- * Construit l'URL complète d'une image
- * @param imagePath L'URL, le chemin, ou le HASH reçu du backend
+ * ✅ AMÉLIORATION: Récupération d'URL d'image avec nettoyage automatique
  */
-export function getImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) {
-    return "/images/image4.jpeg"; // Placeholder par défaut
+export function getImageUrl(url: string | null | undefined): string {
+  const FALLBACK_IMAGE = "/images/placeholder.jpg";
+  
+  if (!url) return FALLBACK_IMAGE;
+  
+  // Nettoyer l'URL si elle contient localhost
+  const cleanedUrl = cleanUrl(url);
+  
+  // Si l'URL est déjà absolue (commence par http/https), la retourner telle quelle
+  if (cleanedUrl?.startsWith('http')) {
+    return cleanedUrl;
   }
   
-  // 1. URL déjà complète (ex: via Cloudinary ou externe)
-  if (imagePath.startsWith('http')) {
-    return imagePath;
+  // Si l'URL est relative, la retourner telle quelle
+  if (cleanedUrl?.startsWith('/')) {
+    return cleanedUrl;
   }
   
-  // 2. URL relative classique
-  if (imagePath.startsWith('/images/') || imagePath.startsWith('/icons/')) {
-    return imagePath;
-  }
-
-  // 3. Gestion spécifique Backend (API Proxy)
-  // Si le backend renvoie "/uploads/fichier.jpg" ou juste le hash
-  const baseUrl = "http://194.163.175.53:8080/api/v1"; // Hardcodé selon vos docs pour être sûr, ou utilisez APP_CONFIG
-
-  if (imagePath.startsWith('/uploads/')) {
-     // Le serveur Java sert les uploads statiques à la racine ou via un controlleur ?
-     // D'après votre swagger: GET /uploads/{filename} -> tags "static-file-controller"
-     // Donc http://ip:port/uploads/filename
-     return `http://194.163.175.53:8080${imagePath}`;
-  }
-
-  // 4. Cas du Hash/Filename brut renvoyé par MediaReadDto.hashSha256
-  // Swagger: GET /api/v1/media/file/{filename} (Sert le fichier pour affichage direct)
-  if (!imagePath.includes('/')) {
-     // C'est probablement un ID ou un Hash brut
-     return `${baseUrl}/media/file/${imagePath}`;
-  }
-
-  return imagePath;
+  // Fallback
+  return cleanedUrl || FALLBACK_IMAGE;
 }

@@ -377,7 +377,7 @@ export const ArticleService = {
     const token = authService.getToken();
     const headers: HeadersInit = token ? { "Authorization": `Bearer ${token}` } : {};
     
-    const res = await fetch(`${APP_CONFIG.apiUrl}/articles/${id}`, { headers });
+    const res = await fetch(`${APP_CONFIG.apiUrl}/public/articles/${id}`, { headers });
     
     if (!res.ok) {
       throw new Error(`Article ${id} introuvable`);

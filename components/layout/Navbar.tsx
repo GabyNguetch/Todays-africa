@@ -365,15 +365,7 @@ export default function Navbar() {
                 <Users size={16} className="text-[#3E7B52]" />
                 <span>Nos Partenaires</span>
               </Link>
-              
-              <Link 
-                href="/verbatim"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 text-sm font-bold text-gray-800 dark:text-white border-b border-gray-100 dark:border-zinc-900 pb-3 hover:text-[#3E7B52] transition-colors"
-              >
-                <Sparkles size={16} className="text-[#3E7B52]" />
-                <span>Verbatim</span>
-              </Link>
+
             </div>
 
             {/* Section Pays */}

@@ -3,33 +3,29 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, notFound } from "next/navigation";
-import { RefreshCw, FolderOpen, ArrowLeft, Loader2, Sparkles, TrendingUp, BarChart3, FileText, Grid3x3 } from "lucide-react";
+import { RefreshCw, FolderOpen, ArrowLeft, Grid3x3, BarChart3, FileText } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ArticleCard from "@/components/ui/ArticleCard";
 import { PublicService } from "@/services/public";
 import { ArticleReadDto, Rubrique } from "@/types/article";
 
-// --- SQUELETTE DE CHARGEMENT PROFESSIONNEL ---
+// --- SQUELETTE DE CHARGEMENT ---
 const CategorySkeleton = () => (
     <div className="group relative flex flex-col h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-        {/* Effet de chargement */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-zinc-800/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
         
         <div className="p-6 space-y-4">
-            {/* Image Fake */}
             <div className="relative h-48 w-full bg-gray-200 dark:bg-zinc-800">
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-300/50 dark:from-zinc-900/50"></div>
             </div>
             
-            {/* Contenu Fake */}
             <div className="space-y-3">
                 <div className="h-3 w-1/4 bg-gray-200 dark:bg-zinc-800"></div>
                 <div className="h-6 w-full bg-gray-200 dark:bg-zinc-800"></div>
                 <div className="h-6 w-2/3 bg-gray-200 dark:bg-zinc-800"></div>
             </div>
             
-            {/* Footer Card Fake */}
             <div className="pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
                 <div className="h-3 w-1/3 bg-gray-100 dark:bg-zinc-800"></div>
             </div>
@@ -41,7 +37,6 @@ export default function CategoryPage() {
   const params = useParams();
   const slug = params?.slug as string;
 
-  // États
   const [currentRubrique, setCurrentRubrique] = useState<Rubrique | null>(null);
   const [articles, setArticles] = useState<ArticleReadDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,22 +44,31 @@ export default function CategoryPage() {
 
   useEffect(() => {
     if (!slug) {
+      console.error("❌ Slug manquant");
       setError(true);
       setLoading(false);
       return;
     }
 
     const fetchData = async () => {
-        console.group(`🔍 [CATEGORY PAGE] Recherche Rubrique : "${slug}"`);
+        console.group(`🔍 [CategoryPage] Recherche: "${slug}"`);
         setLoading(true);
         setError(false);
 
         try {
+            // 1. Charger toutes les rubriques
             const allRubriques = await PublicService.getRubriques();
-            console.log("📥 Rubriques reçues du backend :", allRubriques);
+            console.log(`📥 ${allRubriques.length} rubriques disponibles`);
 
+            if (allRubriques.length === 0) {
+                console.warn("⚠️ Aucune rubrique disponible");
+                setError(true);
+                return;
+            }
+
+            // 2. Trouver la rubrique correspondante
             const decodedSlug = decodeURIComponent(slug).toLowerCase().trim();
-            console.log("🔎 Slug décodé:", decodedSlug);
+            console.log(`🔎 Recherche pour: "${decodedSlug}"`);
 
             const matched = allRubriques.find(r => {
                 const rId = String(r.id);
@@ -79,24 +83,26 @@ export default function CategoryPage() {
             });
 
             if (!matched) {
-                console.warn("⚠️ Aucune rubrique trouvée pour ce slug/id.");
-                console.log("Liste disponible:", allRubriques.map(r => `${r.id} - ${r.nom} - ${r.slug}`));
+                console.warn("⚠️ Rubrique introuvable");
+                console.log("Rubriques disponibles:", allRubriques.map(r => 
+                    `${r.id} - ${r.nom} - ${r.slug}`
+                ));
                 setError(true);
-                setLoading(false);
                 return;
             }
 
-            console.log("✅ Rubrique identifiée :", matched.nom, `(ID: ${matched.id})`);
+            console.log(`✅ Rubrique trouvée: ${matched.nom} (ID: ${matched.id})`);
             setCurrentRubrique(matched);
 
-            console.log(`📡 Fetching articles pour ID: ${matched.id}`);
+            // 3. Charger les articles de cette rubrique
+            console.log(`📡 Chargement articles rubrique ${matched.id}...`);
             const arts = await PublicService.getArticlesByRubrique(matched.id);
-            console.log(`📦 ${arts.length} Articles reçus`);
             
+            console.log(`✅ ${arts.length} articles chargés`);
             setArticles(arts);
 
         } catch(error) {
-            console.error("❌ CRASH Fetch :", error);
+            console.error("❌ Erreur fatale:", error);
             setError(true);
         } finally {
             setLoading(false);
@@ -117,16 +123,14 @@ export default function CategoryPage() {
 
       <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 flex-1">
         
-        {/* --- 1. HEADER PROFESSIONNEL --- */}
+        {/* HEADER */}
         <div className="mb-16 relative">
-            {/* Grille de fond subtile */}
             <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" 
                  style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '50px 50px'}}>
             </div>
             
             <div className="relative bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-8 md:p-12 shadow-sm">
                 {loading ? (
-                    // SQUELETTE DU HEADER
                     <div className="space-y-6 animate-pulse">
                         <div className="h-4 w-40 bg-gray-200 dark:bg-zinc-800"></div>
                         <div className="h-16 w-3/4 bg-gray-200 dark:bg-zinc-800"></div>
@@ -134,7 +138,7 @@ export default function CategoryPage() {
                     </div>
                 ) : (
                     <div className="space-y-8">
-                        {/* FIL D'ARIANE PROFESSIONNEL */}
+                        {/* FIL D'ARIANE */}
                         <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em]">
                             <div className="flex items-center gap-2 px-4 py-2.5 bg-[#3E7B52]/5 dark:bg-[#13EC13]/5 border border-[#3E7B52]/20 dark:border-[#13EC13]/20">
                                 <Grid3x3 size={12} className="text-[#3E7B52] dark:text-[#13EC13]"/>
@@ -144,10 +148,9 @@ export default function CategoryPage() {
                             <span className="text-gray-600 dark:text-zinc-400">{currentRubrique?.nom}</span>
                         </div>
 
-                        {/* TITRE AVEC ICÔNE */}
+                        {/* TITRE */}
                         <div className="space-y-6">
                             <div className="flex items-start gap-6">
-                                {/* Icône de la catégorie */}
                                 <div className="flex-shrink-0 w-20 h-20 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
                                     <FolderOpen size={40} className="text-white dark:text-black" strokeWidth={1.5}/>
                                 </div>
@@ -157,7 +160,6 @@ export default function CategoryPage() {
                                         {currentRubrique?.nom}
                                     </h1>
                                     
-                                    {/* Statistiques */}
                                     <div className="flex items-center gap-4 flex-wrap">
                                         <div className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] dark:bg-[#13EC13] text-white dark:text-black">
                                             <BarChart3 size={16} strokeWidth={2}/>
@@ -172,23 +174,22 @@ export default function CategoryPage() {
                             </div>
                         </div>
                         
-                        {/* LIGNE DE SÉPARATION ANIMÉE */}
+                        {/* SÉPARATION */}
                         <div className="relative h-px bg-gray-200 dark:bg-zinc-800 overflow-hidden">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#3E7B52] dark:via-[#13EC13] to-transparent animate-[shimmer_3s_infinite]"></div>
                         </div>
                         
                         {/* DESCRIPTION */}
                         <p className="text-gray-600 dark:text-zinc-400 text-lg max-w-3xl leading-relaxed animate-in fade-in slide-in-from-bottom-3 duration-700 delay-100">
-                            {`Toute l'actualité et les dossiers spéciaux concernant la rubrique ${currentRubrique?.nom}.`}
+                            {currentRubrique?.description || `Toute l'actualité et les dossiers spéciaux concernant ${currentRubrique?.nom}.`}
                         </p>
                     </div>
                 )}
             </div>
         </div>
 
-        {/* --- 2. CONTENU DES ARTICLES PROFESSIONNEL --- */}
+        {/* CONTENU ARTICLES */}
         {loading ? (
-            // GRILLE SQUELETTES
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1,2,3,4,5,6].map(i => (
                     <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 80}ms`}}>
@@ -197,7 +198,6 @@ export default function CategoryPage() {
                 ))}
             </div>
         ) : (
-            // CONTENU RÉEL OU MESSAGE VIDE
             articles.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {articles.map((article, index) => (
@@ -213,20 +213,14 @@ export default function CategoryPage() {
             ) : (
                 <div className="relative animate-in fade-in zoom-in-95 duration-700">
                     <div className="relative flex flex-col items-center justify-center py-32 bg-white dark:bg-zinc-900 border-2 border-dashed border-gray-300 dark:border-zinc-800 text-center px-6">
-                        {/* Grille de fond */}
                         <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.01]" 
                              style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '40px 40px'}}>
                         </div>
                         
-                        {/* Contenu */}
                         <div className="relative z-10 space-y-8">
-                            {/* Icône centrale */}
                             <div className="relative inline-block">
                                 <div className="w-24 h-24 bg-gray-100 dark:bg-zinc-800 border-2 border-gray-300 dark:border-zinc-700 flex items-center justify-center">
                                     <RefreshCw size={48} className="text-gray-400 dark:text-gray-500 animate-spin" style={{animationDuration: '4s'}} strokeWidth={1.5}/>
-                                </div>
-                                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center">
-                                    <Sparkles size={14} className="text-white dark:text-black"/>
                                 </div>
                             </div>
                             
@@ -236,7 +230,7 @@ export default function CategoryPage() {
                                 </h3>
                                 <div className="w-20 h-1 bg-[#3E7B52] dark:bg-[#13EC13] mx-auto"></div>
                                 <p className="text-gray-500 dark:text-zinc-400 text-base max-w-md mx-auto leading-relaxed">
-                                    La rédaction n'a pas encore publié d'article dans la rubrique <span className="font-bold text-[#3E7B52] dark:text-[#13EC13]">{currentRubrique?.nom}</span>.
+                                    La rédaction n'a pas encore publié d'article dans <span className="font-bold text-[#3E7B52] dark:text-[#13EC13]">{currentRubrique?.nom}</span>.
                                 </p>
                             </div>
                             
@@ -253,16 +247,13 @@ export default function CategoryPage() {
             )
         )}
       </main>
+      
       <Footer />
 
       <style jsx global>{`
         @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
       `}</style>
     </div>
