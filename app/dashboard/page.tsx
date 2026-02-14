@@ -6,7 +6,8 @@ import {
   LayoutDashboard, PenSquare, FileText, Settings as SettingsIcon, 
   LogOut, Users, UserPlus, Globe,
   House,
-  BookOpenCheck
+  BookOpenCheck,
+  FileLineChart
 } from "lucide-react";
 import { authService, User } from "@/services/auth";
 import { APP_CONFIG } from "@/lib/constant";
@@ -23,8 +24,9 @@ import CreateRedacteur from "@/components/dashboard/CreateRedacteur";
 import AdminRedacteurs from "@/components/dashboard/AdminRedacteur";
 import { OnboardingTour } from "@/components/ui/OnBoardingTour";
 import Link from "next/link";
+import AdminRubriques from "@/components/dashboard/AdminRubriques";
 
-type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings" | "admin-global-articles";
+type TabType = "overview" | "new-article" | "articles" | "manage-redacteurs" | "create-redacteur" | "settings" | "rubriques" | "admin-global-articles";
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -71,6 +73,7 @@ export default function DashboardPage() {
         case "articles": return <MyArticles onEdit={handleEditRequest} />; // PERSONNEL (Pour tous)
         case "admin-global-articles": return <AdminArticles />; // GLOBAL (Pour admin)
         case "manage-redacteurs": return <AdminRedacteurs />;
+        case "rubriques": return <AdminRubriques />;
         case "settings": return <Settings />;
         default: return <Overview />;
     }
@@ -85,6 +88,7 @@ export default function DashboardPage() {
       
       const adminItems = [
           { id: "articles", label: "Mes Articles", icon: FileText },
+          { id: "rubriques", label: "Gestion des Rubriques", icon: FileLineChart }, // Gestion globale
           { id: "admin-global-articles", label: "Gestion des Articles", icon: BookOpenCheck }, // Gestion globale
           { id: "manage-redacteurs", label: "Équipe", icon: Users },
       ];

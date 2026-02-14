@@ -1,4 +1,4 @@
-// components/ui/PartnerScrollBar.tsx
+// components/layout/PartnerScrollBar.tsx
 "use client";
 
 import React from "react";
@@ -33,7 +33,7 @@ export default function PartnerScrollBar({ position = "left" }: PartnerScrollBar
               : "animate-scroll-vertical-down"
           }`}
           style={{
-            animationDuration: "40s"
+            animationDuration: "80s"
           }}
         >
           {duplicatedPartners.map((partner, index) => (
@@ -53,6 +53,7 @@ export default function PartnerScrollBar({ position = "left" }: PartnerScrollBar
                     alt={partner.name}
                     fill
                     className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                    unoptimized
                   />
                 </div>
 

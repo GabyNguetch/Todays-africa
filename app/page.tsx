@@ -1,10 +1,10 @@
-// app/page.tsx - VERSION AMÉLIORÉE AVEC DESIGN OPTIMISÉ
+// app/page.tsx - VERSION AVEC CARROUSEL ACCÉLÉRÉ
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FolderOpen, Clock, TrendingUp } from "lucide-react"; 
+import { ArrowRight, Clock, TrendingUp } from "lucide-react"; 
 import { Button } from "@/components/ui/Button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -45,7 +45,6 @@ export default function Home() {
   const [heroArticles, setHeroArticles] = useState<ArticleReadDto[]>([]);
   const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedHeroIndex, setSelectedHeroIndex] = useState(0);
 
   useEffect(() => {
     const initData = async () => {
@@ -60,7 +59,7 @@ export default function Home() {
         ]);
 
         const carouselSource = trendingData.length > 0 ? trendingData : feedData.content || [];
-        const heroData = carouselSource.slice(0, 6);
+        const heroData = carouselSource.slice(0, 5); // 5 articles pour matcher les 5 images
         
         setHeroArticles(heroData);
         console.log("🎠 [HERO] Articles:", heroData.length);
@@ -91,7 +90,7 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-black">
       <Navbar />
 
-      {/* HERO SECTION - Carrousel d'images + Articles Trending + Sidebars Partenaires */}
+      {/* HERO SECTION - Carrousel synchronisé images + articles */}
       <section className="relative w-full border-t-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-950">
         <div className="flex">
           
@@ -107,7 +106,7 @@ export default function Home() {
             
             {/* Carrousel d'images de fond en défilement continu */}
             <div className="absolute inset-0 overflow-hidden">
-              <div className="flex animate-carousel-slide">
+              <div className="flex animate-carousel-slide-bg">
                 {/* Premier set d'images */}
                 {CAROUSEL_IMAGES.map((img, idx) => (
                   <div key={`img-1-${idx}`} className="relative w-full h-[600px] flex-shrink-0" style={{ width: '100%' }}>
@@ -139,9 +138,9 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80" />
             </div>
 
-            {/* Contenu - Articles Trending */}
+            {/* Contenu - Articles Trending défilants synchronisés */}
             <div className="relative z-10 h-full flex items-center">
-              <div className="w-full max-w-6xl mx-auto px-6 md:px-12">
+              <div className="w-full px-6 md:px-12">
             
                 {loading ? (
                   <div className="space-y-6">
@@ -152,7 +151,7 @@ export default function Home() {
                   <div className="space-y-8">
                     
                     {/* Badge section */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 max-w-6xl mx-auto">
                       <div className="px-4 py-2 bg-[#3E7B52] flex items-center gap-2">
                         <TrendingUp size={16} className="text-white" />
                         <span className="text-white font-bold uppercase tracking-widest text-xs">
@@ -162,79 +161,75 @@ export default function Home() {
                       <div className="h-px flex-1 bg-white/30" />
                     </div>
 
-                    {/* Article principal sélectionné */}
-                    <div className="max-w-4xl space-y-6">
-                      <Link 
-                        href={`/article/${heroArticles[selectedHeroIndex].id}`}
-                        className="group block"
-                      >
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
-                          {heroArticles[selectedHeroIndex].titre}
-                        </h1>
-                      </Link>
-
-                      <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl font-light">
-                        {heroArticles[selectedHeroIndex].description}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300">
-                        <span className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-sm">
-                          <FolderOpen size={14} className="text-[#3E7B52]" /> 
-                          <span className="font-semibold">
-                            {heroArticles[selectedHeroIndex].rubriqueNom || "Actualité"}
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <Clock size={14} /> 
-                          {new Date(
-                            heroArticles[selectedHeroIndex].datePublication || 
-                            heroArticles[selectedHeroIndex].dateCreation
-                          ).toLocaleDateString('fr-FR', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-
-                      <Link href={`/article/${heroArticles[selectedHeroIndex].id}`}>
-                        <Button className="h-12 px-8 bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105">
-                          Lire l'article
-                          <ArrowRight size={16} className="ml-2" />
-                        </Button>
-                      </Link>
-                    </div>
-
-                    {/* Liste des autres articles trending (cliquables) */}
-                    <div className="pt-6 border-t border-white/20">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {heroArticles.slice(0, 6).map((article, idx) => (
-                          <button
-                            key={article.id}
-                            onClick={() => setSelectedHeroIndex(idx)}
-                            className={cn(
-                              "text-left p-4 border-l-2 transition-all duration-300 group",
-                              selectedHeroIndex === idx
-                                ? "border-[#3E7B52] bg-white/10 backdrop-blur-sm"
-                                : "border-white/30 hover:border-white/60 hover:bg-white/5"
-                            )}
+                    {/* Articles défilants synchronisés avec les images */}
+                    <div className="overflow-hidden">
+                      <div className="flex animate-carousel-slide-articles" style={{ width: 'fit-content' }}>
+                        {/* Premier set d'articles */}
+                        {heroArticles.map((article, idx) => (
+                          <div 
+                            key={`article-1-${article.id}`}
+                            className="w-screen flex-shrink-0 px-6 md:px-12"
                           >
-                            <h3 className={cn(
-                              "text-sm font-bold leading-tight line-clamp-2 transition-colors duration-300",
-                              selectedHeroIndex === idx
-                                ? "text-white"
-                                : "text-gray-300 group-hover:text-white"
-                            )}>
-                              {article.titre}
-                            </h3>
-                            <p className="text-xs text-gray-400 mt-2 flex items-center gap-2">
-                              <Clock size={10} />
-                              {new Date(article.datePublication || article.dateCreation).toLocaleDateString('fr-FR', {
-                                day: 'numeric',
-                                month: 'short'
-                              })}
-                            </p>
-                          </button>
+                            <div className="max-w-6xl mx-auto">
+                              <Link 
+                                href={`/article/${article.id}`}
+                                className="group block space-y-4"
+                              >
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                  {article.titre}
+                                </h1>
+
+                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-4xl truncate">
+                                  {article.description}...
+                                </p>
+
+                                <div className="flex items-center gap-2 text-sm text-gray-300">
+                                  <Clock size={14} /> 
+                                  {new Date(
+                                    article.datePublication || article.dateCreation
+                                  ).toLocaleDateString('fr-FR', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric'
+                                  })}
+                                </div>
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Duplication pour boucle infinie */}
+                        {heroArticles.map((article, idx) => (
+                          <div 
+                            key={`article-2-${article.id}`}
+                            className="w-screen flex-shrink-0 px-6 md:px-12"
+                          >
+                            <div className="max-w-6xl mx-auto">
+                              <Link 
+                                href={`/article/${article.id}`}
+                                className="group block space-y-4"
+                              >
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                  {article.titre}
+                                </h1>
+
+                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-4xl truncate">
+                                  {article.description}...
+                                </p>
+
+                                <div className="flex items-center gap-2 text-sm text-gray-300">
+                                  <Clock size={14} /> 
+                                  {new Date(
+                                    article.datePublication || article.dateCreation
+                                  ).toLocaleDateString('fr-FR', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric'
+                                  })}
+                                </div>
+                              </Link>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -427,17 +422,27 @@ export default function Home() {
 
       {/* Styles CSS avec animations optimisées */}
       <style jsx global>{`
-        /* Carrousel d'images de fond - défilement lent et fluide */
-        @keyframes carousel-slide {
+        /* Carrousel images de fond - défilement lent (80s) */
+        @keyframes carousel-slide-bg {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-400%); }
+          100% { transform: translateX(-50%); }
         }
         
-        .animate-carousel-slide {
-          animation: carousel-slide 80s linear infinite;
+        .animate-carousel-slide-bg {
+          animation: carousel-slide-bg 25s linear infinite;
         }
         
-        /* Défilement horizontal des articles - optimisé */
+        /* Carrousel articles - défilement RAPIDE (25s) */
+        @keyframes carousel-slide-articles {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        
+        .animate-carousel-slide-articles {
+          animation: carousel-slide-articles 25s linear infinite;
+        }
+        
+        /* Défilement horizontal des articles sections */
         @keyframes scroll-smooth {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -445,6 +450,28 @@ export default function Home() {
         
         .animate-scroll-smooth {
           animation: scroll-smooth linear infinite;
+          will-change: transform;
+        }
+        
+        /* Défilement vertical partenaires - vers le haut */
+        @keyframes scroll-vertical-up {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-66.666%); }
+        }
+        
+        .animate-scroll-vertical-up {
+          animation: scroll-vertical-up linear infinite;
+          will-change: transform;
+        }
+        
+        /* Défilement vertical partenaires - vers le bas */
+        @keyframes scroll-vertical-down {
+          0% { transform: translateY(-66.666%); }
+          100% { transform: translateY(0); }
+        }
+        
+        .animate-scroll-vertical-down {
+          animation: scroll-vertical-down linear infinite;
           will-change: transform;
         }
         
@@ -464,8 +491,11 @@ export default function Home() {
         }
         
         /* Optimisation performances */
-        .animate-carousel-slide,
-        .animate-scroll-smooth {
+        .animate-carousel-slide-bg,
+        .animate-carousel-slide-articles,
+        .animate-scroll-smooth,
+        .animate-scroll-vertical-up,
+        .animate-scroll-vertical-down {
           backface-visibility: hidden;
           perspective: 1000px;
         }
