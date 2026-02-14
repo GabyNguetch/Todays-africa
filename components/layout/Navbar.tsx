@@ -225,7 +225,6 @@ export default function Navbar() {
                       {rub.nom}
                       <ChevronDown size={10} className={`transition-transform ${paysDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-
                     {/* Mega Dropdown des pays */}
                     {paysDropdownOpen && (
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[800px] max-h-[500px] overflow-y-auto bg-white dark:bg-zinc-900 border-2 border-[#3E7B52] shadow-2xl z-50 p-4">
@@ -266,11 +265,6 @@ export default function Navbar() {
                 )}
               </div>
             ))}
-
-            {/* Séparateur */}
-            <Button className="w-full mt-0 h-6 text-[10px]" variant="primary" size="sm">
-              VERBATIM
-            </Button>
           </div>
         </div>
 

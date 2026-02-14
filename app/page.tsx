@@ -21,7 +21,7 @@ const CAROUSEL_IMAGES = [
   "/images/caroussel.jpeg",
   "/images/carroussel.jpg",
   "/images/carroussel2.jpeg",
-  "/images/carroussel3.jpg",
+  "/images/carroussel3.jpeg",
 ];
 
 // Skeleton pour le chargement
@@ -136,7 +136,7 @@ export default function Home() {
               </div>
               
               {/* Overlay gradient sombre pour lisibilité */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80" />
             </div>
 
             {/* Contenu - Articles Trending */}
