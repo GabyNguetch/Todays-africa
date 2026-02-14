@@ -429,7 +429,7 @@ export default function Home() {
         }
         
         .animate-carousel-slide-bg {
-          animation: carousel-slide-bg 25s linear infinite;
+          animation: carousel-slide-bg 50s linear infinite;
         }
         
         /* Carrousel articles - défilement RAPIDE (25s) */
