@@ -1,9 +1,9 @@
-// components/layout/Navbar.tsx - VERSION OPTIMISÉE COMPACTE
+// components/layout/Navbar.tsx - VERSION OPTIMISÉE AVEC GESTION D'ÉTAT
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Globe, Menu, UserIcon, X, Calendar, Users, Sparkles } from "lucide-react";
+import { ChevronDown, Globe, Menu, UserIcon, X, Calendar, Users, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { APP_CONFIG } from "@/lib/constant";
 import { PublicService } from "@/services/public";
@@ -25,6 +25,8 @@ const LANGUAGES: { code: Language; name: string; flag: string }[] = [
 
 export default function Navbar() {
   const [rubriques, setRubriques] = useState<Rubrique[]>([]);
+  const [isLoadingRubriques, setIsLoadingRubriques] = useState(true);
+  const [rubriqueError, setRubriqueError] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<Language>("fr");
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
@@ -35,13 +37,25 @@ export default function Navbar() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
+        setIsLoadingRubriques(true);
+        setRubriqueError(null);
+        
         const all = await PublicService.getRubriques();
+        console.log("Toutes les rubriques:", all); // Debug
+        
+        // Filtrer uniquement les rubriques racines (sans parent)
         const roots = all.filter(r => r.parentId === null);
+        console.log("Rubriques racines:", roots); // Debug
+        
         setRubriques(roots);
       } catch (e) {
-        console.error("Erreur menu:", e);
+        console.error("Erreur lors du chargement des rubriques:", e);
+        setRubriqueError("Impossible de charger les catégories");
+      } finally {
+        setIsLoadingRubriques(false);
       }
     };
+    
     fetchMenu();
   }, []);
 
@@ -253,15 +267,26 @@ export default function Navbar() {
               </div>
 
               {/* Rubriques dynamiques du backend */}
-              {rubriques.map((rub) => (
-                <Link 
-                  key={rub.id}
-                  href={`/category/${rub.id}`}
-                  className="text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:text-[#3E7B52] dark:text-gray-300 dark:hover:text-white transition-colors py-1 border-b-2 border-transparent hover:border-[#3E7B52]"
-                >
-                  {rub.nom}
-                </Link>
-              ))}
+              {isLoadingRubriques ? (
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Loader2 size={12} className="animate-spin" />
+                  <span className="text-[9px]">Chargement...</span>
+                </div>
+              ) : rubriqueError ? (
+                <span className="text-[9px] text-red-500">{rubriqueError}</span>
+              ) : rubriques.length > 0 ? (
+                rubriques.map((rub) => (
+                  <Link 
+                    key={rub.id}
+                    href={`/category/${rub.id}`}
+                    className="text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:text-[#3E7B52] dark:text-gray-300 dark:hover:text-white transition-colors py-1 border-b-2 border-transparent hover:border-[#3E7B52]"
+                  >
+                    {rub.nom}
+                  </Link>
+                ))
+              ) : (
+                <span className="text-[9px] text-gray-400">Aucune catégorie disponible</span>
+              )}
             </div>
 
             {/* Bouton Verbatim */}
@@ -386,16 +411,28 @@ export default function Navbar() {
             {/* Rubriques backend */}
             <div className="space-y-2 pb-4">
               <p className="text-[10px] font-bold uppercase text-gray-500 mb-2">Catégories</p>
-              {rubriques.map(rub => (
-                <Link 
-                  key={rub.id} 
-                  href={`/category/${rub.id}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-sm font-bold text-gray-800 dark:text-white border-b border-gray-100 dark:border-zinc-900 pb-3 hover:text-[#3E7B52] transition-colors"
-                >
-                  {rub.nom}
-                </Link>
-              ))}
+              
+              {isLoadingRubriques ? (
+                <div className="flex items-center justify-center gap-2 py-4 text-gray-500">
+                  <Loader2 size={16} className="animate-spin" />
+                  <span className="text-xs">Chargement des catégories...</span>
+                </div>
+              ) : rubriqueError ? (
+                <div className="text-xs text-red-500 py-2">{rubriqueError}</div>
+              ) : rubriques.length > 0 ? (
+                rubriques.map(rub => (
+                  <Link 
+                    key={rub.id} 
+                    href={`/category/${rub.id}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-sm font-bold text-gray-800 dark:text-white border-b border-gray-100 dark:border-zinc-900 pb-3 hover:text-[#3E7B52] transition-colors"
+                  >
+                    {rub.nom}
+                  </Link>
+                ))
+              ) : (
+                <div className="text-xs text-gray-400 py-2">Aucune catégorie disponible</div>
+              )}
             </div>
             
             {/* Actions */}
