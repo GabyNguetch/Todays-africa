@@ -4,7 +4,7 @@ import { ArticleReadDto, CommentaireDto, Rubrique } from "@/types/article";
 import { PageResponse } from "@/types/dashboard";
 import { authService } from "./auth";
 import { CreateCommentairePayload } from "@/types/article";
-import { cleanArticleUrls, cleanArticlesArray, cleanUrl } from "./article";
+import { cleanArticleUrls, cleanArticlesArray, cleanUrl } from "@/lib/urlCleaner";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
 

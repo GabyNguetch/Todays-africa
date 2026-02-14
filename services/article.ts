@@ -1,4 +1,4 @@
-// FICHIER: services/article.ts - VERSION CORRIGÉE GESTION MÉDIAS + URL PRODUCTION
+// FICHIER: services/article.ts - VERSION CORRIGÉE GESTION MÉDIAS
 
 import { APP_CONFIG } from "@/lib/constant";
 import { authService } from "@/services/auth";
@@ -42,7 +42,7 @@ export const ArticleService = {
     }
   },
 
-  /**
+ /**
    * ✅ CORRECTION: Upload média avec retour de l'ID numérique
    */
   uploadMedia: async (file: File): Promise<MediaResponseDto> => {
@@ -147,7 +147,7 @@ export const ArticleService = {
     };
   },
 
-  /**
+   /**
    * ✅ NOUVELLE FONCTION: Nettoyer les URLs dans les articles récupérés
    * Utilisée pour corriger les URLs des images dans les articles existants
    */
@@ -175,6 +175,7 @@ export const ArticleService = {
       }))
     };
   },
+
 
   // ==========================================
   // CRÉATION ARTICLE - CORRECTION CRITIQUE
@@ -287,12 +288,10 @@ export const ArticleService = {
     
     const result = await res.json();
     console.log("✅ Article créé:", result);
-    
-    // ✅ Nettoyer les URLs avant de retourner
-    return ArticleService.cleanArticleUrls(result);
+    return result;
   },
 
-  /**
+/**
    * ✅ CORRECTION: Modification d'article avec gestion correcte des médias
    */
   update: async (id: number, payload: ArticlePayloadDto): Promise<ArticleReadDto> => {
@@ -371,7 +370,7 @@ export const ArticleService = {
     return ArticleService.cleanArticleUrls(result);
   },
 
-  /**
+ /**
    * ✅ CORRECTION: Récupération d'article avec nettoyage des URLs
    */
   getById: async (id: number): Promise<ArticleReadDto> => {
@@ -421,7 +420,7 @@ export const ArticleService = {
     console.log("✅ Statut:", data.statut);
     console.groupEnd();
     
-    return ArticleService.cleanArticleUrls(data);
+    return data;
   },
 
   submit: async (articleId: number): Promise<ArticleReadDto> => {
@@ -437,8 +436,7 @@ export const ArticleService = {
       throw new Error("Échec soumission");
     }
     
-    const article = await res.json();
-    return ArticleService.cleanArticleUrls(article);
+    return await res.json();
   },
 
   // ==========================================
@@ -571,8 +569,7 @@ export const ArticleService = {
       console.log("✅ Avant-première activée");
       console.groupEnd();
       
-      const article = await res.json();
-      return ArticleService.cleanArticleUrls(article);
+      return await res.json();
   },
 
   // ==========================================
@@ -753,10 +750,7 @@ export const ArticleService = {
         }
 
         const data = await response.json();
-        const articles = Array.isArray(data) ? data : [];
-        
-        // ✅ Nettoyer les URLs de tous les articles
-        return articles.map(article => ArticleService.cleanArticleUrls(article));
+        return Array.isArray(data) ? data : [];
         
     } catch (error) {
         console.error("❌ Erreur réseau brouillons:", error);
@@ -771,10 +765,7 @@ export const ArticleService = {
       { headers: { "Authorization": `Bearer ${token}` } }
     );
     
-    if (!res.ok) return [];
-    
-    const articles = await res.json();
-    return articles.map((article: ArticleReadDto) => ArticleService.cleanArticleUrls(article));
+    return res.ok ? await res.json() : [];
   },
 
   getRedacteurTousArticles: async (redacteurId: number, page = 0, size = 50): Promise<any> => {
@@ -784,18 +775,7 @@ export const ArticleService = {
       { headers: { "Authorization": `Bearer ${token}` } }
     );
     
-    if (!res.ok) return { content: [] };
-    
-    const data = await res.json();
-    
-    // ✅ Nettoyer les URLs de tous les articles
-    if (data.content && Array.isArray(data.content)) {
-      data.content = data.content.map((article: ArticleReadDto) => 
-        ArticleService.cleanArticleUrls(article)
-      );
-    }
-    
-    return data;
+    return res.ok ? await res.json() : { content: [] };
   },
 
   // ==========================================
@@ -813,16 +793,7 @@ export const ArticleService = {
       throw new Error("Erreur chargement liste admin");
     }
     
-    const data = await res.json();
-    
-    // ✅ Nettoyer les URLs de tous les articles
-    if (data.content && Array.isArray(data.content)) {
-      data.content = data.content.map((article: ArticleReadDto) => 
-        ArticleService.cleanArticleUrls(article)
-      );
-    }
-    
-    return data;
+    return await res.json();
   },
 
   getAllRedacteurs: async (): Promise<any[]> => {
