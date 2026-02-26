@@ -439,7 +439,7 @@ export default function Home() {
         }
         
         .animate-carousel-slide-articles {
-          animation: carousel-slide-articles 25s linear infinite;
+          animation: carousel-slide-articles 50s linear infinite;
         }
         
         /* Défilement horizontal des articles sections */
