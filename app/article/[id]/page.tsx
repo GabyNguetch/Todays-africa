@@ -176,7 +176,7 @@ function ArticleHeader({
   return (
     <header className="mb-12 border-b-2 border-gray-200 dark:border-zinc-800 pb-12">
       {/* Meta Info & Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div className="flex items-center gap-4">
           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white bg-[#3E7B52] dark:bg-[#3E7B52] px-4 py-2 border-2 border-[#3E7B52]">
             {article.rubriqueNom || "Actualité"}
@@ -221,19 +221,19 @@ function ArticleHeader({
       </div>
 
       {/* Title & Description */}
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.05] tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.05] tracking-tight mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {article.titre}
       </h1>
 
-      <div className="relative pl-8 py-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+      <div className="relative pl-6 sm:pl-8 py-3 sm:py-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3E7B52]"></div>
-        <p className="text-xl md:text-2xl text-gray-600 dark:text-zinc-300 leading-relaxed font-serif font-light max-w-4xl">
+        <p className="text-lg sm:text-xl md:text-2xl text-gray-600 dark:text-zinc-300 leading-relaxed font-serif font-light max-w-4xl">
           {article.description}
         </p>
       </div>
 
       {/* Author Info */}
-      <div className="mt-10 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+      <div className="mt-8 sm:mt-10 flex items-center gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
         <div className="w-14 h-14 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center font-black text-xl text-gray-600 dark:text-zinc-400 overflow-hidden border-2 border-gray-300 dark:border-zinc-700">
           {article.auteurNom ? article.auteurNom.substring(0,1).toUpperCase() : "R"}
         </div>
@@ -439,7 +439,7 @@ export default function ArticlePage({ params }: PageProps) {
     <div className="bg-white dark:bg-black min-h-screen font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1200px] mx-auto w-full px-6 md:px-12 py-12 relative flex-1">
+      <main className="max-w-[1200px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 relative flex-1">
         
         {/* Article Header */}
         <ArticleHeader 
@@ -461,14 +461,14 @@ export default function ArticlePage({ params }: PageProps) {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 lg:gap-12">
           
           {/* Article Content */}
           <div className="lg:col-span-8">
             
             {/* Cover Image */}
             {article.imageCouvertureUrl && (
-              <figure className="mb-12 group cursor-zoom-in animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <figure className="mb-8 sm:mb-10 md:mb-12 group cursor-zoom-in animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="relative w-full aspect-[16/10] overflow-hidden border-2 border-gray-200 dark:border-zinc-800 bg-gray-50 transition-all duration-500 hover:border-[#3E7B52] dark:hover:border-[#3E7B52]">
                   <Image 
                     src={getImageUrl(article.imageCouvertureUrl)} 
@@ -487,7 +487,7 @@ export default function ArticlePage({ params }: PageProps) {
             )}
 
             {/* Article Body */}
-            <div className="article-body text-justify font-serif text-[18px] md:text-[20px] leading-[1.8] text-gray-900 dark:text-zinc-100 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+            <div className="article-body text-justify font-serif text-base sm:text-lg md:text-[20px] leading-[1.7] sm:leading-[1.8] text-gray-900 dark:text-zinc-100 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
               {article.blocsContenu && article.blocsContenu
                 .sort((a,b) => a.ordre - b.ordre)
                 .map((bloc, i) => (
@@ -497,7 +497,7 @@ export default function ArticlePage({ params }: PageProps) {
             </div>
             
             {/* Tags */}
-            <div className="mt-16 pt-8 border-t-2 border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            <div className="mt-12 sm:mt-14 md:mt-16 pt-6 sm:pt-8 border-t-2 border-gray-200 dark:border-zinc-800 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
                 <Tag size={14} />
                 Mots-clés

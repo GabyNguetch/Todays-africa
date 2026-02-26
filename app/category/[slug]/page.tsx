@@ -121,15 +121,15 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-[#FBFBFB] dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 flex-1">
+      <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 flex-1">
         
         {/* HEADER */}
-        <div className="mb-16 relative">
+        <div className="mb-12 sm:mb-14 md:mb-16 relative">
             <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]" 
                  style={{backgroundImage: 'linear-gradient(#3E7B52 1px, transparent 1px), linear-gradient(90deg, #3E7B52 1px, transparent 1px)', backgroundSize: '50px 50px'}}>
             </div>
             
-            <div className="relative bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-8 md:p-12 shadow-sm">
+            <div className="relative bg-white dark:bg-zinc-900 border-2 border-gray-200 dark:border-zinc-800 p-6 sm:p-8 md:p-12 shadow-sm">
                 {loading ? (
                     <div className="space-y-6 animate-pulse">
                         <div className="h-4 w-40 bg-gray-200 dark:bg-zinc-800"></div>
@@ -150,17 +150,17 @@ export default function CategoryPage() {
 
                         {/* TITRE */}
                         <div className="space-y-6">
-                            <div className="flex items-start gap-6">
-                                <div className="flex-shrink-0 w-20 h-20 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                            <div className="flex items-start gap-4 sm:gap-6">
+                                <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-[#3E7B52] dark:bg-[#13EC13] flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
                                     <FolderOpen size={40} className="text-white dark:text-black" strokeWidth={1.5}/>
                                 </div>
                                 
                                 <div className="flex-1">
-                                    <h1 className="text-5xl md:text-7xl font-black text-[#111] dark:text-white tracking-tight uppercase leading-[0.9] mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-[#111] dark:text-white tracking-tight uppercase leading-[0.9] mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                         {currentRubrique?.nom}
                                     </h1>
                                     
-                                    <div className="flex items-center gap-4 flex-wrap">
+                                    <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                                         <div className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] dark:bg-[#13EC13] text-white dark:text-black">
                                             <BarChart3 size={16} strokeWidth={2}/>
                                             <span className="text-sm font-bold">{articles.length} Articles</span>
@@ -190,7 +190,7 @@ export default function CategoryPage() {
 
         {/* CONTENU ARTICLES */}
         {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[1,2,3,4,5,6].map(i => (
                     <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 80}ms`}}>
                         <CategorySkeleton />
@@ -199,7 +199,7 @@ export default function CategoryPage() {
             </div>
         ) : (
             articles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {articles.map((article, index) => (
                         <div 
                             key={article.id} 

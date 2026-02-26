@@ -81,9 +81,9 @@ export default function ArticleCard({ article, className, imageHeight = "h-48" }
       </div>
       
       {/* --- ZONE CONTENU --- */}
-      <div className="p-5 flex flex-col flex-1 gap-3">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2.5 sm:gap-3">
         {/* Titre */}
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors" title={article.titre}>
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors" title={article.titre}>
           {article.titre || "Sans titre"}
         </h3>
         
@@ -94,7 +94,7 @@ export default function ArticleCard({ article, className, imageHeight = "h-48" }
         
         {/* --- STATS ROW (Nouveau Bloc) --- */}
         {/* On pousse ce bloc vers le bas grâce à 'mt-auto' pour aligner toutes les cartes */}
-        <div className="flex items-center gap-4 mt-auto py-2 text-xs font-medium text-gray-400 dark:text-zinc-500">
+        <div className="flex items-center gap-3 sm:gap-4 mt-auto py-2 text-[10px] sm:text-xs font-medium text-gray-400 dark:text-zinc-500">
              <div className="flex items-center gap-1" title="Vues">
                  <Eye size={14} className="group-hover:text-[#3E7B52] dark:group-hover:text-[#13EC13] transition-colors"/>
                  <span>{compactNumber(article.vues)}</span>
@@ -116,7 +116,7 @@ export default function ArticleCard({ article, className, imageHeight = "h-48" }
         </div>
 
         {/* Footer Card (Divider + Auteur + Date) */}
-        <div className="pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center justify-between text-gray-400">
+        <div className="pt-2.5 sm:pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center justify-between text-gray-400">
           
           <div className="flex items-center gap-2 max-w-[65%]">
             <span className="p-1 rounded-full bg-gray-50 dark:bg-zinc-800 text-[#3E7B52] dark:text-[#13EC13]">

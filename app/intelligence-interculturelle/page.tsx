@@ -80,13 +80,13 @@ export default function IntelligenceInterculturelle() {
     <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/30 to-white dark:from-black dark:via-emerald-950/10 dark:to-black font-sans selection:bg-emerald-600 selection:text-white flex flex-col transition-colors duration-300">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-6 md:px-12 py-12 space-y-20">
+      <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 space-y-16 sm:space-y-20">
         
         {/* Hero Section */}
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-teal-50 to-green-100 dark:from-emerald-950 dark:via-teal-950 dark:to-green-950 rounded-[2.5rem] opacity-50 blur-3xl -z-10"></div>
           
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/50 dark:to-teal-950/50 p-8 md:p-16 lg:p-20 rounded-[2.5rem] border border-emerald-200 dark:border-emerald-800/30 relative overflow-hidden backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/50 dark:to-teal-950/50 p-6 sm:p-8 md:p-16 lg:p-20 rounded-[2.5rem] border border-emerald-200 dark:border-emerald-800/30 relative overflow-hidden backdrop-blur-sm">
             {/* Animated background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
               <div className="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-400/5 rounded-full blur-3xl animate-pulse"></div>
@@ -94,7 +94,7 @@ export default function IntelligenceInterculturelle() {
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/5 dark:bg-green-400/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
             
-            <div className="relative z-10 max-w-5xl mx-auto text-center space-y-10">
+            <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 sm:space-y-8 md:space-y-10">
               {/* Icon Badge */}
               <div className="flex justify-center mb-8 animate-float">
                 <div className="relative group">
@@ -112,7 +112,7 @@ export default function IntelligenceInterculturelle() {
                   <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300 tracking-wide">TODAY'S AFRICA EDITORIAL</span>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
                   Introduction à la Théorie de 
                   <span className="block mt-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 dark:from-emerald-400 dark:via-teal-400 dark:to-green-400 bg-clip-text text-transparent animate-gradient">
                     l'Intelligence Interculturelle
@@ -121,7 +121,7 @@ export default function IntelligenceInterculturelle() {
               </div>
               
               {/* Description */}
-              <p className="text-xl sm:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed font-light">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed font-light">
                 Découvrez les analyses approfondies et les perspectives uniques de notre équipe éditoriale sur les enjeux interculturels qui façonnent l'Afrique moderne.
               </p>
 
@@ -153,7 +153,7 @@ export default function IntelligenceInterculturelle() {
         </section>
 
         {/* Section Articles */}
-        <section className="space-y-10">
+        <section className="space-y-8 sm:space-y-10">
           <div className="text-center space-y-5">
             <div className="inline-flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/30 px-4 py-2 rounded-full border border-emerald-300 dark:border-emerald-700">
               <Eye size={16} className="text-emerald-600 dark:text-emerald-400" />
@@ -170,14 +170,14 @@ export default function IntelligenceInterculturelle() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           ) : articles.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                 {articles.map((article, index) => (
                   <div 
                     key={article.id}
@@ -251,7 +251,7 @@ export default function IntelligenceInterculturelle() {
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-[2.5rem] opacity-90 blur-2xl -z-10"></div>
           
-          <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 rounded-[2.5rem] p-8 md:p-16 lg:p-20 text-center text-white relative overflow-hidden border border-emerald-400/30 shadow-2xl">
+          <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-green-600 rounded-[2.5rem] p-6 sm:p-8 md:p-16 lg:p-20 text-center text-white relative overflow-hidden border border-emerald-400/30 shadow-2xl">
             {/* Animated Pattern Background */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{ 
@@ -263,17 +263,17 @@ export default function IntelligenceInterculturelle() {
             <div className="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-float"></div>
             <div className="absolute bottom-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
             
-            <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+            <div className="relative z-10 max-w-3xl mx-auto space-y-6 sm:space-y-8">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
                 <Sparkles size={16} className="text-white" />
                 <span className="text-sm font-bold text-white tracking-wide">REJOIGNEZ-NOUS</span>
               </div>
               
-              <h3 className="text-4xl md:text-5xl font-black leading-tight">
+              <h3 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight">
                 Approfondissez vos connaissances
               </h3>
               
-              <p className="text-emerald-50 text-xl max-w-2xl mx-auto leading-relaxed">
+              <p className="text-emerald-50 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
                 Rejoignez notre communauté de lecteurs passionnés par l'intelligence interculturelle et les enjeux africains.
               </p>
               

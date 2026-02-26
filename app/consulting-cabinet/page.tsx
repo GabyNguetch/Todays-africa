@@ -118,7 +118,7 @@ export default function TodaysAfricaPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border-2 border-[#3E7B52]/10 rounded-full pointer-events-none" />
           
           <div className="relative z-10 max-w-6xl mx-auto">
-            <div className="text-center space-y-6 mb-8">
+            <div className="text-center space-y-4 sm:space-y-6 mb-6 sm:mb-8">
               
               {/* Titre principal - Version responsive */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white leading-[1.05] tracking-tight px-4">
@@ -128,7 +128,7 @@ export default function TodaysAfricaPage() {
               </h1>
               
               {/* Cercle décoratif centré - Version responsive */}
-              <div className="flex justify-center items-center py-4">
+              <div className="flex justify-center items-center py-3 sm:py-4">
                 <div className="relative">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 border-3 sm:border-4 border-[#3E7B52] rounded-full" />
                   <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 w-1 h-8 sm:h-12 bg-[#3E7B52]" />
@@ -151,12 +151,12 @@ export default function TodaysAfricaPage() {
             </div>
 
             {/* QUI SOMMES-NOUS */}
-            <div className="mb-6 px-4">
+            <div className="mb-4 sm:mb-6 px-4">
               <h2 className="text-sm md:text-base font-bold text-gray-700 dark:text-gray-300 mb-3">QUI SOMMES-NOUS ?</h2>
             </div>
 
             {/* MENU PRINCIPAL - Tableau responsive */}
-            <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-gray-300 dark:border-zinc-700 rounded-xl overflow-x-auto mb-6">
+            <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-gray-300 dark:border-zinc-700 rounded-xl overflow-x-auto mb-4 sm:mb-6">
               <div className="min-w-[600px] grid grid-cols-5 divide-x divide-gray-300 dark:divide-zinc-700">
                 <Link href="#vision" className="px-2 sm:px-3 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
                   NOTRE VISION
@@ -177,7 +177,7 @@ export default function TodaysAfricaPage() {
             </div>
 
             {/* DESCRIPTION - 3 colonnes responsive */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 sm:mb-6 px-4">
               <div className="bg-white/80 dark:bg-zinc-900/80 border border-gray-300 dark:border-zinc-700 rounded-lg p-4">
                 <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                   Après plus de 30 ans de recherches sur la cause première de l'instabilité des actions des hommes, ayant observé les limites de la théorie du développement durable...
@@ -266,7 +266,7 @@ export default function TodaysAfricaPage() {
         {/* ================================================================
             3. NOS SERVICES - Version compacte
            ================================================================ */}
-        <section id="services" className="space-y-6">
+        <section id="services" className="space-y-4 sm:space-y-6">
           <div className="text-center space-y-2">
             <span className="text-[#3E7B52] dark:text-[#13EC13] font-bold tracking-widest text-xs uppercase bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full">
               Nos Services
@@ -305,7 +305,7 @@ export default function TodaysAfricaPage() {
           </div>
 
           {/* Domaines d'expertise - Version responsive */}
-          <div className="bg-gray-50 dark:bg-zinc-900/50 p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 mt-6">
+          <div className="bg-gray-50 dark:bg-zinc-900/50 p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-zinc-800 mt-4 sm:mt-6">
             <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 text-center">
               Nos Domaines d'Expertise
             </h3>

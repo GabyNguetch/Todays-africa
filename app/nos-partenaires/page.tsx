@@ -13,7 +13,7 @@ export default function PartnersPage() {
       
       {/* Header */}
       <div className="bg-white dark:bg-black border-b-4 border-[#3E7B52]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-12">
           <Link 
             href="/"
             className="inline-flex items-center gap-2 text-[#3E7B52] hover:text-[#326342] font-bold uppercase tracking-wider text-sm mb-6"
@@ -22,11 +22,11 @@ export default function PartnersPage() {
             Retour à l'accueil
           </Link>
           
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-black dark:text-white mb-4">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white mb-3 sm:mb-4">
             Nos Partenaires
           </h1>
           
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
             Découvrez les partenaires qui nous accompagnent dans notre mission d'informer 
             et de connecter l'Afrique contemporaine au monde.
           </p>
@@ -34,8 +34,8 @@ export default function PartnersPage() {
       </div>
 
       {/* Partners Grid */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {PARTNERS_DATA.map((partner) => (
             <div
               key={partner.id}
@@ -94,7 +94,7 @@ export default function PartnersPage() {
         </div>
 
         {/* Call to Action */}
-        <div className="mt-16 text-center bg-white dark:bg-zinc-900 border-2 border-[#3E7B52] p-12">
+        <div className="mt-12 sm:mt-16 text-center bg-white dark:bg-zinc-900 border-2 border-[#3E7B52] p-8 sm:p-12">
           <h2 className="font-serif text-3xl font-bold text-black dark:text-white mb-4">
             Devenez Partenaire
           </h2>

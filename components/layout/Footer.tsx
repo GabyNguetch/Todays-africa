@@ -8,11 +8,11 @@ import { APP_CONFIG, HOME_DATA } from "@/lib/constant";
 
 export default function Footer() {
   return (
-    <footer className="border-t-4 border-[#3E7B52] bg-gray-50 dark:bg-zinc-950 py-16 px-6 md:px-12">
+    <footer className="border-t-4 border-[#3E7B52] bg-gray-50 dark:bg-zinc-950 py-12 sm:py-16 px-4 sm:px-6 md:px-12">
       <div className="max-w-[1600px] mx-auto">
         
         {/* Main grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-10 lg:mb-12">
           
           {/* À propos */}
           <div className="space-y-4">
@@ -94,11 +94,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-6 sm:pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
           <p className="text-[10px] text-gray-500 dark:text-gray-600 uppercase tracking-wider">
             © {APP_CONFIG.year} {APP_CONFIG.name}. Tous droits réservés.
           </p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <Link href="#" className="text-[10px] text-gray-500 hover:text-[#3E7B52] dark:hover:text-white uppercase tracking-wider">
               Politique de confidentialité
             </Link>

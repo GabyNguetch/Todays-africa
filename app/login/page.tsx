@@ -87,14 +87,14 @@ export default function LoginPage() {
       </div>
 
       {/* COLONNE DROITE */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-8 bg-white dark:bg-[#0a0a0a]">
-        <div className="w-full max-w-[420px] flex flex-col gap-8">
+      <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 lg:p-8 bg-white dark:bg-[#0a0a0a]">
+        <div className="w-full max-w-[420px] flex flex-col gap-6 sm:gap-8">
           
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          <div className="text-center space-y-1.5 sm:space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
               {activeTab === "login" ? LOGIN_TEXT.form.title : "Créer un compte lecteur"}
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-[15px]">
+            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-[15px]">
               {LOGIN_TEXT.form.subtitle}
             </p>
           </div>
@@ -131,7 +131,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 sm:gap-4">
             
             {activeTab === "register" && (
                 <div className="flex gap-4 animate-in fade-in slide-in-from-top-2 duration-300">

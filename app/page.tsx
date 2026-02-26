@@ -92,7 +92,7 @@ export default function Home() {
 
       {/* HERO SECTION - Carrousel synchronisé images + articles */}
       <section className="relative w-full border-t-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-950">
-        <div className="flex">
+        <div className="flex flex-col xl:flex-row">
           
           {/* SIDEBAR GAUCHE - Partenaires défilants */}
           <div className="hidden xl:block w-80 flex-shrink-0">
@@ -102,14 +102,14 @@ export default function Home() {
           </div>
 
           {/* HERO CENTRAL - Carrousel */}
-          <div className="flex-1 relative h-[600px] overflow-hidden">
+          <div className="flex-1 relative h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden">
             
             {/* Carrousel d'images de fond en défilement continu */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="flex animate-carousel-slide-bg">
                 {/* Premier set d'images */}
                 {CAROUSEL_IMAGES.map((img, idx) => (
-                  <div key={`img-1-${idx}`} className="relative w-full h-[600px] flex-shrink-0" style={{ width: '100%' }}>
+                  <div key={`img-1-${idx}`} className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] flex-shrink-0" style={{ width: '100%' }}>
                     <Image 
                       src={img}
                       alt={`Background ${idx + 1}`}
@@ -122,7 +122,7 @@ export default function Home() {
                 ))}
                 {/* Duplication pour boucle infinie */}
                 {CAROUSEL_IMAGES.map((img, idx) => (
-                  <div key={`img-2-${idx}`} className="relative w-full h-[600px] flex-shrink-0" style={{ width: '100%' }}>
+                  <div key={`img-2-${idx}`} className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] flex-shrink-0" style={{ width: '100%' }}>
                     <Image 
                       src={img}
                       alt={`Background ${idx + 1}`}
@@ -140,7 +140,7 @@ export default function Home() {
 
             {/* Contenu - Articles Trending défilants synchronisés */}
             <div className="relative z-10 h-full flex items-center">
-              <div className="w-full px-6 md:px-12">
+              <div className="w-full px-4 sm:px-6 md:px-12">
             
                 {loading ? (
                   <div className="space-y-6">
@@ -168,18 +168,18 @@ export default function Home() {
                         {heroArticles.map((article, idx) => (
                           <div 
                             key={`article-1-${article.id}`}
-                            className="w-screen flex-shrink-0 px-6 md:px-12"
+                            className="w-screen flex-shrink-0 px-4 sm:px-6 md:px-12"
                           >
                             <div className="max-w-6xl mx-auto">
                               <Link 
                                 href={`/article/${article.id}`}
-                                className="group block space-y-4"
+                                className="group block space-y-3 sm:space-y-4"
                               >
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
                                   {article.titre}
                                 </h1>
 
-                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-4xl truncate">
+                                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
                                   {article.description}...
                                 </p>
 
@@ -202,18 +202,18 @@ export default function Home() {
                         {heroArticles.map((article, idx) => (
                           <div 
                             key={`article-2-${article.id}`}
-                            className="w-screen flex-shrink-0 px-6 md:px-12"
+                            className="w-screen flex-shrink-0 px-4 sm:px-6 md:px-12"
                           >
                             <div className="max-w-6xl mx-auto">
                               <Link 
                                 href={`/article/${article.id}`}
-                                className="group block space-y-4"
+                                className="group block space-y-3 sm:space-y-4"
                               >
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
                                   {article.titre}
                                 </h1>
 
-                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-4xl truncate">
+                                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
                                   {article.description}...
                                 </p>
 
@@ -251,8 +251,8 @@ export default function Home() {
       </section>
 
       {/* GRID LAYOUT 3 COLONNES */}
-      <div className="w-full max-w-[1600px] mx-auto px-6 md:px-12 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-18 gap-8">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-18 gap-6 lg:gap-8">
             
           {/* SIDEBAR GAUCHE - 2 colonnes - FIXE SANS SCROLLBAR */}
           <aside className="hidden lg:block lg:col-span-4">
@@ -284,13 +284,13 @@ export default function Home() {
                   >
                     
                     {/* Header section avec design amélioré */}
-                    <div className="flex items-center justify-between pb-4 border-b-2 border-[#3E7B52]">
-                      <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white uppercase tracking-tight flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b-2 border-[#3E7B52] gap-3">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-black dark:text-white uppercase tracking-tight flex items-center gap-2 sm:gap-3">
                         <span className="w-1.5 h-8 bg-[#3E7B52]" />
                         {section.rubrique.nom}
                       </h2>
                       <Link href={`/category/${section.rubrique.id}`}>
-                        <button className="text-xs font-bold text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-[#3E7B52] flex items-center gap-2 transition-all duration-300 uppercase tracking-wider group">
+                        <button className="text-[10px] sm:text-xs font-bold text-gray-600 hover:text-[#3E7B52] dark:text-gray-400 dark:hover:text-[#3E7B52] flex items-center gap-1.5 sm:gap-2 transition-all duration-300 uppercase tracking-wider group whitespace-nowrap">
                           Tout voir 
                           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                         </button>
@@ -308,13 +308,13 @@ export default function Home() {
                         {marqueeContent.map((art, idx) => (
                           <article 
                             key={`${art.id}-${idx}`} 
-                            className="w-[300px] shrink-0 group"
+                            className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 group"
                           >
                             <Link href={`/article/${art.id}`} className="block h-full">
                               <div className="h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 overflow-hidden hover:shadow-xl">
                                 
                                 {/* Image */}
-                                <div className="relative h-52 overflow-hidden bg-gray-100 dark:bg-zinc-800">
+                                <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden bg-gray-100 dark:bg-zinc-800">
                                   <Image 
                                     src={getImageUrl(art.imageCouvertureUrl)} 
                                     alt={art.titre}
@@ -333,8 +333,8 @@ export default function Home() {
                                 </div>
                                 
                                 {/* Contenu */}
-                                <div className="p-5 space-y-3">
-                                  <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug line-clamp-3 group-hover:text-[#3E7B52] dark:group-hover:text-[#3E7B52] transition-colors min-h-[4.5rem]">
+                                <div className="p-4 sm:p-5 space-y-2 sm:space-y-3">
+                                  <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug line-clamp-3 group-hover:text-[#3E7B52] dark:group-hover:text-[#3E7B52] transition-colors min-h-[3.5rem] sm:min-h-[4.5rem]">
                                     {art.titre}
                                   </h3>
                                   
@@ -371,19 +371,19 @@ export default function Home() {
             {/* CTA Newsletter avec design amélioré */}
             <section className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#3E7B52] to-[#2d5c3d] opacity-5" />
-              <div className="relative border-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-900 p-10 md:p-16">
-                <div className="max-w-2xl mx-auto text-center space-y-6">
+              <div className="relative border-2 border-[#3E7B52] bg-gray-50 dark:bg-zinc-900 p-6 sm:p-8 md:p-10 lg:p-16">
+                <div className="max-w-2xl mx-auto text-center space-y-4 sm:space-y-6">
                   <div className="inline-block p-3 bg-[#3E7B52]/10 rounded-full mb-4">
                     <svg className="w-8 h-8 text-[#3E7B52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-3xl md:text-4xl font-bold text-black dark:text-white">
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black dark:text-white">
                     Restez Informés
                   </h3>
                   
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg mx-auto">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg mx-auto">
                     Recevez chaque semaine notre sélection d'analyses approfondies et d'actualités exclusives sur l'Afrique contemporaine.
                   </p>
                   
@@ -391,9 +391,9 @@ export default function Home() {
                     <input 
                       type="email" 
                       placeholder="votre.email@exemple.com" 
-                      className="flex-1 h-14 px-5 border-2 border-gray-300 dark:border-zinc-700 bg-white dark:bg-black text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#3E7B52] transition-colors"
+                      className="flex-1 h-12 sm:h-14 px-4 sm:px-5 text-sm sm:text-base border-2 border-gray-300 dark:border-zinc-700 bg-white dark:bg-black text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#3E7B52] transition-colors"
                     />
-                    <Button className="h-14 px-10 bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105">
+                    <Button className="h-12 sm:h-14 px-8 sm:px-10 text-sm sm:text-base bg-[#3E7B52] hover:bg-[#2d5c3d] text-white font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105">
                       S'inscrire
                     </Button>
                   </div>

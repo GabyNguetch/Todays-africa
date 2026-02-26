@@ -103,7 +103,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 w-full bg-white dark:bg-black border-b-2 border-[#3E7B52]">
         
         {/* LIGNE 1: Top bar compacte avec icônes */}
-        <div className="border-b border-gray-200 dark:border-zinc-800 py-1.5 px-4 md:px-8">
+        <div className="border-b border-gray-200 dark:border-zinc-800 py-1.5 px-3 sm:px-4 md:px-8">
           <div className="flex items-center justify-between gap-4">
             
             {/* Gauche: Date avec icône */}
@@ -194,7 +194,7 @@ export default function Navbar() {
         </div>
 
         {/* LIGNE 2: Logo centré (COMPACT) */}
-        <div className="py-1.5 md:py-2 px-4 md:px-8 border-b border-gray-200 dark:border-zinc-800">
+        <div className="py-1.5 md:py-2 px-3 sm:px-4 md:px-8 border-b border-gray-200 dark:border-zinc-800">
           <div className="flex items-center justify-center">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="bg-transparent dark:bg-white p-1 rounded-sm">
@@ -219,7 +219,7 @@ export default function Navbar() {
         </div>
 
         {/* LIGNE 3: Rubriques (PAYS + Backend) + Verbatim */}
-        <div className="hidden lg:block py-1.5 px-4 md:px-8 bg-gray-50 dark:bg-zinc-950">
+        <div className="hidden lg:block py-1.5 px-3 sm:px-4 md:px-8 bg-gray-50 dark:bg-zinc-950">
           <div className="flex items-center justify-between gap-3">
             
             {/* Rubriques */}
@@ -299,7 +299,7 @@ export default function Navbar() {
         </div>
 
         {/* Menu Mobile Button */}
-        <div className="lg:hidden py-2 px-4 flex justify-center bg-gray-50 dark:bg-zinc-950">
+        <div className="lg:hidden py-2 px-3 sm:px-4 flex justify-center bg-gray-50 dark:bg-zinc-950">
           <button 
             className="flex items-center gap-2 px-4 py-2 bg-[#3E7B52] hover:bg-[#326342] text-white font-bold uppercase text-[10px] transition-colors rounded-sm"
             onClick={() => setMobileMenuOpen(true)}
