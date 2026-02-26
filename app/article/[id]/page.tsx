@@ -439,9 +439,10 @@ export default function ArticlePage({ params }: PageProps) {
     <div className="bg-white dark:bg-black min-h-screen font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1200px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 relative flex-1">
+      <main className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 sm:py-12 relative flex-1">
         
         {/* Article Header */}
+        <div className="max-w-[1400px] mx-auto">
         <ArticleHeader 
           article={article}
           isLiked={isLiked}
@@ -450,8 +451,10 @@ export default function ArticlePage({ params }: PageProps) {
           onToggleShare={() => setShowShare(!showShare)}
         />
 
+        </div>
+
         {/* Share Menu (positioned absolutely) */}
-        <div className="relative">
+        <div className="relative max-w-[1400px] mx-auto">
           <ShareMenu 
             article={article}
             showShare={showShare}
@@ -461,10 +464,10 @@ export default function ArticlePage({ params }: PageProps) {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-10 2xl:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 2xl:gap-12">
           
           {/* Article Content */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 xl:col-span-7 2xl:col-span-8">
             
             {/* Cover Image */}
             {article.imageCouvertureUrl && (
@@ -517,7 +520,7 @@ export default function ArticlePage({ params }: PageProps) {
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="lg:col-span-4 xl:col-span-3 2xl:col-span-4">
             <div className="sticky top-24 space-y-8">
               
               {/* Stats */}

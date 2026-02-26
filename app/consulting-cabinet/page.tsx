@@ -107,7 +107,7 @@ export default function TodaysAfricaPage() {
     <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-4 md:px-8 py-6 space-y-12">
+      <main className="w-full px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 space-y-12">
         
         {/* ================================================================
             1. HERO SECTION - Compact avec tableau complet

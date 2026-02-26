@@ -47,6 +47,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("%c🚀 TODAY'S AFRICA - Application démarrée avec succès!", "color: #3E7B52; font-size: 16px; font-weight: bold;");
+    console.log("%c✅ Déploiement réussi - Version responsive optimisée", "color: #13EC13; font-size: 12px;");
+    console.log("%c📱 Support: Mobile, Tablette, Desktop, Ultra-wide", "color: #2d5c3d; font-size: 10px;");
+  }, []);
+
+  useEffect(() => {
     const initData = async () => {
       setLoading(true);
       try {
@@ -251,7 +257,7 @@ export default function Home() {
       </section>
 
       {/* GRID LAYOUT 3 COLONNES */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-12 md:py-16">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 sm:py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-18 gap-6 lg:gap-8">
             
           {/* SIDEBAR GAUCHE - 2 colonnes - FIXE SANS SCROLLBAR */}
@@ -300,7 +306,7 @@ export default function Home() {
                     {/* Zone défilement horizontal infini */}
                     <div className="relative overflow-hidden">
                       <div 
-                        className="flex gap-6 animate-scroll-smooth hover:[animation-play-state:paused]"
+                        className="flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 animate-scroll-smooth hover:[animation-play-state:paused]"
                         style={{ 
                           animationDuration: `${marqueeContent.length * 10}s` 
                         }}
@@ -308,7 +314,7 @@ export default function Home() {
                         {marqueeContent.map((art, idx) => (
                           <article 
                             key={`${art.id}-${idx}`} 
-                            className="w-[260px] sm:w-[280px] md:w-[300px] shrink-0 group"
+                            className="w-[220px] sm:w-[240px] md:w-[260px] lg:w-[280px] xl:w-[300px] 2xl:w-[320px] shrink-0 group"
                           >
                             <Link href={`/article/${art.id}`} className="block h-full">
                               <div className="h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 overflow-hidden hover:shadow-xl">

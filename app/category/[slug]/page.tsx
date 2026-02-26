@@ -121,7 +121,7 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-[#FBFBFB] dark:bg-black font-sans selection:bg-[#3E7B52] selection:text-white flex flex-col">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 flex-1">
+      <main className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 sm:py-12 flex-1">
         
         {/* HEADER */}
         <div className="mb-12 sm:mb-14 md:mb-16 relative">
@@ -190,7 +190,7 @@ export default function CategoryPage() {
 
         {/* CONTENU ARTICLES */}
         {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
                 {[1,2,3,4,5,6].map(i => (
                     <div key={i} className="animate-in fade-in duration-500" style={{animationDelay: `${i * 80}ms`}}>
                         <CategorySkeleton />
@@ -199,7 +199,7 @@ export default function CategoryPage() {
             </div>
         ) : (
             articles.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
                     {articles.map((article, index) => (
                         <div 
                             key={article.id} 

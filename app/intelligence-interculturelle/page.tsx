@@ -80,7 +80,7 @@ export default function IntelligenceInterculturelle() {
     <div className="min-h-screen bg-gradient-to-b from-white via-emerald-50/30 to-white dark:from-black dark:via-emerald-950/10 dark:to-black font-sans selection:bg-emerald-600 selection:text-white flex flex-col transition-colors duration-300">
       <Navbar />
 
-      <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 md:px-12 py-8 sm:py-12 space-y-16 sm:space-y-20">
+      <main className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 sm:py-12 space-y-16 sm:space-y-20">
         
         {/* Hero Section */}
         <section className="relative">
@@ -170,14 +170,14 @@ export default function IntelligenceInterculturelle() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           ) : articles.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
                 {articles.map((article, index) => (
                   <div 
                     key={article.id}
