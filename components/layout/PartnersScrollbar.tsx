@@ -1,4 +1,3 @@
-// components/layout/PartnerScrollBar.tsx
 "use client";
 
 import React from "react";
@@ -11,30 +10,27 @@ interface PartnerScrollBarProps {
 }
 
 export default function PartnerScrollBar({ position = "left" }: PartnerScrollBarProps) {
-  // Dupliquer les partenaires pour un scroll infini
   const duplicatedPartners = [...PARTNERS_DATA, ...PARTNERS_DATA, ...PARTNERS_DATA];
 
   return (
     <div className="relative h-full overflow-hidden bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-zinc-950 dark:via-black dark:to-zinc-950 border-r border-l border-gray-200 dark:border-zinc-800">
       
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-black border-b-2 border-[#3E7B52] px-2 py-3">
-        <h3 className="text-[10px] font-bold uppercase text-center text-[#3E7B52] tracking-widest">
+      <div className="sticky top-0 z-10 bg-white dark:bg-black border-b-2 border-[#3E7B52] px-2 py-2 xl:py-3">
+        <h3 className="text-[9px] xl:text-[10px] 2xl:text-xs font-bold uppercase text-center text-[#3E7B52] tracking-widest">
           Nos Partenaires
         </h3>
       </div>
 
       {/* Zone de scroll */}
-      <div className="relative h-[calc(100%-50px)] overflow-hidden">
+      <div className="relative h-[calc(100%-42px)] xl:h-[calc(100%-50px)] overflow-hidden">
         <div 
-          className={`flex flex-col gap-4 py-4 ${
+          className={`flex flex-col gap-3 xl:gap-4 py-3 xl:py-4 ${
             position === "left" 
               ? "animate-scroll-vertical-up" 
               : "animate-scroll-vertical-down"
           }`}
-          style={{
-            animationDuration: "80s"
-          }}
+          style={{ animationDuration: "80s" }}
         >
           {duplicatedPartners.map((partner, index) => (
             <Link
@@ -42,12 +38,12 @@ export default function PartnerScrollBar({ position = "left" }: PartnerScrollBar
               href={partner.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex-shrink-0 px-2"
+              className="group flex-shrink-0 px-2 xl:px-3"
             >
-              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] transition-all duration-300 p-3 relative overflow-hidden group-hover:shadow-lg">
+              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] transition-all duration-300 p-2 xl:p-3 2xl:p-4 relative overflow-hidden group-hover:shadow-lg">
                 
                 {/* Logo */}
-                <div className="relative w-full h-16 mb-2 flex items-center justify-center">
+                <div className="relative w-full h-12 xl:h-14 2xl:h-16 mb-1 xl:mb-2 flex items-center justify-center">
                   <Image
                     src={partner.logo}
                     alt={partner.name}
@@ -58,18 +54,17 @@ export default function PartnerScrollBar({ position = "left" }: PartnerScrollBar
                 </div>
 
                 {/* Nom */}
-                <h4 className="text-[9px] font-bold text-center text-gray-800 dark:text-white line-clamp-2 group-hover:text-[#3E7B52] transition-colors">
+                <h4 className="text-[8px] xl:text-[9px] 2xl:text-[10px] font-bold text-center text-gray-800 dark:text-white line-clamp-2 group-hover:text-[#3E7B52] transition-colors">
                   {partner.name}
                 </h4>
 
                 {/* Catégorie */}
                 {partner.category && (
-                  <p className="text-[8px] text-center text-gray-400 mt-1 uppercase tracking-wider">
+                  <p className="text-[7px] xl:text-[8px] 2xl:text-[9px] text-center text-gray-400 mt-1 uppercase tracking-wider">
                     {partner.category}
                   </p>
                 )}
 
-                {/* Effet hover */}
                 <div className="absolute inset-0 bg-[#3E7B52]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </div>
             </Link>
@@ -77,9 +72,9 @@ export default function PartnerScrollBar({ position = "left" }: PartnerScrollBar
         </div>
       </div>
 
-      {/* Gradient fade en haut et en bas */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white dark:from-black to-transparent pointer-events-none z-5" />
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none z-5" />
+      {/* Gradient fade */}
+      <div className="absolute top-0 left-0 right-0 h-16 xl:h-20 bg-gradient-to-b from-white dark:from-black to-transparent pointer-events-none z-[5]" />
+      <div className="absolute bottom-0 left-0 right-0 h-16 xl:h-20 bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none z-[5]" />
     </div>
   );
 }

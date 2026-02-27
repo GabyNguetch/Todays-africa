@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { CacheManager } from "@/components/CacheManager";
 
 export const metadata: Metadata = {
   title: "TODAYS Africa",
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <AuthProvider>
+          <CacheManager />
           {children}
         </AuthProvider>
       </body>

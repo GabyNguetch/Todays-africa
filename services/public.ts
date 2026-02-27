@@ -1,21 +1,29 @@
-// FICHIER: services/public.ts - VERSION CORRIGÉE FINALE
+// FICHIER: services/public.ts - VERSION AVEC CACHE OPTIMISÉ
 import { APP_CONFIG } from "@/lib/constant";
 import { ArticleReadDto, CommentaireDto, Rubrique } from "@/types/article";
 import { PageResponse } from "@/types/dashboard";
 import { authService } from "./auth";
 import { CreateCommentairePayload } from "@/types/article";
 import { cleanArticleUrls, cleanArticlesArray, cleanUrl } from "@/lib/urlCleaner";
+import { CacheService } from "@/lib/cache";
 
 const API_PROXY = APP_CONFIG.apiUrl; 
 
 export const PublicService = {
   
   /**
-   * ✅ Récupère les rubriques (Navigation)
+   * ✅ Récupère les rubriques (Navigation) - AVEC CACHE
    */
   getRubriques: async (): Promise<Rubrique[]> => {
     try {
-      console.log("📡 [getRubriques] Fetching...");
+      // Vérifier le cache d'abord
+      const cached = CacheService.getRubriques();
+      if (cached) {
+        console.log("💾 [getRubriques] Chargé depuis cache");
+        return cached;
+      }
+
+      console.log("📡 [getRubriques] Fetching depuis API...");
       const res = await fetch(`${API_PROXY}/rubriques`, { cache: 'no-store' });
       
       if (!res.ok) {
@@ -25,6 +33,10 @@ export const PublicService = {
       
       const data = await res.json();
       console.log(`✅ ${data.length} rubriques chargées`);
+      
+      // Sauvegarder dans le cache
+      CacheService.setRubriques(data);
+      
       return data;
     } catch (e) {
       console.error("❌ Erreur Rubriques:", e);
@@ -33,10 +45,17 @@ export const PublicService = {
   },
 
   /**
-   * ✅ FLUX ACTUALITÉS (Landing Page)
+   * ✅ FLUX ACTUALITÉS (Landing Page) - AVEC CACHE
    */
   getAllArticles: async (page = 0, size = 6): Promise<PageResponse<ArticleReadDto>> => {
     try {
+      // Vérifier le cache d'abord
+      const cached = CacheService.getArticlesPage(page, size);
+      if (cached) {
+        console.log(`💾 [getAllArticles] Page ${page} chargée depuis cache`);
+        return cached;
+      }
+
       console.log(`📡 [getAllArticles] Page ${page}, Size ${size}`);
       
       const res = await fetch(
@@ -58,6 +77,10 @@ export const PublicService = {
       }
       
       console.log(`✅ ${data.content?.length || 0} articles chargés`);
+      
+      // Sauvegarder dans le cache
+      CacheService.setArticlesPage(page, size, data);
+      
       return data;
     } catch (e) {
       console.error("❌ Erreur Flux Public:", e);
@@ -66,10 +89,17 @@ export const PublicService = {
   },
 
   /**
-   * ✅ ARTICLES PAR CATÉGORIE (Page catégorie)
+   * ✅ ARTICLES PAR CATÉGORIE (Page catégorie) - AVEC CACHE
    */
   getArticlesByRubrique: async (rubriqueId: number): Promise<ArticleReadDto[]> => {
     try {
+      // Vérifier le cache d'abord
+      const cached = CacheService.getArticlesByRubrique(rubriqueId);
+      if (cached) {
+        console.log(`💾 [getArticlesByRubrique] Rubrique ${rubriqueId} chargée depuis cache`);
+        return cached;
+      }
+
       console.log(`📡 [getArticlesByRubrique] ID: ${rubriqueId}`);
       
       const res = await fetch(`${API_PROXY}/rubriques/${rubriqueId}/articles`, {
@@ -93,6 +123,10 @@ export const PublicService = {
       const cleaned = cleanArticlesArray(articles);
       
       console.log(`✅ ${cleaned.length} articles de la rubrique chargés`);
+      
+      // Sauvegarder dans le cache
+      CacheService.setArticlesByRubrique(rubriqueId, cleaned);
+      
       return cleaned;
       
     } catch(e) {
@@ -102,9 +136,16 @@ export const PublicService = {
   },
 
   /**
-   * ✅ ARTICLE COMPLET (Page article/[id])
+   * ✅ ARTICLE COMPLET (Page article/[id]) - AVEC CACHE
    */
   getById: async (id: number): Promise<ArticleReadDto> => {
+    // Vérifier le cache d'abord
+    const cached = CacheService.getArticle(id);
+    if (cached) {
+      console.log(`💾 [getById] Article ${id} chargé depuis cache`);
+      return cached;
+    }
+
     console.log(`📡 [getById] Article ID: ${id}`);
     
     const token = authService.getToken();
@@ -133,6 +174,9 @@ export const PublicService = {
       console.log(`   - Image couverture: ${cleaned.imageCouvertureUrl?.substring(0, 50)}...`);
       console.log(`   - Blocs contenu: ${cleaned.blocsContenu?.length || 0}`);
       
+      // Sauvegarder dans le cache
+      CacheService.setArticle(id, cleaned);
+      
       return cleaned;
       
     } catch (error) {
@@ -142,10 +186,17 @@ export const PublicService = {
   },
 
   /**
-   * ✅ ARTICLES TENDANCE
+   * ✅ ARTICLES TENDANCE - AVEC CACHE
    */
   getTrendingArticles: async (limit = 3): Promise<ArticleReadDto[]> => {
     try {
+      // Vérifier le cache d'abord
+      const cached = CacheService.getTrendingArticles();
+      if (cached && cached.length >= limit) {
+        console.log(`💾 [getTrendingArticles] Chargé depuis cache`);
+        return cached.slice(0, limit);
+      }
+
       console.log(`📡 [getTrendingArticles] Limit: ${limit}`);
       
       // Tenter d'abord l'endpoint featured
@@ -164,6 +215,10 @@ export const PublicService = {
       const cleaned = cleanArticlesArray(articles.slice(0, limit));
       
       console.log(`✅ ${cleaned.length} articles tendance chargés`);
+      
+      // Sauvegarder dans le cache
+      CacheService.setTrendingArticles(cleaned);
+      
       return cleaned;
       
     } catch (e) {

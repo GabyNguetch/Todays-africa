@@ -101,14 +101,14 @@ export default function Home() {
         <div className="flex flex-col xl:flex-row">
           
           {/* SIDEBAR GAUCHE - Partenaires défilants */}
-          <div className="hidden xl:block w-80 flex-shrink-0">
-            <div className="sticky top-20 h-[600px]">
+          <div className="hidden xl:block w-64 2xl:w-72 3xl:w-80 flex-shrink-0">
+            <div className="sticky top-20 h-[600px] 2xl:h-[700px]">
               <PartnerScrollBar position="left" />
             </div>
           </div>
 
           {/* HERO CENTRAL - Carrousel */}
-          <div className="flex-1 relative h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden">
+          <div className="flex-1 relative h-[400px] sm:h-[500px] md:h-[600px] 2xl:h-[700px] overflow-hidden">
             
             {/* Carrousel d'images de fond en défilement continu */}
             <div className="absolute inset-0 overflow-hidden">
@@ -181,11 +181,11 @@ export default function Home() {
                                 href={`/article/${article.id}`}
                                 className="group block space-y-3 sm:space-y-4"
                               >
-                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl 2xl:text-6xl 3xl:text-7xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
                                   {article.titre}
                                 </h1>
 
-                                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
+                                <p className="text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
                                   {article.description}...
                                 </p>
 
@@ -215,11 +215,11 @@ export default function Home() {
                                 href={`/article/${article.id}`}
                                 className="group block space-y-3 sm:space-y-4"
                               >
-                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl 2xl:text-6xl 3xl:text-7xl font-bold text-white leading-[1.1] group-hover:text-[#3E7B52] transition-colors duration-300">
                                   {article.titre}
                                 </h1>
 
-                                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
+                                <p className="text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl text-gray-200 leading-relaxed max-w-4xl line-clamp-2 sm:line-clamp-3">
                                   {article.description}...
                                 </p>
 
@@ -247,8 +247,8 @@ export default function Home() {
           </div>
 
           {/* SIDEBAR DROITE - Partenaires défilants */}
-          <div className="hidden xl:block w-80 flex-shrink-0">
-            <div className="sticky top-20 h-[600px]">
+          <div className="hidden xl:block w-64 2xl:w-72 3xl:w-80 flex-shrink-0">
+            <div className="sticky top-20 h-[600px] 2xl:h-[700px]">
               <PartnerScrollBar position="right" />
             </div>
           </div>
@@ -257,18 +257,18 @@ export default function Home() {
       </section>
 
       {/* GRID LAYOUT 3 COLONNES */}
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 sm:py-12 md:py-16">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 3xl:px-28 py-8 sm:py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-18 gap-6 lg:gap-8">
             
           {/* SIDEBAR GAUCHE - 2 colonnes - FIXE SANS SCROLLBAR */}
-          <aside className="hidden lg:block lg:col-span-4">
+          <aside className="hidden lg:block lg:col-span-4 2xl:col-span-3">
             <div className="sticky top-24 overflow-hidden">
               <InterculturelSidebar />
             </div>
           </aside>
 
           {/* CONTENU CENTRAL - 8 colonnes */}
-          <main className="col-span-1 lg:col-span-10 space-y-16">
+          <main className="col-span-1 lg:col-span-10 2xl:col-span-12 space-y-16">
             
             {loading ? (
               <div className="space-y-16">
@@ -291,7 +291,7 @@ export default function Home() {
                     
                     {/* Header section avec design amélioré */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b-2 border-[#3E7B52] gap-3">
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-black dark:text-white uppercase tracking-tight flex items-center gap-2 sm:gap-3">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl 2xl:text-4xl font-bold text-black dark:text-white uppercase tracking-tight flex items-center gap-2 sm:gap-3">
                         <span className="w-1.5 h-8 bg-[#3E7B52]" />
                         {section.rubrique.nom}
                       </h2>
@@ -314,13 +314,13 @@ export default function Home() {
                         {marqueeContent.map((art, idx) => (
                           <article 
                             key={`${art.id}-${idx}`} 
-                            className="w-[220px] sm:w-[240px] md:w-[260px] lg:w-[280px] xl:w-[300px] 2xl:w-[320px] shrink-0 group"
+                            className="w-[220px] sm:w-[240px] md:w-[260px] lg:w-[280px] xl:w-[300px] 2xl:w-[340px] 3xl:w-[380px] shrink-0 group"
                           >
                             <Link href={`/article/${art.id}`} className="block h-full">
                               <div className="h-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-[#3E7B52] dark:hover:border-[#3E7B52] transition-all duration-300 overflow-hidden hover:shadow-xl">
                                 
                                 {/* Image */}
-                                <div className="relative h-44 sm:h-48 md:h-52 overflow-hidden bg-gray-100 dark:bg-zinc-800">
+                                <div className="relative h-44 sm:h-48 md:h-52 2xl:h-56 3xl:h-64 overflow-hidden bg-gray-100 dark:bg-zinc-800">
                                   <Image 
                                     src={getImageUrl(art.imageCouvertureUrl)} 
                                     alt={art.titre}
@@ -414,7 +414,7 @@ export default function Home() {
           </main>
 
           {/* SIDEBAR DROITE - 2 colonnes - FIXE SANS SCROLLBAR */}
-          <aside className="hidden lg:block lg:col-span-4">
+          <aside className="hidden lg:block lg:col-span-4 2xl:col-span-3">
             <div className="sticky top-24 overflow-hidden">
               <ConsultingSidebar />
             </div>

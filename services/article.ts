@@ -1,7 +1,8 @@
-// FICHIER: services/article.ts - VERSION CORRIGÉE GESTION MÉDIAS
+// FICHIER: services/article.ts - VERSION AVEC CACHE
 
 import { APP_CONFIG } from "@/lib/constant";
 import { authService } from "@/services/auth";
+import { CacheService } from "@/lib/cache";
 import { 
   ArticlePayloadDto, 
   ArticleReadDto, 
@@ -288,6 +289,11 @@ export const ArticleService = {
     
     const result = await res.json();
     console.log("✅ Article créé:", result);
+    
+    // Invalider les caches pertinents
+    CacheService.invalidateRubrique(payload.rubriqueId);
+    CacheService.remove("trending_articles");
+    
     return result;
   },
 
@@ -357,6 +363,14 @@ export const ArticleService = {
 
     if (res.status === 204) {
       const article = await ArticleService.getById(id);
+      
+      // Invalider les caches
+      CacheService.invalidateArticle(id);
+      if (payload.rubriqueId) {
+        CacheService.invalidateRubrique(payload.rubriqueId);
+      }
+      CacheService.remove("trending_articles");
+      
       return ArticleService.cleanArticleUrls(article);
     }
     
@@ -367,6 +381,14 @@ export const ArticleService = {
     }
     
     const result = await res.json();
+    
+    // Invalider les caches
+    CacheService.invalidateArticle(id);
+    if (payload.rubriqueId) {
+      CacheService.invalidateRubrique(payload.rubriqueId);
+    }
+    CacheService.remove("trending_articles");
+    
     return ArticleService.cleanArticleUrls(result);
   },
 
@@ -386,7 +408,12 @@ export const ArticleService = {
     const article = await res.json();
     
     // ✅ Nettoyer les URLs avant de retourner
-    return ArticleService.cleanArticleUrls(article);
+    const cleaned = ArticleService.cleanArticleUrls(article);
+    
+    // Mettre à jour le cache
+    CacheService.setArticle(id, cleaned);
+    
+    return cleaned;
   },
 
   // ==========================================
@@ -609,6 +636,10 @@ export const ArticleService = {
       console.groupEnd();
       throw new Error("Suppression impossible");
     }
+    
+    // Invalider tous les caches liés
+    CacheService.invalidateArticle(id);
+    CacheService.clear(); // Nettoyage complet pour éviter les incohérences
     
     console.log("✅ Article supprimé");
     console.groupEnd();
