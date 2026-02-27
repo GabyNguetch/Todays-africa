@@ -46,8 +46,8 @@ export const cleanArticleUrls = (article: ArticleReadDto): ArticleReadDto => {
     blocsContenu: article.blocsContenu?.map(bloc => ({
       ...bloc,
       contenu: bloc.type === 'IMAGE' ? (cleanUrl(bloc.contenu) || bloc.contenu) : bloc.contenu,
-      url: cleanUrl(bloc.url),
-      mediaUrl: cleanUrl(bloc.mediaUrl)
+      url: cleanUrl(bloc.url) || null,
+      mediaUrl: cleanUrl(bloc.mediaUrl) || null
     })) || []
   };
 };

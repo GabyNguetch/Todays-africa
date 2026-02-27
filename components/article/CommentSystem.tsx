@@ -50,7 +50,7 @@ export default function CommentSystem({ articleId }: CommentSystemProps) {
       setLoading(true);
       // On récupère "Tous" les commentaires (ou approved selon config API)
       // Note: Si l'API filtre encore les PENDING, assurez-vous que le backend renvoie tout pour ce contexte
-      const data = await PublicService.getCommentsByArticle(articleId);
+      const data = await PublicService.getApprovedComments(articleId);
       
       // Tri : Les plus récents en premier
       const sorted = (data || []).sort((a, b) => 
@@ -100,7 +100,7 @@ export default function CommentSystem({ articleId }: CommentSystemProps) {
       // Optionnel : Recharger proprement pour avoir le vrai ID et date serveur
       // Ou garder l'optimistic si on veut économiser un call. 
       // Ici on reload silencieusement pour synchroniser les IDs pour la suppression/édition future
-      const refreshedList = await PublicService.getCommentsByArticle(articleId);
+      const refreshedList = await PublicService.getApprovedComments(articleId);
       setComments(refreshedList.sort((a, b) => 
         new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime()
       ));

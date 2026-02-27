@@ -273,6 +273,38 @@ export const PublicService = {
   },
 
   /**
+   * ✅ ARTICLES ADMIN (Intelligence Interculturelle)
+   */
+  getAdminArticles: async (page = 0, size = 12): Promise<PageResponse<ArticleReadDto>> => {
+    try {
+      console.log(`📡 [getAdminArticles] Page ${page}, Size ${size}`);
+      
+      const res = await fetch(
+        `${API_PROXY}/public/articles?page=${page}&size=${size}&sort=datePublication,desc`, 
+        { cache: 'no-store' }
+      );
+      
+      if (!res.ok) {
+        console.error(`❌ Erreur HTTP ${res.status}`);
+        return { content: [], totalElements: 0, totalPages: 0 };
+      }
+      
+      const data = await res.json();
+      
+      if (data.content && Array.isArray(data.content)) {
+        console.log(`🧹 Nettoyage de ${data.content.length} articles admin`);
+        data.content = cleanArticlesArray(data.content);
+      }
+      
+      console.log(`✅ ${data.content?.length || 0} articles admin chargés`);
+      return data;
+    } catch (e) {
+      console.error("❌ Erreur Articles Admin:", e);
+      return { content: [], totalElements: 0, totalPages: 0 };
+    }
+  },
+
+  /**
    * ✅ COMMENTAIRES
    */
   getApprovedComments: async (articleId: number): Promise<CommentaireDto[]> => {

@@ -42,7 +42,8 @@ export interface BlocContenuReadDto {
   ordre: number;
   legende: string;
   altText: string;
-  url: string;
+  url: string | null;
+  mediaUrl?: string | null;
   mediaId: string | null;
   articleId: number;
 }
