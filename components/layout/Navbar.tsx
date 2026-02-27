@@ -34,12 +34,25 @@ export default function Navbar() {
   const { user } = useAuth();
   const router = useRouter();
   
-  // Charger la langue sauvegardée au montage
+  // Charger la langue sauvegardée au montage et activer Google Translate
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('preferred_language') as Language;
       if (savedLang && ['fr', 'en', 'es', 'ru', 'ar'].includes(savedLang)) {
         setCurrentLanguage(savedLang);
+        
+        // Activer Google Translate après un délai
+        setTimeout(() => {
+          const selectElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+          if (selectElement) {
+            const langMap: Record<Language, string> = {
+              'fr': 'fr', 'en': 'en', 'es': 'es', 'ru': 'ru', 'ar': 'ar'
+            };
+            selectElement.value = langMap[savedLang];
+            selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log("✅ Langue restaurée:", savedLang);
+          }
+        }, 2000);
       }
     }
   }, []);
@@ -101,34 +114,53 @@ export default function Navbar() {
     setCurrentLanguage(lang);
     setLanguageMenuOpen(false);
     
-    // Sauvegarder la langue dans localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('preferred_language', lang);
+      
+      // Fonction pour activer Google Translate
+      const activateTranslation = () => {
+        try {
+          // Vérifier si Google Translate est chargé
+          if (!(window as any).google?.translate?.TranslateElement) {
+            console.warn("⚠️ Google Translate pas encore chargé");
+            return false;
+          }
+          
+          // Chercher le sélecteur de langue Google Translate
+          const selectElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+          if (!selectElement) {
+            console.warn("⚠️ Sélecteur Google Translate non trouvé");
+            return false;
+          }
+          
+          // Mapper les codes de langue
+          const langMap: Record<Language, string> = {
+            'fr': 'fr', 'en': 'en', 'es': 'es', 'ru': 'ru', 'ar': 'ar'
+          };
+          
+          // Changer la langue
+          selectElement.value = langMap[lang];
+          selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+          console.log("✅ Traduction activée:", lang);
+          return true;
+        } catch (error) {
+          console.error("❌ Erreur traduction:", error);
+          return false;
+        }
+      };
+      
+      // Essayer plusieurs fois avec délais croissants
+      const attempts = [100, 500, 1000, 2000];
+      attempts.forEach((delay, index) => {
+        setTimeout(() => {
+          if (activateTranslation()) {
+            console.log(`✅ Traduction réussie après ${delay}ms`);
+          } else if (index === attempts.length - 1) {
+            console.error("❌ Échec de la traduction après toutes les tentatives");
+          }
+        }, delay);
+      });
     }
-    
-    // Utiliser Google Translate pour changer la langue de la page
-    if (typeof window !== 'undefined' && (window as any).google?.translate) {
-      const googleTranslateElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-      if (googleTranslateElement) {
-        // Mapper les codes de langue
-        const langMap: Record<Language, string> = {
-          'fr': 'fr',
-          'en': 'en',
-          'es': 'es',
-          'ru': 'ru',
-          'ar': 'ar'
-        };
-        googleTranslateElement.value = langMap[lang];
-        googleTranslateElement.dispatchEvent(new Event('change'));
-      }
-    } else {
-      // Fallback: recharger la page avec le paramètre de langue
-      const url = new URL(window.location.href);
-      url.searchParams.set('lang', lang);
-      window.location.href = url.toString();
-    }
-    
-    console.log("✅ Langue changée:", lang);
   };
 
   const handleCountryClick = (countryCode: string) => {
