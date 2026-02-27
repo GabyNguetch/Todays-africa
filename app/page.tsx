@@ -438,14 +438,14 @@ export default function Home() {
           animation: carousel-slide-bg 50s linear infinite;
         }
         
-        /* Carrousel articles - défilement RAPIDE (25s) */
+        /* Carrousel articles - défilement LENT (100s) */
         @keyframes carousel-slide-articles {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
         
         .animate-carousel-slide-articles {
-          animation: carousel-slide-articles 50s linear infinite;
+          animation: carousel-slide-articles 100s linear infinite;
         }
         
         /* Défilement horizontal des articles sections */

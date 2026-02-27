@@ -14,9 +14,8 @@ import {
 export const APP_CONFIG = {
   name: "TODAY'S AFRICA INTERCULTURAL CONSULTING GROUP",
   year: 2025,
-  // ✅ CORRECTION : Utilisation du proxy local Next.js
-  
-  apiUrl: "api/proxy",
+  // ✅ CORRECTION : Utilisation directe de l'URL backend en production
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || "https://totayafrica.onrender.com/api/v1",
   backendUrl: "https://totayafrica.onrender.com/api/v1", 
   mediaBaseUrl: "https://totayafrica.onrender.com/api/v1/media/", 
 };
