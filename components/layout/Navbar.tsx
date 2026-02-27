@@ -34,6 +34,16 @@ export default function Navbar() {
   const { user } = useAuth();
   const router = useRouter();
   
+  // Charger la langue sauvegardée au montage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('preferred_language') as Language;
+      if (savedLang && ['fr', 'en', 'es', 'ru', 'ar'].includes(savedLang)) {
+        setCurrentLanguage(savedLang);
+      }
+    }
+  }, []);
+  
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -90,7 +100,35 @@ export default function Navbar() {
   const handleLanguageChange = (lang: Language) => {
     setCurrentLanguage(lang);
     setLanguageMenuOpen(false);
-    console.log("Langue changée:", lang);
+    
+    // Sauvegarder la langue dans localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred_language', lang);
+    }
+    
+    // Utiliser Google Translate pour changer la langue de la page
+    if (typeof window !== 'undefined' && (window as any).google?.translate) {
+      const googleTranslateElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+      if (googleTranslateElement) {
+        // Mapper les codes de langue
+        const langMap: Record<Language, string> = {
+          'fr': 'fr',
+          'en': 'en',
+          'es': 'es',
+          'ru': 'ru',
+          'ar': 'ar'
+        };
+        googleTranslateElement.value = langMap[lang];
+        googleTranslateElement.dispatchEvent(new Event('change'));
+      }
+    } else {
+      // Fallback: recharger la page avec le paramètre de langue
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+    
+    console.log("✅ Langue changée:", lang);
   };
 
   const handleCountryClick = (countryCode: string) => {

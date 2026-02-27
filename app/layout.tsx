@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./google-translate.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CacheManager } from "@/components/CacheManager";
 
@@ -15,7 +16,33 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
+              function googleTranslateElementInit() {
+                new google.translate.TranslateElement(
+                  {
+                    pageLanguage: 'fr',
+                    includedLanguages: 'fr,en,es,ru,ar',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false
+                  },
+                  'google_translate_element'
+                );
+              }
+            `,
+          }}
+        />
+        <script
+          type="text/javascript"
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          async
+        />
+      </head>
       <body className="antialiased">
+        <div id="google_translate_element" style={{ display: 'none' }}></div>
         <AuthProvider>
           <CacheManager />
           {children}
